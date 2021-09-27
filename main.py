@@ -1,8 +1,13 @@
+import tensorflow as tf
 from cpuinfo import get_cpu_info
+
+devices = tf.config.list_physical_devices()
+print(devices)
 
 
 class CPU:
     """Instance for obtaining 'basic' information about the current system's CPU."""
+
     def __init__(self):
         self.url = "https://productapi.intel.com/intel-product-catalogue-service/reference"
         self.info = get_cpu_info()
@@ -15,7 +20,7 @@ class CPU:
 
     def get_highest_sse(self):
         flags = self.info.get("flags")
-        sse = [flag for flag in flags if "_" not in flag and "ssse" not in flag and "sse" in flag]
+        sse = list(set([flag.replace("_", ".") for flag in flags if "ssse" not in flag and "sse" in flag]))
         sse.sort(reverse=True)
 
         return sse[0].upper()
