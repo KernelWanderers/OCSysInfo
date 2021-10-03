@@ -5,13 +5,10 @@ Sample of this:
 
 [__TODO__]
 
-<br />
 
 # Issues
 
 When opening up issues, please list all hardware information relevant, and the issue you're encountering. Show real outputs, and the expected output, etc.
-
-<br />
 
 
 # Credits
@@ -25,3 +22,5 @@ When opening up issues, please list all hardware information relevant, and the i
 - @[Rusty-bits](https://github.com/rusty-bits) for inspiring the idea of parsing the PCI IDs from the pci.ids list and layout for implementing a search functionality.
 
 - @[Rvstry](https://github.com/rvstry) for extensive help in research regarding identifying various devices on Linux platforms (screw Linux.)
+
+- @[Dids](https://github.com/Dids) for providing the URL to the raw content of the PCI IDs list repository.
