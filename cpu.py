@@ -5,6 +5,10 @@ devices = tf.config.list_physical_devices()
 print(devices)
 
 
+"""
+Instance which extracts information about the system's CPU (SSSE3, SSE version, Codename, Generation, Model, etc.)
+TODO: Refactor to use DeviceManager as parent instance.
+"""
 class CPU:
     """Instance for obtaining 'basic' information about the current system's CPU."""
 
@@ -17,6 +21,8 @@ class CPU:
         self.does_macos_work = True
         self.initial_macos_support = ""
         self.final_macos_support = ""
+
+        print(self.model)
 
     def get_highest_sse(self):
         flags = self.info.get("flags")
@@ -31,9 +37,3 @@ class CPU:
 
     def get_model_specs(self):
         return self.info.get("brand_raw")
-
-
-cpu_class = CPU()
-print(cpu_class.ssse_exists())
-print(cpu_class.get_highest_sse())
-print(cpu_class.get_model_specs())
