@@ -24,3 +24,5 @@ When opening up issues, please list all hardware information relevant, and the i
 - @[Rvstry](https://github.com/rvstry) for extensive help in research regarding identifying various devices on Linux platforms (screw Linux.)
 
 - @[Dids](https://github.com/Dids) for providing the URL to the raw content of the PCI IDs list repository.
+
+- @[Martin Mares](http://mj.ucw.cz/) and @[Albert Pool]() for the [PCI IDs list repository](https://pci-ids.ucw.cz/) ([GitHub Repo](https://github.com/pciutils/pciids))
