@@ -9,7 +9,6 @@ Sample of this:
 
 ### OCSysInfo takes advantage of each platform's native interaction protocol, except for Linux, which uses a pseudo file system & its distros expose no consistent way of obtaining this information via command/API, in order to extract information about the system's hardware manually. 
 
-<br />
 
 ### macOS
 
@@ -21,8 +20,7 @@ Sample of this:
         - Core count
         - Thread count
         - Maximum supported SSE version
-        - SSSE3 support   
-<br />
+        - SSSE3 support
 
 - `IOKit`
     - Apple's `IOKit` framework allows us to interact with the system's devices (we only seek out `IOPCIDevice` and `IOHDACodecDevice`, as more information would be overtly useless to us.)
@@ -32,8 +30,6 @@ Sample of this:
     - With `IOPCIDevice`, we're looking for PCI devices which have a specific bit mask, and we obtain the model (if exposed), device ID and vendor ID through there.
 
     - With `IOHDACodecDevice`, we simply seek out built-in audio controllers that have an HDA codec present. If nothing, that suffices our criteria, is returned, we simply look into `0x04` (bit for PCI multimedia controllers.)
-
-<br />
 
 ### Linux
 - `sysfs`
