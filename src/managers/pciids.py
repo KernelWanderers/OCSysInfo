@@ -4,6 +4,10 @@ import aiohttp
 
 
 class PCIIDs:
+    """
+    Abstraction for scraping the https://pci-ids.ucw.cz website.
+    """
+
     async def get_item(self, deviceID: str, ven: str = "any") -> str:
         content = requests.get(
             "https://pci-ids.ucw.cz/read/PC/{}/{}".format(ven, deviceID.upper()))
@@ -19,7 +23,8 @@ class PCIIDs:
                         out = res.group(0).split(':')[1].strip()
                         break
                 elif 'itemname' in line.lower():
-                    out = "Name: ".join(line.split("Name: ")[1:]).replace("&amp;","&").replace("&quot;",'"').replace("&apos;","'").replace("&gt;",">").replace("&lt;","<")
+                    out = "Name: ".join(line.split("Name: ")[1:]).replace("&amp;", "&").replace(
+                        "&quot;", '"').replace("&apos;", "'").replace("&gt;", ">").replace("&lt;", "<")
 
             if out:
                 return out
@@ -37,7 +42,9 @@ class PCIIDs:
         data = b""
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.get(url) as response:
-                assert response.status == 200
+                if response.status != 200:
+                    return None
+
                 while True:
                     chunk = await response.content.read(4*1024)  # 4k
                     data += chunk
