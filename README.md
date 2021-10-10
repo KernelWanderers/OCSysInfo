@@ -1,13 +1,14 @@
 # OCSysInfo
 
 A basic, high-level and efficient CLI for discovering hardware information about the current system.
-Sample of this:
 
-[__TODO__]
+Basic example of this:
+
+![Example](https://i.imgur.com/taFKTV0.png)
 
 ## Implementations
 
-### OCSysInfo takes advantage of each platform's native interaction protocol, except for Linux, which uses a pseudo file system & its distros expose no consistent way of obtaining this information via command/API, in order to extract information about the system's hardware manually. 
+OCSysInfo takes advantage of each platform's native interaction protocol, except for Linux, which uses a pseudo file system & its distros expose no consistent way of obtaining this information via command/API, in order to extract information about the system's hardware manually. 
 
 
 ### macOS
