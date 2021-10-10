@@ -30,16 +30,16 @@ class LinuxHardwareManager:
         cpu = cpus.split('\n\n')[0]  # Get only the first CPU identifier.
 
         model = re.search(r'(?<=model name\t\: ).+(?=\n)', cpu).group(0)
-        flags = re.search(r'(?<=flags\t\t\: ).+(?=\n)', cpu).group(0)
+        flagers = re.search(r'(?<=flags\t\t\: ).+(?=\n)', cpu).group(0)
         cores = re.search(r'(?<=cpu cores\t\: ).+(?=\n)', cpu).group(0)
         # No clue, don't ask.
         threads = subprocess.getoutput('grep -c processor /proc/cpuinfo')
 
         # List of supported SSE instructions.
-        sse = [flag.replace('_', '.') for flag in flags.split(' ') if 'sse' in flag.lower(
+        sse = [flag.replace('_', '.') for flag in flagers.split(' ') if 'sse' in flag.lower(
         ) and not 'ssse' in flag.lower()]
 
-        ssse3 = 'Supported' if 'ssse3' in flags else 'Not Available'
+        ssse3 = 'Supported' if 'ssse3' in flagers else 'Not Available'
 
         highest = list(sorted(sse, reverse=True))[0]
 
