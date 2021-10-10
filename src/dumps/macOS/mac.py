@@ -2,16 +2,28 @@ import asyncio
 import binascii
 import dumps.macOS.ioreg as ioreg
 import subprocess
+
 from managers.devicemanager import DeviceManager
-from managers.pciids import PCIIDs
-
-'''
-Instance, extending `DeviceManager`, for extracting system information
-from macOS using IOKit.
-'''
 
 
-class MacHardwareManager(DeviceManager):
+class MacHardwareManager:
+    """
+    Instance, implementing `DeviceManager`, for extracting system information
+    from macOS using the `IOKit` framework.
+
+    https://developer.apple.com/documentation/iokit
+    """
+
+    def __init__(self, parent: DeviceManager):
+        self.info = parent.info
+        self.pci = parent.pci
+
+    def dump(self):
+        self.cpu_info()
+        self.gpu_info()
+        self.net_info()
+        self.audio_info()
+
     def cpu_info(self):
         # Full list of features for this CPU.
         features = subprocess.getoutput('sysctl machdep.cpu.features')
@@ -106,7 +118,7 @@ class MacHardwareManager(DeviceManager):
             ven = (binascii.b2a_hex(
                 bytes(reversed(device.get('vendor-id')))).decode()[4:])  # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
 
-            model = asyncio.run(PCIIDs().get_item(dev, ven))
+            model = asyncio.run(self.pci.get_item(dev, ven))
 
             self.info.get('Network').append({
                 model: {
@@ -149,7 +161,7 @@ class MacHardwareManager(DeviceManager):
                 ven = hex(device.get('IOHDACodecVendorID'))[2:6]
                 dev = hex(device.get('IOHDACodecVendorID'))[6:]
 
-                model = asyncio.run(PCIIDs().get_item(deviceID=dev, ven=ven))
+                model = asyncio.run(self.pci.get_item(deviceID=dev, ven=ven))
             else:
                 dev = (binascii.b2a_hex(
                     bytes(reversed(device.get('device-id')))).decode()[4:])  # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
@@ -157,7 +169,7 @@ class MacHardwareManager(DeviceManager):
                 ven = (binascii.b2a_hex(
                     bytes(reversed(device.get('vendor-id')))).decode()[4:])  # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
 
-                model = asyncio.run(PCIIDs().get_item(dev, ven))
+                model = asyncio.run(self.pci.get_item(dev, ven))
 
             self.info.get('Audio').append({
                 model: {
