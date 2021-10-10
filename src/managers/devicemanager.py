@@ -10,6 +10,6 @@ class DeviceManager:
             "CPU": {},
             "GPU": [],
             "Network": [],
-            "Audio": {}
+            "Audio": []
         }
         self.platform = platform.system().lower()
