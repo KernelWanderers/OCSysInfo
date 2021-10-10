@@ -1,11 +1,12 @@
 import re
 
 
-"""
-Internal function to properly format nested objects / lists of objects,
-and display them to the terminal (thanks, @Dids!)
-"""
 def tree(name: str, data: list[dict] or dict, nest=1, parent="", looped: dict = {}):
+    """
+    Internal function to properly format nested objects / lists of objects,
+    and display them to the terminal (thanks, @[Dids](https://github.com/Dids)!)
+    """
+
     spacing = ""
     sp = ""
 
