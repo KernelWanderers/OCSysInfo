@@ -1,4 +1,3 @@
-import asyncio
 import binascii
 import dumps.macOS.ioreg as ioreg
 import subprocess
@@ -23,7 +22,7 @@ class MacHardwareManager:
         self.gpu_info()
         self.net_info()
         self.audio_info()
-        self.hid_info()
+        self.input_info()
 
     def cpu_info(self):
         # Full list of features for this CPU.
@@ -50,7 +49,7 @@ class MacHardwareManager:
         model = subprocess.getoutput(
             'sysctl -a | grep "brand_string"').split(': ')[1]
 
-        self.info.get('CPU').append({
+        self.info['CPU'].append({
             model: data
         })
 
@@ -83,7 +82,7 @@ class MacHardwareManager:
             ven = (binascii.b2a_hex(
                 bytes(reversed(device.get('vendor-id')))).decode()[4:])  # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
 
-            self.info.get('GPU').append({
+            self.info['GPU'].append({
                 model: {
                     'Device ID': dev,
                     'Vendor': ven,
@@ -119,9 +118,12 @@ class MacHardwareManager:
             ven = (binascii.b2a_hex(
                 bytes(reversed(device.get('vendor-id')))).decode()[4:])  # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
 
-            model = self.pci.get_item(dev, ven).get('device')
+            model = self.pci.get_item(dev, ven)
 
-            self.info.get('Network').append({
+            if model:
+                model = model.get('device')
+
+            self.info['Network'].append({
                 model: {
                     'Device ID': dev,
                     'Vendor': ven,
@@ -162,7 +164,10 @@ class MacHardwareManager:
                 ven = hex(device.get('IOHDACodecVendorID'))[2:6]
                 dev = hex(device.get('IOHDACodecVendorID'))[6:]
 
-                model = self.pci.get_item(dev, ven).get('device')
+                model = self.pci.get_item(dev, ven)
+
+                if model:
+                    model = model.get('device')
 
             else:
                 dev = (binascii.b2a_hex(
@@ -173,7 +178,7 @@ class MacHardwareManager:
 
                 model = self.pci.get_item(dev, ven).get('device')
 
-            self.info.get('Audio').append({
+            self.info['Audio'].append({
                 model: {
                     'Device ID': dev,
                     'Vendor': ven,
@@ -183,17 +188,39 @@ class MacHardwareManager:
             ioreg.IOObjectRelease(i)
 
         # If we don't find any AppleHDACodec devices (i.e. if it's a T2 Mac, find any multimedia controllers.)
-        if not self.info.get('Audio'):
+        if not self.info['Audio']:
             self.audio_info(default=True)
 
-    def hid_info(self):
+    def input_info(self):
+        if not self.info.get('Input'):
+            self.info['Input'] = []
+
         device = {
-            "IOProviderClass": "IOHIDFamily"
+            "IOProviderClass": "IOHIDDevice"
         }
 
-        interface = ioreg.ioiterator_to_list(ioreg.IOServiceGetMatchingServices(ioreg.kIOMasterPortDefault, device, None)[1])
-
-        print(ioreg.IOServiceGetMatchingServices(ioreg.kIOMasterPortDefault, device, None))
+        interface = ioreg.ioiterator_to_list(ioreg.IOServiceGetMatchingServices(
+            ioreg.kIOMasterPortDefault, device, None)[1])
 
         for i in interface:
-            print(i)
+
+            device = ioreg.corefoundation_to_native(ioreg.IORegistryEntryCreateCFProperties(
+                i, None, ioreg.kCFAllocatorDefault, ioreg.kNilOptions))[1]
+
+            name = device.get('Product')
+            hid = device.get('Transport')
+
+            if any("{} ({})".format(name, hid) in k for k in self.info['Input']):
+                continue
+
+            ven = hex(device.get('VendorID'))
+            dev = hex(device.get('ProductID'))
+
+            name = "{} ({})".format(name, hid)
+
+            self.info['Input'].append({
+                name: {
+                    'Vendor': ven[2:],
+                    'Device ID': dev[2:]
+                }
+            })
