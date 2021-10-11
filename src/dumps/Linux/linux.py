@@ -23,6 +23,7 @@ class LinuxHardwareManager:
         self.gpu_info()
         self.net_info()
         self.audio_info()
+        self.input_info()
 
     def cpu_info(self):
         cpus = subprocess.getoutput('cat /proc/cpuinfo')
@@ -95,8 +96,8 @@ class LinuxHardwareManager:
 
     def audio_info(self):
         for file in os.listdir('/sys/class/sound'):
-            
-            # Sound devices are enumerated similarly to DRM devices, 
+
+            # Sound devices are enumerated similarly to DRM devices,
             # with the format `cardX`, so we look for those, and look
             # for `vendor` and `device` files.
             if "card" in file.lower() and not "-" in file.lower():
@@ -113,3 +114,21 @@ class LinuxHardwareManager:
                         'Vendor': ven
                     }
                 })
+
+    def input_info(self):
+        devices = subprocess.getoutput('cat /proc/bus/input/devices')
+        sysfs = []
+
+        for device in devices.split('\n\n'):
+            if not "touchpad" in device.lower() and not "trackpad" in device.lower() and not "synaptics" in device.lower():
+                continue
+
+            for line in device.split('\n'):
+                if "sysfs" in line.lower():
+                    sysfs.append("/sys{}".format(line.split('=')[1]))
+
+        for path in sysfs:
+            if os.path.isfile('{}/id/vendor'.format(path)):
+                ven = subprocess.getoutput('cat {}/id/vendor'.format(path))
+                dev = subprocess.getoutput('cat {}/id/product'.format(path))
+                print(f"Vendor: {ven}\nDevice ID: {dev}\n")
