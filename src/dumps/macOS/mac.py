@@ -23,6 +23,7 @@ class MacHardwareManager:
         self.gpu_info()
         self.net_info()
         self.audio_info()
+        self.hid_info()
 
     def cpu_info(self):
         # Full list of features for this CPU.
@@ -118,7 +119,7 @@ class MacHardwareManager:
             ven = (binascii.b2a_hex(
                 bytes(reversed(device.get('vendor-id')))).decode()[4:])  # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
 
-            model = asyncio.run(self.pci.get_item(dev, ven))
+            model = self.pci.get_item(dev, ven).get('device')
 
             self.info.get('Network').append({
                 model: {
@@ -161,7 +162,8 @@ class MacHardwareManager:
                 ven = hex(device.get('IOHDACodecVendorID'))[2:6]
                 dev = hex(device.get('IOHDACodecVendorID'))[6:]
 
-                model = asyncio.run(self.pci.get_item(deviceID=dev, ven=ven))
+                model = self.pci.get_item(dev, ven).get('device')
+
             else:
                 dev = (binascii.b2a_hex(
                     bytes(reversed(device.get('device-id')))).decode()[4:])  # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
@@ -169,7 +171,7 @@ class MacHardwareManager:
                 ven = (binascii.b2a_hex(
                     bytes(reversed(device.get('vendor-id')))).decode()[4:])  # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
 
-                model = asyncio.run(self.pci.get_item(dev, ven))
+                model = self.pci.get_item(dev, ven).get('device')
 
             self.info.get('Audio').append({
                 model: {
@@ -183,3 +185,15 @@ class MacHardwareManager:
         # If we don't find any AppleHDACodec devices (i.e. if it's a T2 Mac, find any multimedia controllers.)
         if not self.info.get('Audio'):
             self.audio_info(default=True)
+
+    def hid_info(self):
+        device = {
+            "IOProviderClass": "IOHIDFamily"
+        }
+
+        interface = ioreg.ioiterator_to_list(ioreg.IOServiceGetMatchingServices(ioreg.kIOMasterPortDefault, device, None)[1])
+
+        print(ioreg.IOServiceGetMatchingServices(ioreg.kIOMasterPortDefault, device, None))
+
+        for i in interface:
+            print(i)
