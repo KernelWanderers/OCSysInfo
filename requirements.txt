@@ -1,5 +1,3 @@
 psutil
 pyobjc
 requests
-aiohttp
-asyncio
