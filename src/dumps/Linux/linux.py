@@ -54,13 +54,17 @@ class LinuxHardwareManager:
 
     def gpu_info(self):
         for file in os.listdir('/sys/class/drm/'):
+
+            # DRM devices (no FBDev) are enumerated with the format `cardX`
+            # inside of sysfs's DRM directory. So we look for those, and traverse
+            # them. We look for the `device` and `vendor` file, which should always be there.
             if 'card' in file and not '-' in file:
                 path = '/sys/class/drm/{}'.format(file)
 
                 ven = subprocess.getoutput('cat {}/device/vendor'.format(path))
                 dev = subprocess.getoutput('cat {}/device/device'.format(path))
 
-                model = asyncio.run(self.pci.get_item(dev[2:], ven[2:]))
+                model = (self.pci.get_item(dev[2:], ven[2:])).get('device')
 
                 self.info.get('GPU').append({
                     model: {
@@ -73,11 +77,14 @@ class LinuxHardwareManager:
         for file in os.listdir('/sys/class/net'):
             path = '/sys/class/net/{}/device'.format(file)
 
+            # We ensure that the enumerated directory in the sysfs net
+            # directory is a valid card, since it'll contain a `vendor` and
+            # `device` file.
             if os.path.isfile('{}/device'.format(path)):
                 ven = subprocess.getoutput('cat {}/vendor'.format(path))
                 dev = subprocess.getoutput('cat {}/device'.format(path))
 
-                model = asyncio.run(self.pci.get_item(dev[2:], ven[2:]))
+                model = self.pci.get_item(dev[2:], ven[2:]).get('device')
 
                 self.info.get('Network').append({
                     model: {
@@ -88,13 +95,17 @@ class LinuxHardwareManager:
 
     def audio_info(self):
         for file in os.listdir('/sys/class/sound'):
+            
+            # Sound devices are enumerated similarly to DRM devices, 
+            # with the format `cardX`, so we look for those, and look
+            # for `vendor` and `device` files.
             if "card" in file.lower() and not "-" in file.lower():
                 path = '/sys/class/sound/{}/device'.format(file)
 
                 ven = subprocess.getoutput('cat {}/vendor'.format(path))
                 dev = subprocess.getoutput('cat {}/device'.format(path))
 
-                model = asyncio.run(self.pci.get_item(dev[2:], ven[2:]))
+                model = self.pci.get_item(dev[2:], ven[2:]).get('device')
 
                 self.info.get('Audio').append({
                     model: {
