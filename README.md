@@ -54,6 +54,8 @@ When opening up issues, please list all hardware information relevant, and the i
 
 ## Credits
 
+- @[ObscureNightingale](https://github.com/ObscureNightingale) for writing basically the whole thing.
+
 - @[Joshj23](https://github.com/Joshj23icy) – for extensive help in researching how to discover hardware information on Linux platforms.
 
 - @[Flagers](https://github.com/flagersgit) – for general guidance and ideas regarding on how to handle specific cases properly, how to dump system information across platforms, and much more.
