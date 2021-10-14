@@ -108,4 +108,4 @@ When opening up issues, please list all hardware information relevant, and the i
 
 - @[Quist](https://github.com/nadiaholmquist) — for extensive amounts of unit testing on various hardware, they helped immensely with fool-proofing OCSysInfo as best as possible, alongside [Joshj23](https://github.com/Joshj23icy)'s immense help with unit testing.
 
-- @[flababah](https://github.com/flababah/) — for `https://github.com/flababah/cpuid.py`
+- @[flababah](https://github.com/flababah/) — for https://github.com/flababah/cpuid.py
