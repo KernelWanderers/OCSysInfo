@@ -102,8 +102,10 @@ When opening up issues, please list all hardware information relevant, and the i
 
 - @[DhinakG](https://github.com/DhinakG) — for implementing the `ioreg` abstraction for [`OCLP`](https://github.com/dortania/OpenCore-Legacy-Patcher), and allowing us to copy it over for our own purposes.
 
-- @[CorpNewt](https://github.com/CorpNewt) — for implementing the logic of scraping the [`pci-ids`](https://pci-ids.ucw.cz) repository site.
+- @[CorpNewt](https://github.com/CorpNewt) — for implementing the logic of scraping the [`pci-ids`](https://pci-ids.ucw.cz) repository site, and allowing us to use their CLI format.
 
 - @[ScoobyChan](https://github.com/ScoobyChan) — for guidance and helping with the implementation of Linux's flags detection.
 
 - @[Quist](https://github.com/nadiaholmquist) — for extensive amounts of unit testing on various hardware, they helped immensely with fool-proofing OCSysInfo as best as possible, alongside [Joshj23](https://github.com/Joshj23icy)'s immense help with unit testing.
+
+- @[flababah](https://github.com/flababah/) — for `https://github.com/flababah/cpuid.py`
