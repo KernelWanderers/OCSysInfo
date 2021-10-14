@@ -1,7 +1,7 @@
 import re
 
 
-def tree(name: str, data: list[dict] or dict, nest=1, parent="", looped: dict = {}):
+def tree(name, data, nest=1, parent="", looped={}, value=""):
     """
     Internal function to properly format nested objects / lists of objects,
     and display them to the terminal (thanks, @[Dids](https://github.com/Dids)!)
@@ -18,7 +18,7 @@ def tree(name: str, data: list[dict] or dict, nest=1, parent="", looped: dict = 
 
     if isinstance(data, dict):
         if nest == 1:
-            print(f"{spacing}{name}")
+            value += f"{spacing}{name}\n"
 
         for key in data:
 
@@ -30,22 +30,25 @@ def tree(name: str, data: list[dict] or dict, nest=1, parent="", looped: dict = 
                     ("├── " if i < l else '└── ')
 
             if len(key) and isinstance(data[key], dict):
-                print(f"{sp}{key}")
-                tree(key, data[key], nest=nest+1,
-                     parent=sp, looped={'i': 1})
+                value += f"{sp}{key}\n"
+                value = tree(key, data[key], nest=nest+1,
+                              parent=sp, looped={'i': 1}, value=value)
 
             else:
                 if i >= l:
-                    print(f"{re.sub(r'├', '└', sp)}{key}: {data[key]}")
+                    value += f"{re.sub(r'├', '└', sp)}{key}: {data[key]}\n"
                 else:
-                    print(f"{sp}{key}: {data[key]}")
+                    value += f"{sp}{key}: {data[key]}\n"
 
             i += 1
 
     elif isinstance(data, list):
-        print(f"{spacing}{name}")
+        value += f"{spacing}{name}\n"
+
         i = 1
         for d in data:
-            tree(name, d, nest=nest+1, parent=spacing,
-                 looped={'i': i, 'l': len(data)})
+            value = tree(name, d, nest=nest+1, parent=spacing,
+                          looped={'i': i, 'l': len(data)}, value=value)
             i += 1
+
+    return value
