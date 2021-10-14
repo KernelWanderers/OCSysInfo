@@ -56,7 +56,7 @@ class LinuxHardwareManager:
     def gpu_info(self):
         for file in os.listdir('/sys/class/drm/'):
 
-            # DRM devices (no FBDev) are enumerated with the format `cardX`
+            # DRM devices (not FBDev) are enumerated with the format `cardX`
             # inside of sysfs's DRM directory. So we look for those, and traverse
             # them. We look for the `device` and `vendor` file, which should always be there.
             if 'card' in file and not '-' in file:
@@ -66,6 +66,19 @@ class LinuxHardwareManager:
                 dev = subprocess.getoutput('cat {}/device/device'.format(path))
 
                 model = (self.pci.get_item(dev[2:], ven[2:])).get('device')
+
+                igpu = self.intel.get(dev, {})
+
+                if igpu:
+                    CPU = self.info['CPU'][0][list(
+                        self.info['CPU'][0].keys())[0]]
+
+                    self.info['CPU'][0] = {
+                        list(self.info['CPU'][0].keys())[0]: {
+                            **CPU,
+                            'Codename': igpu.get('codename')
+                        }
+                    }
 
                 self.info.get('GPU').append({
                     model: {
