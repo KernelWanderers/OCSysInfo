@@ -14,7 +14,7 @@ from root import root
 class UI:
     """
     Instance responsible for properly formatting,
-    display data about the system, providing options,
+    displaying data about the system, providing options,
     and handling specific CLI commands.
     """
 
