@@ -41,7 +41,7 @@ OCSysInfo takes advantage of each platform's native interaction protocol, except
 
   - Devices enumerated inside of `/sys/class/net` are classified only if they contain a `*/device/device` and `*/device/vendor` file (so that we can at least have a strong assumption that it'd be a valid network controller.)
 
-  - Devices enumerated inside of `/sys/class/sound` are looked at for the audio controllers – generally, they'll have a relatively similar enumerations as `drm` devices – as a `cardX` format.
+  - Devices enumerated inside of `/sys/class/sound` are looked at for the audio controllers — generally, they'll have a relatively similar enumerations as `drm` devices — as a `cardX` format.
 
 - `proc`
   - General CPU information is extracted via `/proc/cpuinfo`
@@ -54,20 +54,22 @@ When opening up issues, please list all hardware information relevant, and the i
 
 ## Credits
 
-- @[Joshj23](https://github.com/Joshj23icy) – for extensive help in researching how to discover hardware information on Linux platforms.
+- @[Joshj23](https://github.com/Joshj23icy) — for extensive help in researching how to discover hardware information on Linux platforms, and providing a big portion of machines used for unit testing.
 
-- @[Flagers](https://github.com/flagersgit) – for general guidance and ideas regarding on how to handle specific cases properly, how to dump system information across platforms, and much more.
+- @[Flagers](https://github.com/flagersgit) — for general guidance, documentation reference, implemnetion ideas, general support, documentation, and much, much more.
 
-- @[Acidanthera](https://github.com/Acidanthera) – for the OpenCore bootloader (its community is what drew inspiration for this project.)
+- @[Acidanthera](https://github.com/Acidanthera) — for the OpenCore bootloader (its community is what drew inspiration for this project.)
 
-- @[Rusty-bits](https://github.com/rusty-bits) – for inspiring the idea of parsing the PCI IDs from the pci.ids list and layout for implementing a search functionality. _Though sadly, this idea never reached production._
+- @[Rusty-bits](https://github.com/rusty-bits) — for inspiring the idea of parsing the PCI IDs from the pci.ids list and layout for implementing a search functionality. _Though sadly, this idea never reached production._
 
-- @[Rvstry](https://github.com/rvstry) – for extensive help in research regarding identifying various devices on Linux platforms (screw Linux.)
+- @[Rvstry](https://github.com/rvstry) — for extensive help in research regarding identifying various devices on Linux platforms.
 
-- @[Dids](https://github.com/Dids) – for providing the URL to the raw content of the PCI IDs list repository. _Though sadly, this was never used, as we turned more towards scraping [the site](https://pci-ids.ucw.cz)_
+- @[Dids](https://github.com/Dids) — for providing the URL to the raw content of the PCI IDs list repository. _Though sadly, this was never used, as we turned more towards scraping [the site](https://pci-ids.ucw.cz)_
 
-- @[DhinakG](https://github.com/DhinakG) – for implementing the `ioreg` abstraction for [`OCLP`](https://github.com/dortania/OpenCore-Legacy-Patcher), and allowing us to copy it over for our own purposes.
+- @[DhinakG](https://github.com/DhinakG) — for implementing the `ioreg` abstraction for [`OCLP`](https://github.com/dortania/OpenCore-Legacy-Patcher), and allowing us to copy it over for our own purposes.
 
 - @[CorpNewt](https://github.com/CorpNewt) — for implementing the logic of scraping the [`pci-ids`](https://pci-ids.ucw.cz) repository site.
 
 - @[ScoobyChan](https://github.com/ScoobyChan) — for guidance and helping with the implementation of Linux's flags detection.
+
+- @[Quist](https://github.com/nadiaholmquist) - for extensive amounts of unit testing on various hardware, they helped immensely with fool-proofing OCSysInfo as best as possible, alongside [Joshj23](https://github.com/Joshj23icy)'s immense help with unit testing.
