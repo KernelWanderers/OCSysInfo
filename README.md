@@ -90,7 +90,7 @@ When opening up issues, please list all hardware information relevant, and the i
 
 - @[Joshj23](https://github.com/Joshj23icy) — for extensive help in researching how to discover hardware information on Linux platforms, and providing a big portion of machines used for unit testing.
 
-- @[Flagers](https://github.com/flagersgit) — for general guidance, documentation reference, implemnetion ideas, general support, documentation, and much, much more.
+- @[Flagers](https://github.com/flagersgit) — for general guidance, documentation reference, implementation ideas, general support, documentation, and much, much more.
 
 - @[Acidanthera](https://github.com/Acidanthera) — for the OpenCore bootloader (its community is what drew inspiration for this project.)
 
