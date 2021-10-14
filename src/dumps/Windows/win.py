@@ -1,8 +1,7 @@
-import os
 import re
 import subprocess
 from .cpuid import CPUID
-from managers.devicemanager import DeviceManager
+
 
 class WindowsHardwareManager:
     """
@@ -12,7 +11,7 @@ class WindowsHardwareManager:
     https://docs.microsoft.com/en-us/windows/win32/wmisdk/wmi-start-page
     """
 
-    def __init__(self, parent: DeviceManager):
+    def __init__(self, parent):
         self.info = parent.info
         self.pci = parent.pci
         self.intel = parent.intel
@@ -102,15 +101,14 @@ class WindowsHardwareManager:
             if match:
                 ven, dev = [x.split('_')[1] for x in match.group(0).split('&')]
 
-                igpu = self.intel.get(dev, {})
+                igpu = self.intel.get(dev.upper(), {})
 
                 if igpu:
                     CPU = self.info['CPU'][0][list(
                         self.info['CPU'][0].keys())[0]]
 
                     self.info['CPU'][0] = {
-                        list(self.info['CPU'][0].keys())[0]: {
-                            **CPU,
+                        list(self.info['CPU'][0].keys())[0]: CPU | {
                             'Codename': igpu.get('codename')
                         }
                     }
