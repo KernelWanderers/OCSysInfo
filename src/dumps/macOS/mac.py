@@ -36,6 +36,11 @@ class MacHardwareManager:
             'Threads': subprocess.getoutput('sysctl machdep.cpu.thread_count').split(': ')[1] + " threads"
         }
 
+        # This will fail if the CPU is _not_
+        # of an x86-like architecture, which
+        # traditionally uses the CPUID instruction.
+        #
+        # See: https://en.wikipedia.org/wiki/CPUID
         if features:
             # Highest supported SSE version.
             data['SSE'] = sorted(list(filter(lambda f: 'sse' in f.lower(
@@ -82,10 +87,23 @@ class MacHardwareManager:
             ven = (binascii.b2a_hex(
                 bytes(reversed(device.get('vendor-id')))).decode()[4:])  # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
 
+            igpu = self.intel.get(dev, {})
+
+            if igpu:
+                CPU = self.info['CPU'][0][list(
+                    self.info['CPU'][0].keys())[0]]
+
+                self.info['CPU'][0] = {
+                    list(self.info['CPU'][0].keys())[0]: {
+                        **CPU,
+                        'Codename': igpu.get('codename')
+                    }
+                }
+
             self.info['GPU'].append({
                 model: {
-                    'Device ID': dev,
-                    'Vendor': ven,
+                    'Device ID': "0x" + dev,
+                    'Vendor': "0x" + ven,
                 }
             })
 
@@ -125,8 +143,8 @@ class MacHardwareManager:
 
             self.info['Network'].append({
                 model: {
-                    'Device ID': dev,
-                    'Vendor': ven,
+                    'Device ID': "0x" + dev,
+                    'Vendor': "0x" + ven,
                 }
             })
 
@@ -180,15 +198,18 @@ class MacHardwareManager:
 
             self.info['Audio'].append({
                 model: {
-                    'Device ID': dev,
-                    'Vendor': ven,
+                    'Device ID': "0x" + dev,
+                    'Vendor': "0x" + ven,
                 }
             })
 
             ioreg.IOObjectRelease(i)
 
-        # If we don't find any AppleHDACodec devices (i.e. if it's a T2 Mac, find any multimedia controllers.)
-        if not self.info['Audio']:
+        # If we don't find any AppleHDACodec devices (i.e. if it's a T2 Mac, try to find any multimedia controllers.)
+        # This _will_ also fail on non-x86* architectures.
+        #
+        # See: https://en.wikipedia.org/wiki/Intel_High_Definition_Audio#Host_controller
+        if not self.info['Audio'] and not default:
             self.audio_info(default=True)
 
     def input_info(self):
@@ -220,7 +241,7 @@ class MacHardwareManager:
 
             self.info['Input'].append({
                 name: {
-                    'Vendor': ven[2:],
-                    'Device ID': dev[2:]
+                    'Vendor': ven,
+                    'Device ID': dev
                 }
             })
