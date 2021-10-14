@@ -48,7 +48,7 @@ class PCIIDs:
         device = ""
 
         for line in content.text.split('\n'):
-            if 'itemname' in line.lower():
+            if 'itemname' in line.lower() and ">name" in line.lower():
                 device = line.split('Name: ')[1]
 
         return {'device': device} if device else None
