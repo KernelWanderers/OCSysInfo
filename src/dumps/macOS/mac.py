@@ -2,8 +2,6 @@ import binascii
 import dumps.macOS.ioreg as ioreg
 import subprocess
 
-from managers.devicemanager import DeviceManager
-
 
 class MacHardwareManager:
     """
@@ -13,9 +11,10 @@ class MacHardwareManager:
     https://developer.apple.com/documentation/iokit
     """
 
-    def __init__(self, parent: DeviceManager):
+    def __init__(self, parent):
         self.info = parent.info
         self.pci = parent.pci
+        self.intel = parent.intel
 
     def dump(self):
         self.cpu_info()
@@ -29,6 +28,12 @@ class MacHardwareManager:
         features = subprocess.getoutput('sysctl machdep.cpu.features')
 
         data = {
+            # Highest supported SSE version.
+            'SSE': '',
+
+            # SSSE3 instruction availability
+            'SSSE3': '',
+
             # Amount of cores for this processor.
             'Cores': subprocess.getoutput('sysctl machdep.cpu.core_count').split(': ')[1] + " cores",
 
@@ -80,6 +85,7 @@ class MacHardwareManager:
                 i, None, ioreg.kCFAllocatorDefault, ioreg.kNilOptions))[1]
 
             model = bytes(device.get('model')).decode()
+            model = model[0:len(model) - 1]
 
             dev = (binascii.b2a_hex(
                 bytes(reversed(device.get('device-id')))).decode()[4:])  # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
@@ -87,15 +93,14 @@ class MacHardwareManager:
             ven = (binascii.b2a_hex(
                 bytes(reversed(device.get('vendor-id')))).decode()[4:])  # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
 
-            igpu = self.intel.get(dev, {})
+            igpu = self.intel.get(dev.upper(), {})
 
             if igpu:
                 CPU = self.info['CPU'][0][list(
                     self.info['CPU'][0].keys())[0]]
 
                 self.info['CPU'][0] = {
-                    list(self.info['CPU'][0].keys())[0]: {
-                        **CPU,
+                    list(self.info['CPU'][0].keys())[0]: CPU | {
                         'Codename': igpu.get('codename')
                     }
                 }
