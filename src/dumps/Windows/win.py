@@ -3,8 +3,6 @@ import re
 import subprocess
 from .cpuid import CPUID
 from managers.devicemanager import DeviceManager
-from .instructions import PF_XMMI64_INSTRUCTIONS_AVAILABLE, PF_SSE3_INSTRUCTIONS_AVAILABLE, PF_XMMI_INSTRUCTIONS_AVAILABLE
-
 
 class WindowsHardwareManager:
     """
