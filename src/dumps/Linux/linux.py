@@ -133,7 +133,7 @@ class LinuxHardwareManager:
         sysfs = []
 
         for device in devices.split('\n\n'):
-            if not "touchpad" in device.lower() and not "trackpad" in device.lower() and not "synaptics" in device.lower():
+            if not any((x in device.lower() for x in ("touchpad", "trackpad", "synaptics"))):
                 continue
 
             for line in device.split('\n'):
