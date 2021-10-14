@@ -1,0 +1,1262 @@
+{
+    "4905": {
+        "name": "Intel(R) Iris(R) Xe MAX Graphics",
+        "architecture": "Xe",
+        "codename": "DG1"
+    },
+    "9A60": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Xe",
+        "codename": "Tiger Lake"
+    },
+    "9A68": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Xe",
+        "codename": "Tiger Lake"
+    },
+    "9A70": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Xe",
+        "codename": "Tiger Lake"
+    },
+    "9A40": {
+        "name": "Intel(R) Iris(R) Xe Graphics",
+        "architecture": "Xe",
+        "codename": "Tiger Lake"
+    },
+    "9A49": {
+        "name": "Intel(R) Iris(R) Xe Graphics",
+        "architecture": "Xe",
+        "codename": "Tiger Lake"
+    },
+    "9A78": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Xe",
+        "codename": "Tiger Lake"
+    },
+    "9AC0": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Xe",
+        "codename": "Tiger Lake"
+    },
+    "9AC9": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Xe",
+        "codename": "Tiger Lake"
+    },
+    "9AD9": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Xe",
+        "codename": "Tiger Lake"
+    },
+    "9AF8": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Xe",
+        "codename": "Tiger Lake"
+    },
+    "8A71": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen11",
+        "codename": "Ice Lake"
+    },
+    "8A56": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Gen11",
+        "codename": "Ice Lake"
+    },
+    "8A58": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Gen11",
+        "codename": "Ice Lake"
+    },
+    "8A5B": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen11",
+        "codename": "Ice Lake"
+    },
+    "8A5D": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen11",
+        "codename": "Ice Lake"
+    },
+    "8A54": {
+        "name": "Intel(R) Iris(R) Plus Graphics",
+        "architecture": "Gen11",
+        "codename": "Ice Lake"
+    },
+    "8A5A": {
+        "name": "Intel(R) Iris(R) Plus Graphics",
+        "architecture": "Gen11",
+        "codename": "Ice Lake"
+    },
+    "8A5C": {
+        "name": "Intel(R) Iris(R) Plus Graphics",
+        "architecture": "Gen11",
+        "codename": "Ice Lake"
+    },
+    "8A57": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen11",
+        "codename": "Ice Lake"
+    },
+    "8A59": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen11",
+        "codename": "Ice Lake"
+    },
+    "8A50": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen11",
+        "codename": "Ice Lake"
+    },
+    "8A51": {
+        "name": "Intel(R) Iris(R) Plus Graphics",
+        "architecture": "Gen11",
+        "codename": "Ice Lake"
+    },
+    "8A52": {
+        "name": "Intel(R) Iris(R) Plus Graphics",
+        "architecture": "Gen11",
+        "codename": "Ice Lake"
+    },
+    "8A53": {
+        "name": "Intel(R) Iris(R) Plus Graphics",
+        "architecture": "Gen11",
+        "codename": "Ice Lake"
+    },
+    "3EA5": {
+        "name": "Intel(R) Iris(R) Plus Graphics 655",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "3EA8": {
+        "name": "Intel(R) Iris(R) Plus Graphics 655",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "3EA6": {
+        "name": "Intel(R) Iris(R) Plus Graphics 645",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "3EA7": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "3EA2": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "3E90": {
+        "name": "Intel(R) UHD Graphics 610",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "3E93": {
+        "name": "Intel(R) UHD Graphics 610",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "3E99": {
+        "name": "Intel(R) UHD Graphics 610",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "3E9C": {
+        "name": "Intel(R) UHD Graphics 610",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "3EA1": {
+        "name": "Intel(R) UHD Graphics 610",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "9BA5": {
+        "name": "Intel(R) UHD Graphics 610",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "9BA8": {
+        "name": "Intel(R) UHD Graphics 610",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "3EA4": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "9B21": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "9BA0": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "9BA2": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "9BA4": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "9BAA": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "9BAB": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "9BAC": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "87CA": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "3EA3": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "9B41": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "9BC0": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "9BC2": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "9BC4": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "9BCA": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "9BCB": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "9BCC": {
+        "name": "Intel(R) UHD Graphics",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "3E91": {
+        "name": "Intel(R) UHD Graphics 630",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "3E92": {
+        "name": "Intel(R) UHD Graphics 630",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "3E98": {
+        "name": "Intel(R) UHD Graphics 630",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "3E9B": {
+        "name": "Intel(R) UHD Graphics 630",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "9BC5": {
+        "name": "Intel(R) UHD Graphics 630",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "9BC8": {
+        "name": "Intel(R) UHD Graphics 630",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "3E96": {
+        "name": "Intel(R) UHD Graphics P630",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "3E9A": {
+        "name": "Intel(R) UHD Graphics P630",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "3E94": {
+        "name": "Intel(R) UHD Graphics P630",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "9BC6": {
+        "name": "Intel(R) UHD Graphics P630",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "9BE6": {
+        "name": "Intel(R) UHD Graphics P630",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "9BF6": {
+        "name": "Intel(R) UHD Graphics P630",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "3EA9": {
+        "name": "Intel(R) UHD Graphics 620",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "3EA0": {
+        "name": "Intel(R) UHD Graphics 620",
+        "architecture": "Gen9",
+        "codename": "Coffee Lake"
+    },
+    "593B": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen9",
+        "codename": "Kaby Lake"
+    },
+    "5923": {
+        "name": "Intel(R) HD Graphics 635",
+        "architecture": "Gen9",
+        "codename": "Kaby Lake"
+    },
+    "5926": {
+        "name": "Intel(R) Iris(R) Plus Graphics 640",
+        "architecture": "Gen9",
+        "codename": "Kaby Lake"
+    },
+    "5927": {
+        "name": "Intel(R) Iris(R) Plus Graphics 650",
+        "architecture": "Gen9",
+        "codename": "Kaby Lake"
+    },
+    "5917": {
+        "name": "Intel(R) UHD Graphics 620",
+        "architecture": "Gen9",
+        "codename": "Kaby Lake"
+    },
+    "5912": {
+        "name": "Intel(R) HD Graphics 630",
+        "architecture": "Gen9",
+        "codename": "Kaby Lake"
+    },
+    "591B": {
+        "name": "Intel(R) HD Graphics 630",
+        "architecture": "Gen9",
+        "codename": "Kaby Lake"
+    },
+    "5916": {
+        "name": "Intel(R) HD Graphics 620",
+        "architecture": "Gen9",
+        "codename": "Kaby Lake"
+    },
+    "5921": {
+        "name": "Intel(R) HD Graphics 620",
+        "architecture": "Gen9",
+        "codename": "Kaby Lake"
+    },
+    "591A": {
+        "name": "Intel(R) HD Graphics P630",
+        "architecture": "Gen9",
+        "codename": "Kaby Lake"
+    },
+    "591D": {
+        "name": "Intel(R) HD Graphics P630",
+        "architecture": "Gen9",
+        "codename": "Kaby Lake"
+    },
+    "591E": {
+        "name": "Intel(R) HD Graphics 615",
+        "architecture": "Gen9",
+        "codename": "Kaby Lake"
+    },
+    "591C": {
+        "name": "Intel(R) UHD Graphics 615",
+        "architecture": "Gen9",
+        "codename": "Kaby Lake"
+    },
+    "87C0": {
+        "name": "Intel(R) UHD Graphics 617",
+        "architecture": "Gen9",
+        "codename": "Kaby Lake"
+    },
+    "5913": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen9",
+        "codename": "Kaby Lake"
+    },
+    "5915": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen9",
+        "codename": "Kaby Lake"
+    },
+    "5902": {
+        "name": "Intel(R) HD Graphics 610",
+        "architecture": "Gen9",
+        "codename": "Kaby Lake"
+    },
+    "5906": {
+        "name": "Intel(R) HD Graphics 610",
+        "architecture": "Gen9",
+        "codename": "Kaby Lake"
+    },
+    "590B": {
+        "name": "Intel(R) HD Graphics 610",
+        "architecture": "Gen9",
+        "codename": "Kaby Lake"
+    },
+    "590A": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen9",
+        "codename": "Kaby Lake"
+    },
+    "5908": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen9",
+        "codename": "Kaby Lake"
+    },
+    "590E": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen9",
+        "codename": "Kaby Lake"
+    },
+    "3185": {
+        "name": "Intel(R) UHD Graphics 600",
+        "architecture": "Gen9",
+        "codename": "Gemini Lake"
+    },
+    "3184": {
+        "name": "Intel(R) UHD Graphics 605",
+        "architecture": "Gen9",
+        "codename": "Gemini Lake"
+    },
+    "1A85": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen9",
+        "codename": "Apollo Lake"
+    },
+    "5A85": {
+        "name": "Intel(R) HD Graphics 500",
+        "architecture": "Gen9",
+        "codename": "Apollo Lake"
+    },
+    "0A84": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen9",
+        "codename": "Apollo Lake"
+    },
+    "1A84": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen9",
+        "codename": "Apollo Lake"
+    },
+    "5A84": {
+        "name": "Intel(R) HD Graphics 505",
+        "architecture": "Gen9",
+        "codename": "Apollo Lak"
+    },
+    "192A": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "1932": {
+        "name": "Intel(R) Iris(R) Pro Graphics 580",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "193B": {
+        "name": "Intel(R) Iris(R) Pro Graphics 580",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "193A": {
+        "name": "Intel(R) Iris(R) Pro Graphics P580",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "193D": {
+        "name": "Intel(R) Iris(R) Pro Graphics P580",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "1923": {
+        "name": "Intel(R) HD Graphics 535",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "1926": {
+        "name": "Intel(R) Iris(R) Graphics 540",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "1927": {
+        "name": "Intel(R) Iris(R) Graphics 550",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "192B": {
+        "name": "Intel(R) Iris(R) Graphics 555",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "192D": {
+        "name": "Intel(R) Iris(R) Graphics P555",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "1912": {
+        "name": "Intel(R) HD Graphics 530",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "191B": {
+        "name": "Intel(R) HD Graphics 530",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "1913": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "1915": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "1917": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "191A": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "1916": {
+        "name": "Intel(R) HD Graphics 520",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "1921": {
+        "name": "Intel(R) HD Graphics 520",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "191D": {
+        "name": "Intel(R) HD Graphics P530",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "191E": {
+        "name": "Intel(R) HD Graphics 515",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "1902": {
+        "name": "Intel(R) HD Graphics 510",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "1906": {
+        "name": "Intel(R) HD Graphics 510",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "190B": {
+        "name": "Intel(R) HD Graphics 510",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "190A": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "190E": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen9",
+        "codename": "Skylake"
+    },
+    "1622": {
+        "name": "Intel(R) Iris(R) Pro Graphics 6200",
+        "architecture": "Gen8",
+        "codename": "Broadwell"
+    },
+    "1626": {
+        "name": "Intel(R) HD Graphics 6000",
+        "architecture": "Gen8",
+        "codename": "Broadwell"
+    },
+    "162A": {
+        "name": "Intel(R) Iris(R) Pro Graphics P6300",
+        "architecture": "Gen8",
+        "codename": "Broadwell"
+    },
+    "162B": {
+        "name": "Intel(R) Iris(R) Graphics 6100",
+        "architecture": "Gen8",
+        "codename": "Broadwell"
+    },
+    "162D": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen8",
+        "codename": "Broadwell"
+    },
+    "162E": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen8",
+        "codename": "Broadwell"
+    },
+    "1612": {
+        "name": "Intel(R) HD Graphics 5600",
+        "architecture": "Gen8",
+        "codename": "Broadwell"
+    },
+    "1616": {
+        "name": "Intel(R) HD Graphics 5500",
+        "architecture": "Gen8",
+        "codename": "Broadwell"
+    },
+    "161A": {
+        "name": "Intel(R) HD Graphics P5700",
+        "architecture": "Gen8",
+        "codename": "Broadwell"
+    },
+    "161B": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen8",
+        "codename": "Broadwell"
+    },
+    "161D": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen8",
+        "codename": "Broadwell"
+    },
+    "161E": {
+        "name": "Intel(R) HD Graphics 5300",
+        "architecture": "Gen8",
+        "codename": "Broadwell"
+    },
+    "1602": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen8",
+        "codename": "Broadwell"
+    },
+    "1606": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen8",
+        "codename": "Broadwell"
+    },
+    "160A": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen8",
+        "codename": "Broadwell"
+    },
+    "160B": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen8",
+        "codename": "Broadwell"
+    },
+    "160D": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen8",
+        "codename": "Broadwell"
+    },
+    "160E": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen8",
+        "codename": "Broadwell"
+    },
+    "22B0": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen8",
+        "codename": "Cherryview"
+    },
+    "22B2": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen8",
+        "codename": "Cherryview"
+    },
+    "22B3": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen8",
+        "codename": "Cherryview"
+    },
+    "22B1": {
+        "name": "Intel(R) HD Graphics XXX",
+        "architecture": "Gen8",
+        "codename": "Cherryview"
+    },
+    "0F31": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Bay Trail"
+    },
+    "0F32": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Bay Trail"
+    },
+    "0F33": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Bay Trail"
+    },
+    "0157": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Bay Trail"
+    },
+    "0155": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Bay Trail"
+    },
+    "0422": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0426": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "042A": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "042B": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "042E": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0C22": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0C26": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0C2A": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0C2B": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0C2E": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0A22": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0A2A": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0A2B": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0D2A": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0D2B": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0D2E": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0A26": {
+        "name": "Intel(R) HD Graphics 5000",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0A2E": {
+        "name": "Intel(R) Iris(R) Graphics 5100",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0D22": {
+        "name": "Intel(R) Iris(R) Pro Graphics 5200",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0D26": {
+        "name": "Intel(R) Iris(R) Pro Graphics P5200",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0412": {
+        "name": "Intel(R) HD Graphics 4600",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0416": {
+        "name": "Intel(R) HD Graphics 4600",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0D12": {
+        "name": "Intel(R) HD Graphics 4600",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "041A": {
+        "name": "Intel(R) HD Graphics P4600/P4700",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "041B": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0C12": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0C16": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0C1A": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0C1B": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0C1E": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0A12": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0A1A": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0A1B": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0D16": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0D1A": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0D1B": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0D1E": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "041E": {
+        "name": "Intel(R) HD Graphics 4400",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0A16": {
+        "name": "Intel(R) HD Graphics 4400",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0A1E": {
+        "name": "Intel(R) HD Graphics 4200",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0402": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0406": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "040A": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "040B": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "040E": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0C02": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0C06": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0C0A": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0C0B": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0C0E": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0A02": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0A06": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0A0A": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0A0B": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0A0E": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0D02": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0D06": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0D0A": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0D0B": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0D0E": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Haswell"
+    },
+    "0162": {
+        "name": "Intel(R) HD Graphics 4000",
+        "architecture": "Gen7",
+        "codename": "Ivybridge"
+    },
+    "0166": {
+        "name": "Intel(R) HD Graphics 4000",
+        "architecture": "Gen7",
+        "codename": "Ivybridge"
+    },
+    "016A": {
+        "name": "Intel(R) HD Graphics P4000",
+        "architecture": "Gen7",
+        "codename": "Ivybridge"
+    },
+    "0152": {
+        "name": "Intel(R) HD Graphics 2500",
+        "architecture": "Gen7",
+        "codename": "Ivybridge"
+    },
+    "0156": {
+        "name": "Intel(R) HD Graphics 2500",
+        "architecture": "Gen7",
+        "codename": "Ivybridge"
+    },
+    "015A": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "Gen7",
+        "codename": "Ivybridge"
+    },
+    "0112": {
+        "name": "Intel(R) HD Graphics 3000",
+        "architecture": "Gen6",
+        "codename": "Sandybridge"
+    },
+    "0122": {
+        "name": "Intel(R) HD Graphics 3000",
+        "architecture": "Gen6",
+        "codename": "Sandybridge"
+    },
+    "0116": {
+        "name": "Intel(R) HD Graphics 3000",
+        "architecture": "Gen6",
+        "codename": "Sandybridge"
+    },
+    "0126": {
+        "name": "Intel(R) HD Graphics 3000",
+        "architecture": "Gen6",
+        "codename": "Sandybridge"
+    },
+    "0102": {
+        "name": "Intel(R) HD Graphics 2000",
+        "architecture": "Gen6",
+        "codename": "Sandybridge"
+    },
+    "0106": {
+        "name": "Intel(R) HD Graphics 2000",
+        "architecture": "Gen6",
+        "codename": "Sandybridge"
+    },
+    "010A": {
+        "name": "Intel(R) HD Graphics 2000",
+        "architecture": "Gen6",
+        "codename": "Sandybridge"
+    },
+    "0042": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "5",
+        "codename": "Ironlake"
+    },
+    "0046": {
+        "name": "Intel(R) HD Graphics",
+        "architecture": "5",
+        "codename": "Ironlake"
+    },
+    "2A42": {
+        "name": "Mobile Intel(R) GM45 Express Chipset",
+        "architecture": "",
+        "codename": ""
+    },
+    "2E02": {
+        "name": "Intel(R) Integrated Graphics Device",
+        "architecture": "",
+        "codename": ""
+    },
+    "2E12": {
+        "name": "Intel(R) Q45/Q43",
+        "architecture": "",
+        "codename": ""
+    },
+    "2E22": {
+        "name": "Intel(R) G45/G43",
+        "architecture": "",
+        "codename": ""
+    },
+    "2E32": {
+        "name": "Intel(R) G41",
+        "architecture": "",
+        "codename": ""
+    },
+    "2E42": {
+        "name": "Intel(R) B43",
+        "architecture": "",
+        "codename": ""
+    },
+    "2E92": {
+        "name": "Intel(R) B43",
+        "architecture": "",
+        "codename": ""
+    },
+    "29A2": {
+        "name": "Intel(R) 965G",
+        "architecture": "",
+        "codename": ""
+    },
+    "2982": {
+        "name": "Intel(R) 965G",
+        "architecture": "",
+        "codename": ""
+    },
+    "2992": {
+        "name": "Intel(R) 965Q",
+        "architecture": "",
+        "codename": ""
+    },
+    "2972": {
+        "name": "Intel(R) 946GZ",
+        "architecture": "",
+        "codename": ""
+    },
+    "2A02": {
+        "name": "Intel(R) 965GM",
+        "architecture": "",
+        "codename": ""
+    },
+    "2A12": {
+        "name": "Intel(R) 965GME/GLE",
+        "architecture": "",
+        "codename": ""
+    },
+    "A001": {
+        "name": "Intel(R) Pineview",
+        "architecture": "",
+        "codename": ""
+    },
+    "A011": {
+        "name": "Intel(R) Pineview M",
+        "architecture": "",
+        "codename": ""
+    },
+    "29D2": {
+        "name": "Intel(R) Q33",
+        "architecture": "",
+        "codename": ""
+    },
+    "29C2": {
+        "name": "Intel(R) G33",
+        "architecture": "",
+        "codename": ""
+    },
+    "29B2": {
+        "name": "Intel(R) Q35",
+        "architecture": "",
+        "codename": ""
+    },
+    "27AE": {
+        "name": "Intel(R) 945GME",
+        "architecture": "",
+        "codename": ""
+    },
+    "27A2": {
+        "name": "Intel(R) 945GM",
+        "architecture": "",
+        "codename": ""
+    },
+    "2772": {
+        "name": "Intel(R) 945G",
+        "architecture": "",
+        "codename": ""
+    },
+    "2592": {
+        "name": "Intel(R) 915GM",
+        "architecture": "",
+        "codename": ""
+    },
+    "258A": {
+        "name": "Intel(R) E7221G (i915)",
+        "architecture": "",
+        "codename": ""
+    },
+    "2582": {
+        "name": "Intel(R) 915G",
+        "architecture": "",
+        "codename": ""
+    },
+    "2572": {
+        "name": "Intel(R) 865G",
+        "architecture": "",
+        "codename": ""
+    },
+    "3582": {
+        "name": "Intel(R) 852GM/855GM",
+        "architecture": "",
+        "codename": ""
+    },
+    "2562": {
+        "name": "Intel(R) 845G",
+        "architecture": "",
+        "codename": ""
+    },
+    "3577": {
+        "name": "Intel(R) 830M",
+        "architecture": "",
+        "codename": ""
+    }
+}
