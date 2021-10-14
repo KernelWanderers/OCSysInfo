@@ -3,6 +3,8 @@ import json
 import logging
 import os
 import plistlib
+import subprocess
+import sys
 import time
 from info import name, version, os_ver, arch
 from managers.tree import tree
@@ -10,6 +12,12 @@ from root import root
 
 
 class UI:
+    """
+    Instance responsible for properly formatting,
+    display data about the system, providing options,
+    and handling specific CLI commands.
+    """
+
     def __init__(self, dm):
         self.dm = dm
 
@@ -72,7 +80,8 @@ class UI:
 
     def dump_xml(self):
         with open(os.path.join(root, "info_dump.xml"), "wb") as xml:
-            dicttoxml.LOG.setLevel(logging.ERROR) # Disables debug prints from `dicttoxml`
+            # Disables debug prints from `dicttoxml`
+            dicttoxml.LOG.setLevel(logging.ERROR)
             xml.write(dicttoxml.dicttoxml(self.dm.info, root=True))
             xml.close()
 
@@ -98,6 +107,12 @@ class UI:
         self.clear()
         self.title()
 
+        if sys.platform.lower() == "darwin":
+            hack = self.hack_disclaimer()
+
+            if hack:
+                print(f"{hack}\n")
+
         print(f"Program      :  {name}")
         print(f"Version      :  {version}")
         print(f"Platform     :  {os_ver}")
@@ -119,3 +134,10 @@ class UI:
         print(" " * 2 + "#" * 55)
         print(" #" + spaces + name + spaces + "#")
         print("#" * 55, "\n" * 2)
+
+    def hack_disclaimer(self):
+        caviat_smc = subprocess.getoutput(
+            ['kextstat', '|', 'grep', '-iE', '"VirtualSMC|FakeSMC"'])
+
+        if [x in caviat_smc.lower() for x in ('fakesmc', 'virtualsmc')]:
+            return "DISCLAIMER: \nTHIS IS BEING RAN ON A HACKINTOSH, \nINFORMATION EXTRACTED MIGHT NOT BE COMPLETELY ACCURATE."
