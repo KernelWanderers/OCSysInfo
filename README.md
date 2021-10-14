@@ -54,7 +54,13 @@ When opening up issues, please list all hardware information relevant, and the i
 
 ## Credits
 
+<<<<<<< HEAD
 - @[Joshj23](https://github.com/Joshj23icy) — for extensive help in researching how to discover hardware information on Linux platforms, and providing a big portion of machines used for unit testing.
+=======
+- @[ObscureNightingale](https://github.com/ObscureNightingale) for writing basically the whole thing.
+
+- @[Joshj23](https://github.com/Joshj23icy) – for extensive help in researching how to discover hardware information on Linux platforms.
+>>>>>>> d159c3e9801b7d01057a04c9802f0c3ea4da6f76
 
 - @[Flagers](https://github.com/flagersgit) — for general guidance, documentation reference, implemnetion ideas, general support, documentation, and much, much more.
 
