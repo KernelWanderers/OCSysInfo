@@ -1,9 +1,6 @@
-import asyncio
 import os
 import re
 import subprocess
-
-from managers.devicemanager import DeviceManager
 
 
 class LinuxHardwareManager:
@@ -14,9 +11,10 @@ class LinuxHardwareManager:
     https://www.kernel.org/doc/html/latest/admin-guide/sysfs-rules.html
     """
 
-    def __init__(self, parent: DeviceManager):
+    def __init__(self, parent):
         self.info = parent.info
         self.pci = parent.pci
+        self.intel = parent.intel
 
     def dump(self):
         self.cpu_info()
@@ -33,7 +31,9 @@ class LinuxHardwareManager:
         model = re.search(r'(?<=model name\t\: ).+(?=\n)', cpu).group(0)
         flagers = re.search(r'(?<=flags\t\t\: ).+(?=\n)', cpu).group(0)
         cores = re.search(r'(?<=cpu cores\t\: ).+(?=\n)', cpu).group(0)
-        # No clue, don't ask.
+        # Count the amount of times 'processor'
+        # is matched, since threads are enumerated
+        # individually.
         threads = subprocess.getoutput('grep -c processor /proc/cpuinfo')
 
         # List of supported SSE instructions.
@@ -67,15 +67,14 @@ class LinuxHardwareManager:
 
                 model = (self.pci.get_item(dev[2:], ven[2:])).get('device')
 
-                igpu = self.intel.get(dev, {})
+                igpu = self.intel.get(dev.upper(), {})
 
                 if igpu:
                     CPU = self.info['CPU'][0][list(
                         self.info['CPU'][0].keys())[0]]
 
                     self.info['CPU'][0] = {
-                        list(self.info['CPU'][0].keys())[0]: {
-                            **CPU,
+                        list(self.info['CPU'][0].keys())[0]: CPU | {
                             'Codename': igpu.get('codename')
                         }
                     }
