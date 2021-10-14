@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Common dump types
+*.txt
+*.json
+*.xml
+*.plist
