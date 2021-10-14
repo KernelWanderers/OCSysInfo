@@ -1,6 +1,6 @@
+import platform
 import subprocess
 import sys
-import platform
 import pkg_resources
 
 
@@ -11,7 +11,11 @@ def install_dep():
         from pip._internal import main as pipmain
 
     required = set(filter(lambda _: len(_), {
-                   'psutil', 'requests', 'pyobjc' if platform.platform().lower() == 'darwin' else ''}))
+                   'requests',
+                   'distro' if sys.platform.lower() == 'linux' else '',
+                   'dicttoxml',
+                   'pyobjc' if sys.platform.lower() == 'darwin' else ''
+                   }))
     installed = {pkg.key for pkg in pkg_resources.working_set}
     missing = installed - required
 
