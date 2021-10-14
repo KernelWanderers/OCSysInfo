@@ -60,9 +60,9 @@ class WindowsHardwareManager:
         SSE_OP = [
             (1, 0, 3, 25),  # SSE
             (1, 0, 3, 26),  # SSE2
-            (1, 0, 2, 0),  # SSE3
+            (1, 0, 2, 0),   # SSE3
             (1, 0, 2, 19),  # SSE4.1
-            (1, 0, 2, 20)  # SSE4.2
+            (1, 0, 2, 20)   # SSE4.2
         ]
         SSSE3 = self.is_set(cpu, 1, 0, 2, 9)
 
