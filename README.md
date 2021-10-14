@@ -4,7 +4,41 @@ A basic, high-level and efficient CLI for discovering hardware information about
 
 Basic example of this:
 
-[<img src="https://i.imgur.com/taFKTV0.png" width="600"/>](https://i.imgur.com/taFKTV0.png=0)
+```
+─ CPU
+  └── Intel(R) Core(TM) i5-8400 CPU @ 2.80GHz
+      ├── SSE: SSE4.2
+      ├── SSSE3: Supported
+      ├── Cores: 6 cores
+      ├── Threads: 6 threads
+      └── Codename: Coffee Lake
+
+─ GPU
+  ├── Intel UHD Graphics 630
+  │   ├── Device ID: 0x3e92
+  │   └── Vendor: 0x8086
+  └── AMD Radeon WhateverGreenDowngradeFixed 390X Hawaii XT
+      ├── Device ID: 0x67b0
+      └── Vendor: 0x1002
+
+─ Network
+  └── RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller
+      ├── Device ID: 0x8168
+      └── Vendor: 0x10ec
+
+─ Audio
+  └── Realtek ALC887
+      ├── Device ID: 0x0887
+      └── Vendor: 0x10ec
+
+─ Input
+  ├── TUF GAMING K7 (USB)
+  │   ├── Vendor: 0xb05
+  │   └── Device ID: 0x18aa
+  └── USB OPTICAL MOUSE (USB)
+      ├── Vendor: 0x93a
+      └── Device ID: 0x2521
+```
 
 ## Implementations
 
