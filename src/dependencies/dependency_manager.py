@@ -1,26 +1,29 @@
+import os
 import platform
 import subprocess
 import sys
 import pkg_resources
 
 
-def install_dep():
-    try:
-        from pip import main as pipmain
-    except ImportError:
-        from pip._internal import main as pipmain
-
+def install_deps():
     required = set(filter(lambda _: len(_), {
-                   'requests',
-                   'distro' if sys.platform.lower() == 'linux' else '',
-                   'dicttoxml',
-                   'pyobjc' if sys.platform.lower() == 'darwin' else ''
+                   '"requests"',
+                   '"distro"',
+                   '"dicttoxml"',
+                   '"pyobjc"' if sys.platform.lower() == 'darwin' else ''
                    }))
     installed = {pkg.key for pkg in pkg_resources.working_set}
     missing = installed - required
 
-    if missing:
-        pipmain(['install', '-r', *missing])
+    for missed in missing:
+        print(f"Attempting to install {missed}...")
+        try:
+            subprocess.call([sys.executable, '-m', 'pip',
+                             'install', missed], shell=True, stdout=open(os.devnull, "w"))
+
+            print(f"Successfully installed {missed}!")
+        except:
+            print(f"Error occurred. Unable to install {missed}")
 
     if platform.platform().lower() == "darwin":
         py_ver = str(sys.version_info.major) + \
