@@ -88,19 +88,19 @@ class UI:
             file.close()
 
     def dump_json(self):
-        with open(os.path.join(root, "info_dump.json"), "w", encoding="utf-8") as _json:
+        with open(os.path.join(root, "info_dump.json"), "w") as _json:
             _json.write(json.dumps(self.dm.info, indent=4, sort_keys=False))
             _json.close()
 
     def dump_xml(self):
-        with open(os.path.join(root, "info_dump.xml"), "wb", encoding="utf-8") as xml:
+        with open(os.path.join(root, "info_dump.xml"), "wb") as xml:
             # Disables debug prints from `dicttoxml`
             dicttoxml.LOG.setLevel(logging.ERROR)
             xml.write(dicttoxml.dicttoxml(self.dm.info, root=True))
             xml.close()
 
     def dump_plist(self):
-        with open(os.path.join(root, "info_dump.plist"), "wb", encoding="utf-8") as plist:
+        with open(os.path.join(root, "info_dump.plist"), "wb") as plist:
             plistlib.dump(self.dm.info, plist, sort_keys=False)
             plist.close()
 
