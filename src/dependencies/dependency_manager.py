@@ -3,26 +3,21 @@ import platform
 import subprocess
 import sys
 import pkg_resources
+from requirements import required as _required
 
 
 def install_deps():
-    required = set(filter(lambda _: len(_), {
-                   '"requests"',
-                   '"distro"',
-                   '"dicttoxml"',
-                   '"pyobjc"' if sys.platform.lower() == 'darwin' else ''
-                   }))
+    required = set([_ for _ in _required if _])
     installed = {pkg.key for pkg in pkg_resources.working_set}
-    missing = installed - required
+    missing = required - installed
 
     for missed in missing:
         print(f"Attempting to install {missed}...")
         try:
             subprocess.call([sys.executable, '-m', 'pip',
-                             'install', missed], shell=True, stdout=open(os.devnull, "w"))
-
+                            'install', missed, '--no-warn-script-location'], shell=True, stdout=open(os.devnull, "w"))
             print(f"Successfully installed {missed}!")
-        except:
+        except Exception as e:
             print(f"Error occurred. Unable to install {missed}")
 
     if platform.platform().lower() == "darwin":
