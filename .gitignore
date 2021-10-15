@@ -133,3 +133,10 @@ dmypy.json
 *.json
 *.xml
 *.plist
+
+# Custom files
+del_*.bat
+del_*.batch
+del_*.sh
+del_*.bash
+del_*.ps1
