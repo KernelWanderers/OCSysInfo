@@ -21,16 +21,7 @@ class UI:
     def __init__(self, dm):
         self.dm = dm
 
-    def handle_cmd(self):
-        options = [
-            ('D', 'D.', self.discover),
-            ('T', 'T.', self.dump_txt),
-            ('J', 'J.', self.dump_json),
-            ('X', 'X.', self.dump_xml),
-            ('P', 'P.', self.dump_plist),
-            ('Q', 'Q.', self.quit)
-        ]
-
+    def handle_cmd(self, options=[]):
         cmd = input("\n\nPlease select an option: ")
         valid = False
 
@@ -63,10 +54,33 @@ class UI:
             val = tree(key, self.dm.info[key])
             print(val)
 
-        exit(0)
+        print(" ")
+
+        options = [
+            ('R. ', 'Return'),
+            ('T. ', 'Dump as TXT'),
+            ('J. ', 'Dump as JSON'),
+            ('X. ', 'Dump as XML'),
+            ('P. ', 'Dump as Plist'),
+            ('Q. ', 'Quit')
+        ]
+
+        cmd_options = [
+            ('R', 'R.', self.create_ui),
+            ('T', 'T.', self.dump_txt),
+            ('J', 'J.', self.dump_json),
+            ('X', 'X.', self.dump_xml),
+            ('P', 'P.', self.dump_plist),
+            ('Q', 'Q.', self.quit)
+        ]
+
+        for option in options:
+            print("".join(option))
+
+        self.handle_cmd(cmd_options)
 
     def dump_txt(self):
-        with open(os.path.join(root, "info_dump.txt"), "w") as file:
+        with open(os.path.join(root, "info_dump.txt"), "w", encoding="utf-8") as file:
             for key in self.dm.info:
                 file.write(tree(key, self.dm.info[key]))
                 file.write('\n')
@@ -74,19 +88,19 @@ class UI:
             file.close()
 
     def dump_json(self):
-        with open(os.path.join(root, "info_dump.json"), "w") as _json:
+        with open(os.path.join(root, "info_dump.json"), "w", encoding="utf-8") as _json:
             _json.write(json.dumps(self.dm.info, indent=4, sort_keys=False))
             _json.close()
 
     def dump_xml(self):
-        with open(os.path.join(root, "info_dump.xml"), "wb") as xml:
+        with open(os.path.join(root, "info_dump.xml"), "wb", encoding="utf-8") as xml:
             # Disables debug prints from `dicttoxml`
             dicttoxml.LOG.setLevel(logging.ERROR)
             xml.write(dicttoxml.dicttoxml(self.dm.info, root=True))
             xml.close()
 
     def dump_plist(self):
-        with open(os.path.join(root, "info_dump.plist"), "wb") as plist:
+        with open(os.path.join(root, "info_dump.plist"), "wb", encoding="utf-8") as plist:
             plistlib.dump(self.dm.info, plist, sort_keys=False)
             plist.close()
 
@@ -102,6 +116,15 @@ class UI:
             ('X. ', 'Dump as XML'),
             ('P. ', 'Dump as Plist'),
             ('\n\n', 'Q. ', 'Quit')
+        ]
+
+        cmd_options = [
+            ('D', 'D.', self.discover),
+            ('T', 'T.', self.dump_txt),
+            ('J', 'J.', self.dump_json),
+            ('X', 'X.', self.dump_xml),
+            ('P', 'P.', self.dump_plist),
+            ('Q', 'Q.', self.quit)
         ]
 
         self.clear()
@@ -123,7 +146,7 @@ class UI:
         for option in options:
             print("".join(option))
 
-        self.handle_cmd()
+        self.handle_cmd(cmd_options)
 
     def clear(self):
         os.system('cls||clear')
