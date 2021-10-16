@@ -1,4 +1,6 @@
 # Don't ask why I hate myself.
+# Credits:
+# https://github.com/acidanthera/OpenCorePkg/blob/master/Include/Intel/IndustryStandard/ProcessorInfo.h#L147-L207
 
 WILLAMETTE     = {'Willamette',      '01'}
 NORTHWOOD      = {'Northwood',       '02'}
