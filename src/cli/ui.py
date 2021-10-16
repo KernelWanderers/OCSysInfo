@@ -51,7 +51,10 @@ class UI:
 
     def discover(self):
         for key in self.dm.info:
-            if key and self.dm.info[key]:
+            is_empty = self.dm.info[key][0] == {} if isinstance(
+                self.dm.info[key], list) else self.dm.info[key] == {}
+
+            if key and not is_empty:
                 val = tree(key, self.dm.info[key])
                 print(val)
 
