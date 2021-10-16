@@ -4,14 +4,18 @@ import platform
 
 from managers.pciids import PCIIDs
 
+
 class DeviceManager:
     """Instance responsible for exposing all important information about the current system's hardware."""
+
     def __init__(self):
         self.info = {
             "CPU": [],
+            "Motherboard": {},
             "GPU": [],
             "Network": [],
-            "Audio": []
+            "Audio": [],
+            "Input": [],
         }
         self.pci = PCIIDs()
         self.platform = platform.system().lower()
