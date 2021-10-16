@@ -51,8 +51,9 @@ class UI:
 
     def discover(self):
         for key in self.dm.info:
-            val = tree(key, self.dm.info[key])
-            print(val)
+            if key and self.dm.info[key]:
+                val = tree(key, self.dm.info[key])
+                print(val)
 
         print(" ")
 
@@ -159,8 +160,14 @@ class UI:
         print("#" * 55, "\n" * 2)
 
     def hack_disclaimer(self):
-        caviat_smc = subprocess.getoutput(
-            ['kextstat', '|', 'grep', '-iE', '"VirtualSMC|FakeSMC"'])
+        kern_ver = int(os.uname().release.split('.')[0])
 
-        if [x in caviat_smc.lower() for x in ('fakesmc', 'virtualsmc')]:
+        if kern_ver > 19:
+            kext_loaded = subprocess.run(['kmutil', 'showloaded', '--list-only', '--variant-suffix',
+                                         'release'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        else:
+            kext_loaded = subprocess.run(
+                ['kextstat', '-l'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+        if [x in kext_loaded.stdout.decode().lower() for x in ('fakesmc', 'virtualsmc')]:
             return "DISCLAIMER: \nTHIS IS BEING RAN ON A HACKINTOSH, \nINFORMATION EXTRACTED MIGHT NOT BE COMPLETELY ACCURATE."
