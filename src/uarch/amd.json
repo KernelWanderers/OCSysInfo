@@ -1,0 +1,133 @@
+[
+  {
+    "Codename": "K8",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModels": ["0x0", "0x1", "0x2", "0x4", "0x5", "0x6", "0x7", "0xC"],
+    "BaseModels": [
+      "0x1",
+      "0x3",
+      "0x4",
+      "0x5",
+      "0x7",
+      "0x8",
+      "0xB",
+      "0xC",
+      "0xD",
+      "0xE",
+      "0xF"
+    ]
+  },
+
+  {
+    "Codename": "K10",
+    "ExtFamily": "0x1",
+    "BaseFamily": "0xF",
+    "ExtModels": ["0x0"],
+    "BaseModels": ["0x2", "0x4", "0x5", "0x6", "0x8", "0x9", "0xA"]
+  },
+
+  {
+    "Codename": "Bobcat",
+    "ExtFamily": "0x5",
+    "BaseFamily": "0xF",
+    "ExtModels": ["0x0"],
+    "BaseModel": []
+  },
+
+  {
+    "Codename": "Excavator",
+    "ExtFamily": "0x6",
+    "BaseFamily": "0xF",
+    "ExtModels": ["0x6", "0x7"],
+    "BaseModels": ["0x0", "0x5"]
+  },
+
+  {
+    "Codename": "Steamroller",
+    "ExtFamily": "0x6",
+    "BaseFamily": "0xF",
+    "ExtModels": ["0x3"],
+    "BaseModels": ["0x0", "0x8"]
+  },
+
+  {
+    "Codename": "Piledriver",
+    "ExtFamily": "0x6",
+    "BaseFamily": "0xF",
+    "ExtModels": ["0x0", "0x1"],
+    "BaseModels": ["0x1", "0x2", "0x3"]
+  },
+
+  {
+    "Codename": "Bulldozer",
+    "ExtFamily": "0x6",
+    "BaseFamily": "0xF",
+    "ExtModels": ["0x0"],
+    "BaseModels": ["0x1"]
+  },
+
+  {
+    "Codename": "Puma",
+    "ExtFamily": "0x7",
+    "BaseFamily": "0xF",
+    "ExtModels": ["0x3"],
+    "BaseModels": ["0x0"]
+  },
+
+  {
+    "Codename": "Enhanced Jaguar",
+    "ExtFamily": "0x7",
+    "BaseFamily": "0xF",
+    "ExtModels": [],
+    "BaseModels": []
+  },
+
+  {
+    "Codename": "Jaguar",
+    "ExtFamily": "0x7",
+    "BaseFamily": "0xF",
+    "ExtModels": ["0x0"],
+    "BaseModels": ["0x0"]
+  },
+
+  {
+    "Codename": "Zen",
+    "ExtFamily": "0x8",
+    "BaseFamily": "0xF",
+    "ExtModels": ["0x0", "0x1", "0x2"],
+    "BaseModels": ["0x0", "0x1", "0x8"]
+  },
+
+  {
+    "Codename": "Zen+",
+    "ExtFamily": "0x8",
+    "BaseFamily": "0xF",
+    "ExtModels": ["0x0", "0x1"],
+    "BaseModels": ["0x8"]
+  },
+
+  {
+    "Codename": "Zen 2",
+    "ExtFamily": "0x8",
+    "BaseFamily": "0xF",
+    "ExtModels": ["0x3", "0x4", "0x6", "0x7", "0x9"],
+    "BaseModels": ["0x0", "0x1", "0x7", "0x8"]
+  },
+
+  {
+    "Codename": "Zen",
+    "ExtFamily": "0x9",
+    "BaseFamily": "0xF",
+    "ExtModels": ["0x0"],
+    "BaseModels": ["0x0"]
+  },
+
+  {
+    "Codename": "Zen 3",
+    "ExtFamily": "0xA",
+    "BaseFamily": "0xF",
+    "ExtModels": ["0x0", "0x2", "0x4", "0x5"],
+    "BaseModels": ["0x0", "0x1"]
+  }
+]
