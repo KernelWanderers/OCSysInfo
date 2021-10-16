@@ -129,10 +129,10 @@ dmypy.json
 .pyre/
 
 # Common dump types
-*.txt
-*.json
-*.xml
-*.plist
+*_dump.txt
+*_dump.json
+*_dump.xml
+*_dump.plist
 
 # Custom files
 del_*.bat
