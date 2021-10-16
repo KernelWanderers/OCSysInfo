@@ -1,17 +1,18 @@
 import binascii
 import dumps.macOS.ioreg as ioreg
 import subprocess
+from managers.devicemanager import DeviceManager
 
 
 class MacHardwareManager:
-    """
+    '''
     Instance, implementing `DeviceManager`, for extracting system information
     from macOS using the `IOKit` framework.
 
     https://developer.apple.com/documentation/iokit
-    """
+    '''
 
-    def __init__(self, parent):
+    def __init__(self, parent: DeviceManager):
         self.info = parent.info
         self.pci = parent.pci
         self.intel = parent.intel
@@ -24,8 +25,18 @@ class MacHardwareManager:
         self.input_info()
 
     def cpu_info(self):
-        # Full list of features for this CPU.
-        features = subprocess.getoutput('sysctl machdep.cpu.features')
+        try:
+            # Model of the CPU
+            model = subprocess.getoutput(
+                'sysctl -a | grep "brand_string"').split(': ')[1]
+        except:
+            return
+
+        try:
+            # Full list of features for this CPU.
+            features = subprocess.getoutput('sysctl machdep.cpu.features')
+        except:
+            features = None
 
         data = {
             # Highest supported SSE version.
@@ -35,10 +46,10 @@ class MacHardwareManager:
             'SSSE3': '',
 
             # Amount of cores for this processor.
-            'Cores': subprocess.getoutput('sysctl machdep.cpu.core_count').split(': ')[1] + " cores",
+            'Cores': subprocess.getoutput('sysctl machdep.cpu.core_count').split(': ')[1] + ' cores',
 
             # Amount of threads for this processor.
-            'Threads': subprocess.getoutput('sysctl machdep.cpu.thread_count').split(': ')[1] + " threads"
+            'Threads': subprocess.getoutput('sysctl machdep.cpu.thread_count').split(': ')[1] + ' threads'
         }
 
         # This will fail if the CPU is _not_
@@ -54,10 +65,6 @@ class MacHardwareManager:
             # Whether or not SSSE3 support is present.
             data['SSSE3'] = 'Supported' if features.lower().find(
                 'ssse3') > -1 else 'Not Available'
-
-        # Model of the CPU
-        model = subprocess.getoutput(
-            'sysctl -a | grep "brand_string"').split(': ')[1]
 
         self.info['CPU'].append({
             model: data
@@ -84,32 +91,45 @@ class MacHardwareManager:
             device = ioreg.corefoundation_to_native(ioreg.IORegistryEntryCreateCFProperties(
                 i, None, ioreg.kCFAllocatorDefault, ioreg.kNilOptions))[1]
 
-            model = bytes(device.get('model')).decode()
-            model = model[0:len(model) - 1]
+            try:
+                model = bytes(device.get('model')).decode()
+                model = model[0:len(model) - 1]
+            except:
+                continue
 
-            dev = (binascii.b2a_hex(
-                bytes(reversed(device.get('device-id')))).decode()[4:])  # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
+            try:
+                dev = '0x' + (binascii.b2a_hex(
+                    bytes(reversed(device.get('device-id')))).decode()[4:])
+                ven = '0x' + (binascii.b2a_hex(
+                    bytes(reversed(device.get('vendor-id')))).decode()[4:])
 
-            ven = (binascii.b2a_hex(
-                bytes(reversed(device.get('vendor-id')))).decode()[4:])  # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
+                data = {
+                    # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
+                    'Device ID': dev,
 
-            igpu = self.intel.get(dev.upper(), {})
-
-            if igpu:
-                CPU = self.info['CPU'][0][list(
-                    self.info['CPU'][0].keys())[0]]
-
-                self.info['CPU'][0] = {
-                    list(self.info['CPU'][0].keys())[0]: CPU | {
-                        'Codename': igpu.get('codename')
-                    }
+                    # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
+                    'Vendor': ven
                 }
+            except:
+                data = {}
+
+            try:
+                igpu = self.intel.get(dev.upper()[2:], {})
+
+                if igpu:
+                    CPU = self.info['CPU'][0][list(
+                        self.info['CPU'][0].keys())[0]]
+
+                    self.info['CPU'][0] = {
+                        list(self.info['CPU'][0].keys())[0]: CPU | {
+                            'Codename': igpu.get('codename')
+                        }
+                    }
+            except:
+                pass
 
             self.info['GPU'].append({
-                model: {
-                    'Device ID': "0x" + dev,
-                    'Vendor': "0x" + ven,
-                }
+                model: data
             })
 
             ioreg.IOObjectRelease(i)
@@ -135,23 +155,30 @@ class MacHardwareManager:
             device = ioreg.corefoundation_to_native(ioreg.IORegistryEntryCreateCFProperties(
                 i, None, ioreg.kCFAllocatorDefault, ioreg.kNilOptions))[1]
 
-            dev = (binascii.b2a_hex(
-                bytes(reversed(device.get('device-id')))).decode()[4:])  # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
+            try:
+                dev = '0x' + (binascii.b2a_hex(
+                    bytes(reversed(device.get('device-id')))).decode()[4:])
+                ven = '0x' + (binascii.b2a_hex(
+                    bytes(reversed(device.get('vendor-id')))).decode()[4:])
 
-            ven = (binascii.b2a_hex(
-                bytes(reversed(device.get('vendor-id')))).decode()[4:])  # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
+                data = {
+                    # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
+                    'Device ID': dev,
 
-            model = self.pci.get_item(dev, ven)
+                    # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
+                    'Vendor': ven
+                }
+            except:
+                continue
+
+            model = self.pci.get_item(dev[2:], ven[2:])
 
             if model:
                 model = model.get('device')
 
-            self.info['Network'].append({
-                model: {
-                    'Device ID': "0x" + dev,
-                    'Vendor': "0x" + ven,
-                }
-            })
+                self.info['Network'].append({
+                    model: data
+                })
 
             ioreg.IOObjectRelease(i)
 
@@ -184,8 +211,11 @@ class MacHardwareManager:
                 if device.get('DigitalAudioCapabilities'):
                     continue
 
-                ven = hex(device.get('IOHDACodecVendorID'))[2:6]
-                dev = hex(device.get('IOHDACodecVendorID'))[6:]
+                try:
+                    dev = hex(device.get('IOHDACodecVendorID'))[6:]
+                    ven = hex(device.get('IOHDACodecVendorID'))[2:6]
+                except:
+                    continue
 
                 model = self.pci.get_item(dev, ven)
 
@@ -193,18 +223,24 @@ class MacHardwareManager:
                     model = model.get('device')
 
             else:
-                dev = (binascii.b2a_hex(
-                    bytes(reversed(device.get('device-id')))).decode()[4:])  # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
+                try:
+                    dev = '0x' + (binascii.b2a_hex(
+                        bytes(reversed(device.get('device-id')))).decode()[4:])  # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
 
-                ven = (binascii.b2a_hex(
-                    bytes(reversed(device.get('vendor-id')))).decode()[4:])  # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
+                    ven = '0x' + (binascii.b2a_hex(
+                        bytes(reversed(device.get('vendor-id')))).decode()[4:])  # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
+                except:
+                    continue
 
-                model = self.pci.get_item(dev, ven).get('device')
+                model = self.pci.get_item(dev[2:], ven[2:]).get('device', '')
+
+                if not model:
+                    continue
 
             self.info['Audio'].append({
                 model: {
-                    'Device ID': "0x" + dev,
-                    'Vendor': "0x" + ven,
+                    'Device ID': dev,
+                    'Vendor': ven,
                 }
             })
 
@@ -222,7 +258,7 @@ class MacHardwareManager:
             self.info['Input'] = []
 
         device = {
-            "IOProviderClass": "IOHIDDevice"
+            'IOProviderClass': 'IOHIDDevice'
         }
 
         interface = ioreg.ioiterator_to_list(ioreg.IOServiceGetMatchingServices(
@@ -233,20 +269,31 @@ class MacHardwareManager:
             device = ioreg.corefoundation_to_native(ioreg.IORegistryEntryCreateCFProperties(
                 i, None, ioreg.kCFAllocatorDefault, ioreg.kNilOptions))[1]
 
-            name = device.get('Product')
-            hid = device.get('Transport')
+            name = device.get('Product', '')
+            hid = device.get('Transport', '')
 
-            if any("{} ({})".format(name, hid) in k for k in self.info['Input']):
+            if not name:
                 continue
 
-            ven = hex(device.get('VendorID'))
-            dev = hex(device.get('ProductID'))
+            if hid:
+                hid = "(" + hid + ")"
 
-            name = "{} ({})".format(name, hid)
+            if any('{} {}'.format(name, hid) in k for k in self.info['Input']):
+                continue
+
+            try:
+                dev = hex(device.get('ProductID'))
+                ven = hex(device.get('VendorID'))
+
+                data = {
+                    'Device ID': dev,
+                    'Vendor': ven
+                }
+            except:
+                data = {}
+
+            name = '{} {}'.format(name,  hid)
 
             self.info['Input'].append({
-                name: {
-                    'Vendor': ven,
-                    'Device ID': dev
-                }
+                name: data
             })
