@@ -40,6 +40,25 @@ Basic example of this:
       └── Device ID: 0x2521
 ```
 
+## Installation
+
+Firstly, we do not support `py2` – the only support provided is for `python 3.6` and greater. <br />
+So please ensure you have `python 3.6` or greater installed.
+
+In order to install `OCSysInfo`, you can either download the repository manually via GitHub, and run the `main.py` script located inside of `src` (do also make sure to install the dependencies as shown below), or, via git:
+
+```sh
+git clone https://github.com/iabtw/OCSysInfo.git
+
+cd OCSysInfo
+
+# Installing dependencies on Windows/Linux
+python3 -m pip install -r requirements.txt
+
+# Installing dependencies on macOS
+python3 -m pip install -r requirements-macOS.txt
+```
+
 ## Implementations
 
 OCSysInfo takes advantage of each platform's native interaction protocol, except for Linux, which uses a pseudo file system & its distros expose no consistent way of obtaining this information via command/API, in order to extract information about the system's hardware manually.
@@ -90,7 +109,7 @@ When opening up issues, please list all hardware information relevant, and the i
 
 - @[Joshj23](https://github.com/Joshj23icy) — for extensive help in researching how to discover hardware information on Linux platforms, and providing a big portion of machines used for unit testing.
 
-- @[Flagers](https://github.com/flagersgit) — for general guidance, documentation reference, implementation ideas, general support, documentation, and much, much more.
+- @[Flagers](https://github.com/flagersgit) — for general guidance, documentation reference, implementation ideas, general support, documentation, help in fixing the source code's faulty logic, and much, much more.
 
 - @[Acidanthera](https://github.com/Acidanthera) — for the OpenCore bootloader (its community is what drew inspiration for this project.)
 
@@ -109,3 +128,7 @@ When opening up issues, please list all hardware information relevant, and the i
 - @[Quist](https://github.com/nadiaholmquist) — for extensive amounts of unit testing on various hardware, they helped immensely with fool-proofing OCSysInfo as best as possible, alongside [Joshj23](https://github.com/Joshj23icy)'s immense help with unit testing.
 
 - @[flababah](https://github.com/flababah/) — for https://github.com/flababah/cpuid.py
+
+- @[renegadevi](https://gitlab.com/renegadevi) — for extensive amounts of help with fixing the source code's faulty logic.
+
+- @[khronokernel](https://github.com/khronokernel) — for extensive amounts of help with fixing the source code's faulty logic.
