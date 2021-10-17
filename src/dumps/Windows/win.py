@@ -1,4 +1,5 @@
 import re
+import shlex
 import subprocess
 from managers.devicemanager import DeviceManager
 from .cpuid import CPUID
@@ -6,12 +7,12 @@ from error.cpu_err import cpu_err
 
 
 class WindowsHardwareManager:
-    '''
+    """
     Instance, implementing `DeviceManager`, for extracting system information
     from Windows systems using the `WMI` infrastructure.
 
     https://docs.microsoft.com/en-us/windows/win32/wmisdk/wmi-start-page
-    '''
+    """
 
     def __init__(self, parent: DeviceManager):
         self.info = parent.info
@@ -48,16 +49,16 @@ class WindowsHardwareManager:
 
         try:
             # CPU model
-            model = subprocess.check_output(cmdlet.format(cmd.format(
-                'Name'))).decode().strip()
+            model = subprocess.check_output(shlex.split(
+                cmdlet.format(cmd.format('Name')))).decode().strip()
 
             # Number of physical cores
-            cores = subprocess.check_output(
-                cmdlet.format(cmd.format('NumberOfCores'))).decode().strip()
+            cores = subprocess.check_output(shlex.split(
+                cmdlet.format(cmd.format('NumberOfCores')))).decode().strip()
 
             # Number of logical processors (threads)
-            threads = subprocess.check_output(cmdlet.format(
-                cmd.format('NumberOfLogicalProcessors'))).decode().strip()
+            threads = subprocess.check_output(shlex.split(
+                cmdlet.format(cmd.format('NumberOfLogicalProcessors')))).decode().strip()
         except Exception as e:
             cpu_err(e)
 
@@ -97,11 +98,11 @@ class WindowsHardwareManager:
         cmd = '"Get-WmiObject -Class Win32_VideoController | Select-Object -ExpandProperty {}"'
 
         try:
-            gpus = subprocess.check_output(
-                cmdlet.format(cmd.format('Name'))).decode().split('\n')
+            gpus = subprocess.check_output(shlex.split(
+                cmdlet.format(cmd.format('Name')))).decode().split('\n')
 
-            pci = subprocess.check_output(
-                cmdlet.format(cmd.format('PNPDeviceID'))).decode().split('\n')
+            pci = subprocess.check_output(shlex.split(
+                cmdlet.format(cmd.format('PNPDeviceID')))).decode().split('\n')
 
         except:
             return
@@ -142,8 +143,8 @@ class WindowsHardwareManager:
         cmd = '"Get-WmiObject -Class Win32_NetworkAdapter | Select-Object -ExpandProperty {}"'
 
         try:
-            paths = subprocess.check_output(
-                cmdlet.format(cmd.format('PNPDeviceID'))).decode().split('\n')
+            paths = subprocess.check_output(shlex.split(
+                cmdlet.format(cmd.format('PNPDeviceID')))).decode().split('\n')
         except:
             return
         else:
@@ -180,8 +181,8 @@ class WindowsHardwareManager:
         cmd = '"Get-WmiObject Win32_SoundDevice | Select-Object -ExpandProperty {}"'
 
         try:
-            paths = subprocess.check_output(cmdlet.format(
-                cmd.format('PNPDeviceID'))).decode().split('\n')
+            paths = subprocess.check_output(shlex.split(
+                cmdlet.format(cmd.format('PNPDeviceID')))).decode().split('\n')
         except:
             return
         else:
