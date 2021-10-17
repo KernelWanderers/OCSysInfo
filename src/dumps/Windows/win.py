@@ -24,6 +24,7 @@ class WindowsHardwareManager:
         self.gpu_info()
         self.net_info()
         self.audio_info()
+        self.mobo_info()
 
     # Credits: https://github.com/flababah/cpuid.py/blob/master/example.py#L25
     def is_set(self, cpu, leaf, subleaf, reg_idx, bit):
@@ -213,3 +214,20 @@ class WindowsHardwareManager:
                                 'Vendor': ven
                             }
                         })
+
+    def mobo_info(self):
+
+        try:
+            model = subprocess.check_output(shlex.split(
+                'powershell -Command "Get-WmiObject -Class Win32_BaseBoard | Select-Object -ExpandProperty Product"'
+            )).decode().strip()
+            manufacturer = subprocess.check_output(shlex.split(
+                'powershell -Command "Get-WmiObject -Class Win32_BaseBoard | Select-Object -ExpandProperty Manufacturer"'
+            )).decode().strip()
+        except:
+            return
+        else:
+            self.info['Motherboard'] = {
+                'Model': model,
+                'Manufacturer': manufacturer
+            }
