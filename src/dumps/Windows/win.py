@@ -25,6 +25,7 @@ class WindowsHardwareManager:
         self.net_info()
         self.audio_info()
         self.mobo_info()
+        self.input_info()
 
     # Credits: https://github.com/flababah/cpuid.py/blob/master/example.py#L25
     def is_set(self, cpu, leaf, subleaf, reg_idx, bit):
@@ -231,3 +232,39 @@ class WindowsHardwareManager:
                 'Model': model,
                 'Manufacturer': manufacturer
             }
+
+    def input_info(self):
+        try:
+            kbs = subprocess.getoutput(shlex.split(
+                'powershell -Command "Get-WmiObject -Class Win32_Keyboard"'
+            )).decode().strip().split('\n\n')
+            pds = subprocess.getoutput(shlex.split(
+                'powershell -Command "Get-WmiObject -Class Win32_PointingDevice"'
+            )).decode().strip().split('\n\n')
+        except:
+            return
+        else:
+            _kbs = self.get_kbpd(kbs)
+            _pds = self.get_kbpd(pds)
+
+            self.info['Input'].append(*_kbs, *_pds)
+
+    def get_kbpd(self, items):
+        _items = []
+        for item in items:
+            data = {}
+
+            device = ""
+            for line in item.split('\n'):
+                key, value = [x.strip() for x in line.split(': ')]
+
+                if 'description' in key.lower() and any(x in value for x in ('ps/2', 'hid')):
+                    data[value] = {}
+                    device = value
+
+                if 'pnpdeviceid' in key.lower() and data[device]:
+                    data[device] = {
+                        'DeviceID': value
+                    }
+
+            _items.append(data)
