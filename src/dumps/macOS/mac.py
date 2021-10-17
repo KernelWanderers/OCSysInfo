@@ -2,6 +2,7 @@ import binascii
 import dumps.macOS.ioreg as ioreg
 import subprocess
 from managers.devicemanager import DeviceManager
+from error.cpu_err import cpu_err
 
 
 class MacHardwareManager:
@@ -27,14 +28,14 @@ class MacHardwareManager:
     def cpu_info(self):
         try:
             # Model of the CPU
-            model = subprocess.getoutput(
-                'sysctl -a | grep "brand_string"').split(': ')[1]
-        except:
-            return
-
+            model = subprocess.check_output(
+                'sysctl -a | grep "brand_string"').decode().split(': ')[1]
+        except Exception as e:
+            cpu_err(e)
         try:
             # Full list of features for this CPU.
-            features = subprocess.getoutput('sysctl machdep.cpu.features')
+            features = subprocess.check_output(
+                'sysctl machdep.cpu.features').decode()
         except:
             features = None
 
@@ -46,10 +47,10 @@ class MacHardwareManager:
             'SSSE3': '',
 
             # Amount of cores for this processor.
-            'Cores': subprocess.getoutput('sysctl machdep.cpu.core_count').split(': ')[1] + ' cores',
+            'Cores': subprocess.check_output('sysctl machdep.cpu.core_count').decode().split(': ')[1] + ' cores',
 
             # Amount of threads for this processor.
-            'Threads': subprocess.getoutput('sysctl machdep.cpu.thread_count').split(': ')[1] + ' threads'
+            'Threads': subprocess.check_output('sysctl machdep.cpu.thread_count').decode().split(': ')[1] + ' threads'
         }
 
         # This will fail if the CPU is _not_
