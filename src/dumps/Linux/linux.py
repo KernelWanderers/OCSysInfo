@@ -1,6 +1,5 @@
 import os
 import re
-import subprocess
 from error.cpu_err import cpu_err
 from managers.devicemanager import DeviceManager
 
@@ -28,7 +27,7 @@ class LinuxHardwareManager:
 
     def cpu_info(self):
         try:
-            cpus = subprocess.check_output('cat /proc/cpuinfo').decode()
+            cpus = open('/proc/cpuinfo', 'r').read()
         except Exception as e:
             cpu_err(e)
 
@@ -59,7 +58,7 @@ class LinuxHardwareManager:
 
             # List of supported SSE instructions.
             data[model.group(0)]['SSE'] = list(sorted([flag.replace('_', '.') for flag in flagers.split(' ') if 'sse' in flag.lower(
-            ) and not 'ssse' in flag.lower()], reverse=True))[0]
+            ) and not 'ssse' in flag.lower()], reverse=True))[0].upper()
             data[model.group(
                 0)]['SSSE3'] = 'Supported' if 'ssse3' in flagers else 'Not Available'
 
@@ -67,14 +66,12 @@ class LinuxHardwareManager:
             data[model.group(0)]['Cores'] = cores.group(0)
 
         try:
-            data[model.group(0)]['Threads'] = subprocess.check_output(
-                'grep -c processor /proc/cpuinfo')
+            data[model.group(0)]['Threads'] = open(
+                '/proc/cpuinfo', 'r').read().count('processor')
         except:
             pass
 
-        self.info.get('CPU').append({
-            model.group(0): data
-        })
+        self.info.get('CPU').append(data)
 
     def gpu_info(self):
         for file in os.listdir('/sys/class/drm/'):
@@ -83,16 +80,14 @@ class LinuxHardwareManager:
             # inside of sysfs's DRM directory. So we look for those, and traverse
             # them. We look for the `device` and `vendor` file, which should always be there.
             if 'card' in file and not '-' in file:
-                path = '/sys/class/drm/{}'.format(file)
+                path = f'/sys/class/drm/{file}'
 
                 try:
-                    ven = subprocess.check_output(
-                        'cat {}/device/vendor'.format(path)).decode()
-                    dev = subprocess.check_output(
-                        'cat {}/device/device'.format(path)).decode()
+                    ven = open(f'{path}/device/vendor', 'r').read().strip()
+                    dev = open(f'{path}/device/device', 'r').read().strip()
 
-                    model = (self.pci.get_item(dev[2:], ven[2:])).get('device')
-                except:
+                    model = self.pci.get_item(dev[2:], ven[2:]).get('device')
+                except Exception as e:
                     continue
 
                 igpu = self.intel.get(dev.upper()[2:], {})
@@ -116,17 +111,15 @@ class LinuxHardwareManager:
 
     def net_info(self):
         for file in os.listdir('/sys/class/net'):
-            path = '/sys/class/net/{}/device'.format(file)
+            path = f'/sys/class/net/{file}/device'
 
             # We ensure that the enumerated directory in the sysfs net
             # directory is a valid card, since it'll contain a `vendor` and
             # `device` file.
             if os.path.isfile('{}/device'.format(path)):
                 try:
-                    ven = subprocess.check_output(
-                        'cat {}/vendor'.format(path)).decode()
-                    dev = subprocess.check_output(
-                        'cat {}/device'.format(path)).decode()
+                    ven = open(f'{path}/vendor', 'r').read().strip()
+                    dev = open(f'{path}/device', 'r').read().strip()
 
                     model = self.pci.get_item(dev[2:], ven[2:]).get('device')
                 except:
@@ -146,14 +139,12 @@ class LinuxHardwareManager:
             # Sound devices are enumerated similarly to DRM devices,
             # with the format `cardX`, so we look for those, and look
             # for `vendor` and `device` files.
-            if "card" in file.lower() and not "-" in file.lower():
-                path = '/sys/class/sound/{}/device'.format(file)
+            if 'card' in file.lower() and not '-' in file.lower():
+                path = f'/sys/class/sound/{file}/device'
 
                 try:
-                    ven = subprocess.check_output(
-                        'cat {}/vendor'.format(path)).decode()
-                    dev = subprocess.check_output(
-                        'cat {}/device'.format(path)).decode()
+                    ven = open(f'{path}/vendor', 'r').read().strip()
+                    dev = open(f'{path}/device', 'r').read().strip()
 
                     model = self.pci.get_item(dev[2:], ven[2:]).get('device')
                 except:
@@ -176,10 +167,10 @@ class LinuxHardwareManager:
         # `board_vendor` to extract its model name,
         # and its vendor's name.
         try:
-            model = subprocess.check_output(
-                'cat /sys/devices/virtual/dmi/id/board_name').decode()
-            vendor = subprocess.check_output(
-                'cat /sys/devices/virtual/dmi/id/board_vendor').decode()
+            path = '/sys/devices/virtual/dmi/id'
+
+            model = open(f'{path}/board_name', 'r').read().strip()
+            vendor = open(f'{path}/board_vendor', 'r').read().strip()
         except:
             return
 
@@ -203,33 +194,30 @@ class LinuxHardwareManager:
         # Out of the things we look for,
         # it contains the device name, and its sysfs path.
         try:
-            devices = subprocess.check_output(
-                'cat /proc/bus/input/devices').decode()
+            devices = open('/proc/bus/input/devices', 'r').read().strip()
             sysfs = []
         except:
             return
 
         for device in devices.split('\n\n'):
-            if not any((x in device.lower() for x in ("touchpad", "trackpad", "synaptics", "usb"))):
+            if not any((x in device.lower() for x in ('touchpad', 'trackpad', 'synaptics', 'usb'))):
                 continue
 
             for line in device.split('\n'):
-                if "sysfs" in line.lower():
-                    sysfs.append("/sys{}".format(line.split('=')[1]))
+                if 'sysfs' in line.lower():
+                    sysfs.append('/sys{}'.format(line.split('=')[1]))
 
         for path in sysfs:
             if os.path.isfile('{}/id/vendor'.format(path)):
                 try:
-                    ven = subprocess.check_output(
-                        'cat {}/id/vendor'.format(path)).decode()
-                    dev = subprocess.check_output(
-                        'cat {}/id/product'.format(path)).decode()
+                    dev = '0x' + open(f'{path}/id/product', 'r').read().strip()
+                    ven = '0x' + open(f'{path}/id/vendor', 'r').read().strip()
                 except:
                     continue
 
                 else:
                     if ven and dev:
-                        name = self.pci.get_item(dev, ven, types="usb")
+                        name = self.pci.get_item(dev[2:], ven[2:], types='usb')
 
                         if not name:
                             continue
