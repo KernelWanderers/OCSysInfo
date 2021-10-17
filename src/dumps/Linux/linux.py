@@ -1,6 +1,7 @@
 import os
 import re
 import subprocess
+from error.cpu_err import cpu_err
 from managers.devicemanager import DeviceManager
 
 
@@ -27,9 +28,9 @@ class LinuxHardwareManager:
 
     def cpu_info(self):
         try:
-            cpus = subprocess.getoutput('cat /proc/cpuinfo')
-        except:
-            return
+            cpus = subprocess.check_output('cat /proc/cpuinfo').decode()
+        except Exception as e:
+            cpu_err(e)
 
         cpu = cpus.split('\n\n')
 
@@ -66,7 +67,7 @@ class LinuxHardwareManager:
             data[model.group(0)]['Cores'] = cores.group(0)
 
         try:
-            data[model.group(0)]['Threads'] = subprocess.getoutput(
+            data[model.group(0)]['Threads'] = subprocess.check_output(
                 'grep -c processor /proc/cpuinfo')
         except:
             pass
@@ -85,10 +86,10 @@ class LinuxHardwareManager:
                 path = '/sys/class/drm/{}'.format(file)
 
                 try:
-                    ven = subprocess.getoutput(
-                        'cat {}/device/vendor'.format(path))
-                    dev = subprocess.getoutput(
-                        'cat {}/device/device'.format(path))
+                    ven = subprocess.check_output(
+                        'cat {}/device/vendor'.format(path)).decode()
+                    dev = subprocess.check_output(
+                        'cat {}/device/device'.format(path)).decode()
 
                     model = (self.pci.get_item(dev[2:], ven[2:])).get('device')
                 except:
@@ -122,8 +123,10 @@ class LinuxHardwareManager:
             # `device` file.
             if os.path.isfile('{}/device'.format(path)):
                 try:
-                    ven = subprocess.getoutput('cat {}/vendor'.format(path))
-                    dev = subprocess.getoutput('cat {}/device'.format(path))
+                    ven = subprocess.check_output(
+                        'cat {}/vendor'.format(path)).decode()
+                    dev = subprocess.check_output(
+                        'cat {}/device'.format(path)).decode()
 
                     model = self.pci.get_item(dev[2:], ven[2:]).get('device')
                 except:
@@ -147,8 +150,10 @@ class LinuxHardwareManager:
                 path = '/sys/class/sound/{}/device'.format(file)
 
                 try:
-                    ven = subprocess.getoutput('cat {}/vendor'.format(path))
-                    dev = subprocess.getoutput('cat {}/device'.format(path))
+                    ven = subprocess.check_output(
+                        'cat {}/vendor'.format(path)).decode()
+                    dev = subprocess.check_output(
+                        'cat {}/device'.format(path)).decode()
 
                     model = self.pci.get_item(dev[2:], ven[2:]).get('device')
                 except:
@@ -171,10 +176,10 @@ class LinuxHardwareManager:
         # `board_vendor` to extract its model name,
         # and its vendor's name.
         try:
-            model = subprocess.getoutput(
-                'cat /sys/devices/virtual/dmi/id/board_name')
-            vendor = subprocess.getoutput(
-                'cat /sys/devices/virtual/dmi/id/board_vendor')
+            model = subprocess.check_output(
+                'cat /sys/devices/virtual/dmi/id/board_name').decode()
+            vendor = subprocess.check_output(
+                'cat /sys/devices/virtual/dmi/id/board_vendor').decode()
         except:
             return
 
@@ -198,7 +203,8 @@ class LinuxHardwareManager:
         # Out of the things we look for,
         # it contains the device name, and its sysfs path.
         try:
-            devices = subprocess.getoutput('cat /proc/bus/input/devices')
+            devices = subprocess.check_output(
+                'cat /proc/bus/input/devices').decode()
             sysfs = []
         except:
             return
@@ -214,9 +220,10 @@ class LinuxHardwareManager:
         for path in sysfs:
             if os.path.isfile('{}/id/vendor'.format(path)):
                 try:
-                    ven = subprocess.getoutput('cat {}/id/vendor'.format(path))
-                    dev = subprocess.getoutput(
-                        'cat {}/id/product'.format(path))
+                    ven = subprocess.check_output(
+                        'cat {}/id/vendor'.format(path)).decode()
+                    dev = subprocess.check_output(
+                        'cat {}/id/product'.format(path)).decode()
                 except:
                     continue
 
