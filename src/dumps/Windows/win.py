@@ -268,3 +268,5 @@ class WindowsHardwareManager:
                     }
 
             _items.append(data)
+
+        return _items
