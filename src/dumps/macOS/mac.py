@@ -6,12 +6,12 @@ from error.cpu_err import cpu_err
 
 
 class MacHardwareManager:
-    '''
+    """
     Instance, implementing `DeviceManager`, for extracting system information
     from macOS using the `IOKit` framework.
 
     https://developer.apple.com/documentation/iokit
-    '''
+    """
 
     def __init__(self, parent: DeviceManager):
         self.info = parent.info
@@ -28,14 +28,14 @@ class MacHardwareManager:
     def cpu_info(self):
         try:
             # Model of the CPU
-            model = subprocess.check_output(
-                'sysctl -a | grep "brand_string"').decode().split(': ')[1]
+            model = subprocess.check_output([
+                'sysctl', 'machdep.cpu.brand_string'], shell=False).decode().split(': ')[1].strip()
         except Exception as e:
             cpu_err(e)
         try:
             # Full list of features for this CPU.
-            features = subprocess.check_output(
-                'sysctl machdep.cpu.features').decode()
+            features = subprocess.check_output([
+                'sysctl', 'machdep.cpu.features']).decode().strip()
         except:
             features = None
 
@@ -47,10 +47,10 @@ class MacHardwareManager:
             'SSSE3': '',
 
             # Amount of cores for this processor.
-            'Cores': subprocess.check_output('sysctl machdep.cpu.core_count').decode().split(': ')[1] + ' cores',
+            'Cores': subprocess.check_output(['sysctl', 'machdep.cpu.core_count']).decode().split(': ')[1].strip() + ' cores',
 
             # Amount of threads for this processor.
-            'Threads': subprocess.check_output('sysctl machdep.cpu.thread_count').decode().split(': ')[1] + ' threads'
+            'Threads': subprocess.check_output(['sysctl', 'machdep.cpu.thread_count']).decode().split(': ')[1].strip() + ' threads'
         }
 
         # This will fail if the CPU is _not_
