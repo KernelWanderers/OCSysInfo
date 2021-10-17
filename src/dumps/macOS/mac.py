@@ -277,9 +277,9 @@ class MacHardwareManager:
                 continue
 
             if hid:
-                hid = "(" + hid + ")"
+                hid = " (" + hid + ")"
 
-            if any('{} {}'.format(name, hid) in k for k in self.info['Input']):
+            if any('{}{}'.format(name, hid) in k for k in self.info['Input']):
                 continue
 
             try:
@@ -293,7 +293,7 @@ class MacHardwareManager:
             except:
                 data = {}
 
-            name = '{} {}'.format(name,  hid)
+            name = '{}{}'.format(name,  hid)
 
             self.info['Input'].append({
                 name: data
