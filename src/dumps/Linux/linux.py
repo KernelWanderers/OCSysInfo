@@ -200,14 +200,64 @@ class LinuxHardwareManager:
             return
 
         for device in devices.split('\n\n'):
-            if not any((x in device.lower() for x in ('touchpad', 'trackpad', 'synaptics', 'usb'))):
-                continue
-
             for line in device.split('\n'):
                 if 'sysfs' in line.lower():
                     sysfs.append('/sys{}'.format(line.split('=')[1]))
 
         for path in sysfs:
+            # RMI4 devices, probably SMBus
+            # TODO: I2C RMI4 devices
+            if 'rmi4' in path.lower():
+                # Check for passed-through devices like trackpad
+                if 'fn' in path:
+                    continue
+
+                if (not os.path.isfile(f'{path}/name')) or \
+                   (not os.path.isfile(f'{path}/id/vendor')):
+                    continue
+
+                try:
+                    prod_id = open(f'{path}/name', 'r').read().strip()
+                    vendor = open(f'{path}/id/vendor', 'r').read().strip()
+                except:
+                    continue
+
+                self.info['Input'].append({
+                    'Synaptics SMbus Trackpad': {
+                        'Device ID': prod_id,
+                        'Vendor': vendor
+                    }
+                })
+
+            # PS2 devices
+            if 'i8042' in path.lower():
+                if not os.path.isfile(f'{path}/name'):
+                    continue;
+
+                try:
+                    name = open(f'{path}/name').read().strip()
+                except:
+                    continue;
+                
+                port = re.search('\d+(?=\/input)', path)
+
+                self.info['Input'].append({
+                    name: {
+                        'PS2 Port': port.group()
+                    }
+                })
+
+            # Thinkpad hotkeys (HKEYs ACPI device)
+            # Also includes Battery level controls, LED control, etc
+            if 'thinkpad_acpi' in path.lower():
+                self.info['Input'].append({
+                    'Thinkpad Fn Keys': {}
+                })
+
+            # TODO: Handle I2C HID
+            if not 'usb' in path.lower():
+                continue;
+                    
             if os.path.isfile('{}/id/vendor'.format(path)):
                 try:
                     dev = '0x' + open(f'{path}/id/product', 'r').read().strip()
