@@ -20,6 +20,8 @@ class UI:
 
     def __init__(self, dm):
         self.dm = dm
+        self.dm.info = {k: v for (k, v) in self.dm.info.items(
+        ) if self.dm.info[k] and v[0] != {}}
 
     def handle_cmd(self, options=[]):
         cmd = input("\n\nPlease select an option: ")
