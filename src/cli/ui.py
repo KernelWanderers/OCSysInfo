@@ -51,7 +51,7 @@ class UI:
 
     def discover(self):
         for key in self.dm.info:
-            is_empty = self.dm.info[key][0] == {} if isinstance(
+            is_empty = next(iter(self.dm.info[key]), {}) == {} if isinstance(
                 self.dm.info[key], list) else self.dm.info[key] == {}
 
             if key and not is_empty:
@@ -167,7 +167,7 @@ class UI:
 
         if kern_ver > 19:
             kext_loaded = subprocess.run(['kmutil', 'showloaded', '--list-only', '--variant-suffix',
-                                         'release'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                         'release'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         else:
             kext_loaded = subprocess.run(
                 ['kextstat', '-l'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
