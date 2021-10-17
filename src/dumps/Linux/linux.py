@@ -41,9 +41,7 @@ class LinuxHardwareManager:
         model = re.search(r'(?<=model name\t\: ).+(?=\n)', cpu)
         flagers = re.search(r'(?<=flags\t\t\: ).+(?=\n)', cpu)
         cores = re.search(r'(?<=cpu cores\t\: ).+(?=\n)', cpu)
-        # Count the amount of times 'processor'
-        # is matched, since threads are enumerated
-        # individually.
+
         data = {}
 
         if model:
@@ -66,6 +64,9 @@ class LinuxHardwareManager:
             data[model.group(0)]['Cores'] = cores.group(0)
 
         try:
+            # Count the amount of times 'processor'
+            # is matched, since threads are enumerated
+            # individually.
             data[model.group(0)]['Threads'] = open(
                 '/proc/cpuinfo', 'r').read().count('processor')
         except:
