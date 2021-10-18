@@ -29,12 +29,6 @@ class MacHardwareManager:
         self.audio_info()
         self.input_info()
 
-    def extf(self):
-        libname = os.path.join(root, 'src', 'cpuid', 'asm-cpuid.so')
-        c_lib = ctypes.CDLL(libname)
-
-        return (c_lib.EAX() >> 20) & 0xf
-
     def cpu_info(self):
         try:
             # Model of the CPU
