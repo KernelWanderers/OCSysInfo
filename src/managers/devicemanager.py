@@ -20,9 +20,6 @@ class DeviceManager:
         self.pci = PCIIDs()
         self.platform = platform.system().lower()
 
-        with open(os.path.join(os.path.dirname(__file__), "enums", "intel.json")) as enums:
-            self.intel = json.load(enums)
-
         if self.platform == "darwin":
             from dumps.macOS.mac import MacHardwareManager
             self.manager = MacHardwareManager(self)
