@@ -127,7 +127,7 @@ class LinuxHardwareManager:
                     dev = open(f'{path}/device/device', 'r').read().strip()
 
                     model = self.pci.get_item(dev[2:], ven[2:]).get('device')
-                except Exception as e:
+                except:
                     continue
 
                 self.info.get('GPU').append({
