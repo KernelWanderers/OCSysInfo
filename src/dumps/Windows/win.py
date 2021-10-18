@@ -1,9 +1,14 @@
+import ctypes
+import pathlib
 import re
-import shlex
-import subprocess
+import json
+import os
+import wmi
 from managers.devicemanager import DeviceManager
+from util.codename import codename
 from .cpuid import CPUID
 from error.cpu_err import cpu_err
+from root import root
 
 
 class WindowsHardwareManager:
@@ -17,19 +22,26 @@ class WindowsHardwareManager:
     def __init__(self, parent: DeviceManager):
         self.info = parent.info
         self.pci = parent.pci
-        self.intel = parent.intel
+        self.c = wmi.WMI()
 
     def dump(self):
         self.cpu_info()
         self.gpu_info()
         self.net_info()
         self.audio_info()
+        self.mobo_info()
+        self.input_info()
 
     # Credits: https://github.com/flababah/cpuid.py/blob/master/example.py#L25
     def is_set(self, cpu, leaf, subleaf, reg_idx, bit):
         regs = cpu(leaf, subleaf)
 
         return bool((1 << bit) & regs[reg_idx])
+
+    def extf(self, cpu, leaf, subleaf):
+        eax = cpu(leaf, subleaf)[0]
+
+        return (eax >> 20) & 0xf
 
     def cpu_info(self):
 
@@ -38,27 +50,23 @@ class WindowsHardwareManager:
         #
         # See: https://github.com/flababah/cpuid.py
         cpu = CPUID()
-
-        # Base command we'll be using to get some basic information using WMI.
-        # We define a variable for it as a placehoder.
-        #
-        # As not to write it all over again
-        # for each command we need to use it in.
-        cmd = '"Get-WmiObject -Class Win32_Processor | Select-Object -ExpandProperty {}"'
-        cmdlet = 'powershell -Command {}'
+        data = {}
 
         try:
+            CPU = self.c.instances('Win32_Processor')[0]
+
+            # CPU Manufacturer (Intel and AMD codenames supported only.)
+            manufacturer = CPU.wmi_property('Manufacturer').value
+
             # CPU model
-            model = subprocess.check_output(shlex.split(
-                cmdlet.format(cmd.format('Name')))).decode().strip()
+            model = CPU.wmi_property('Name').value
 
             # Number of physical cores
-            cores = subprocess.check_output(shlex.split(
-                cmdlet.format(cmd.format('NumberOfCores')))).decode().strip()
+            data['Cores'] = CPU.wmi_property('NumberOfCores').value
 
             # Number of logical processors (threads)
-            threads = subprocess.check_output(shlex.split(
-                cmdlet.format(cmd.format('NumberOfLogicalProcessors')))).decode().strip()
+            data['Threads'] = CPU.wmi_property(
+                'NumberOfLogicalProcessors').value
         except Exception as e:
             cpu_err(e)
 
@@ -84,31 +92,59 @@ class WindowsHardwareManager:
                         elif float(highest[3:] if highest[3:] else 1) < float(SSE[i][3:]):
                             highest = SSE[i].upper()
 
+            data['SSE'] = highest
+            data['SSSE3'] = 'Supported' if SSSE3 else 'Not Available'
+
+            try:
+                desc = CPU.wmi_property('Description').value
+                fam = re.search(r'(?<=Family\s)\d+', desc)
+                _model = re.search(r'(?<=Model\s)\d+', desc)
+
+                if not fam or \
+                   not _model:
+                    pass
+
+                else:
+                    fam = hex(int(fam.group()))
+                    n = int(_model.group())
+
+                    # Credits to:
+                    # https://github.com/1Revenger1
+                    extm = hex((n >> 0x4) & 0xf)
+                    base = hex(n & 0xf)
+
+                    extf = hex(self.extf(cpu, 1, 0))
+
+                    vendor = 'intel' if 'intel' in manufacturer.lower() else 'amd'
+                    data = json.load(
+                        open(os.path.join(root, 'src', 'uarch', f'{vendor}.json'), 'r'))
+
+                    cname = codename(data, extf.upper(),
+                                     fam.upper(), extm.upper(), base.upper())
+
+                    if cname:
+                        data['Codename'] = cname
+            except:
+                pass
+
             self.info['CPU'].append({
-                model: {
-                    'SSE': highest,
-                    'SSSE3': 'Supported' if SSSE3 else 'Not Available',
-                    'Cores': cores,
-                    'Threads': threads
-                }
+                model: data
             })
 
     def gpu_info(self):
-        cmdlet = 'powershell -Command {}'
-        cmd = '"Get-WmiObject -Class Win32_VideoController | Select-Object -ExpandProperty {}"'
-
         try:
-            gpus = subprocess.check_output(shlex.split(
-                cmdlet.format(cmd.format('Name')))).decode().split('\n')
-
-            pci = subprocess.check_output(shlex.split(
-                cmdlet.format(cmd.format('PNPDeviceID')))).decode().split('\n')
-
+            GPUS = self.c.instances('Win32_VideoController')
         except:
             return
         else:
-            for i in range(len(gpus)):
-                match = re.search('(VEN_(\d|\w){4})\&(DEV_(\d|\w){4})', pci[i])
+            for GPU in GPUS:
+                try:
+                    gpu = GPU.wmi_property('Name').value
+                    pci = GPU.wmi_property('PNPDeviceID').value
+                    match = re.search(
+                        '(VEN_(\d|\w){4})\&(DEV_(\d|\w){4})', pci)
+                except:
+                    continue
 
                 ven, dev = 'Unable to detect.', 'Unable to detect.'
 
@@ -116,44 +152,32 @@ class WindowsHardwareManager:
                     ven, dev = ['0x' + x.split('_')[1]
                                 for x in match.group(0).split('&')]
 
-                    igpu = self.intel.get(dev.upper()[2:], {})
-
-                    if igpu:
-                        CPU = self.info['CPU'][0][list(
-                            self.info['CPU'][0].keys())[0]]
-
-                        self.info['CPU'][0] = {
-                            list(self.info['CPU'][0].keys())[0]: CPU | {
-                                'Codename': igpu.get('codename')
-                            }
-                        }
-
-                if not gpus[i]:
+                if not gpu:
                     continue
 
                 self.info['GPU'].append({
-                    gpus[i]: {
+                    gpu: {
                         'Device ID': dev,
                         'Vendor': ven
                     }
                 })
 
     def net_info(self):
-        cmdlet = 'powershell -Command {}'
-        cmd = '"Get-WmiObject -Class Win32_NetworkAdapter | Select-Object -ExpandProperty {}"'
-
         try:
-            paths = subprocess.check_output(shlex.split(
-                cmdlet.format(cmd.format('PNPDeviceID')))).decode().split('\n')
+            NICS = self.c.instances('Win32_NetworkAdapter')
         except:
             return
         else:
-            for i in range(len(paths)):
-                pci = 'pci' in paths[i].lower()
+            for NIC in NICS:
+                try:
+                    path = NIC.wmi_property('PNPDeviceID').value
+                    pci = 'pci' in path.lower()
+                except:
+                    continue
 
                 if pci:
                     match = re.search(
-                        '(VEN_(\d|\w){4})\&(DEV_(\d|\w){4})', paths[i])
+                        '(VEN_(\d|\w){4})\&(DEV_(\d|\w){4})', path)
 
                     ven, dev = 'Unable to detect.', 'Unable to detect.'
 
@@ -177,21 +201,21 @@ class WindowsHardwareManager:
                     })
 
     def audio_info(self):
-        cmdlet = 'powershell -Command {}'
-        cmd = '"Get-WmiObject Win32_SoundDevice | Select-Object -ExpandProperty {}"'
-
         try:
-            paths = subprocess.check_output(shlex.split(
-                cmdlet.format(cmd.format('PNPDeviceID')))).decode().split('\n')
+            HDA = self.c.instances('Win32_SoundDevice')
         except:
             return
         else:
-            for i in range(len(paths)):
-                is_valid = 'hdaudio' in paths[i].lower()
+            for AUDIO in HDA:
+                try:
+                    path = AUDIO.wmi_property('PNPDeviceID').value
+                    is_valid = 'hdaudio' in path.lower()
+                except:
+                    continue
 
                 if is_valid:
                     match = re.search(
-                        '(VEN_(\d|\w){4})\&(DEV_(\d|\w){4})', paths[i])
+                        '(VEN_(\d|\w){4})\&(DEV_(\d|\w){4})', path)
 
                     ven, dev = 'Unable to detect.', 'Unable to detect.'
 
@@ -213,3 +237,52 @@ class WindowsHardwareManager:
                                 'Vendor': ven
                             }
                         })
+
+    def mobo_info(self):
+        try:
+            MOBO = self.c.instances('Win32_BaseBoard')[0]
+            model = MOBO.wmi_property('Product').value
+            manufacturer = MOBO.wmi_property('Manufacturer').value
+        except:
+            return
+        else:
+            self.info['Motherboard'] = {
+                'Model': model,
+                'Manufacturer': manufacturer
+            }
+
+    def input_info(self):
+        try:
+            KBS = self.c.instances('Win32_Keyboard')
+            PDS = self.c.instances('Win32_PointingDevice')
+        except:
+            return
+        else:
+            _kbs = self.get_kbpd(KBS)
+            _pds = self.get_kbpd(PDS)
+
+            for kb in _kbs:
+                self.info['Input'].append(kb)
+
+            for pd in _pds:
+                self.info['Input'].append(pd)
+
+    def get_kbpd(self, items):
+        _items = []
+        for item in items:
+            try:
+                description = item.wmi_property('Description').value
+                devid = item.wmi_property('DeviceID').value
+
+                if not any(x in description.lower() for x in ('ps/2', 'hid', 'synaptics')):
+                    continue
+
+                _items.append({
+                    description: {
+                        'DeviceID': devid
+                    }
+                })
+            except:
+                continue
+
+        return _items

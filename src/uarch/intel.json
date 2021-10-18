@@ -1,0 +1,495 @@
+[
+    {
+        "Codename": "80486",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X4",
+        "ExtModels": ["0X0"],
+        "BaseModels": [
+            "0X1",
+            "0X2",
+            "0X3",
+            "0X4",
+            "0X5",
+            "0X7",
+            "0X8",
+            "0X9"
+        ]
+    },
+
+    {
+        "Codename": "P5",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X5",
+        "ExtModels": ["0X0"],
+        "BaseModels": [
+            "0X1",
+            "0X2",
+            "0X4",
+            "0X7",
+            "0X8"
+        ]
+    },
+
+    {
+        "Codename": "Lakemont",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X5",
+        "ExtModels": ["0X0"],
+        "BaseModels": [
+            "0X9",
+            "0XA"
+        ]
+    },
+
+    {
+        "Codename": "Knights Landing",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X5"],
+        "BaseModels": ["0X7"]
+    },
+
+    {
+        "Codename": "Knights Mill",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X8"],
+        "BaseModels": ["0X5"]
+    },
+
+    {
+        "Codename": "Bonnell",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": [
+            "0X1",
+            "0X2"
+        ],
+        "BaseModels": [
+            "0X6",
+            "0XC"
+        ]
+    },
+
+    {
+        "Codename": "Saltwell",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": [
+            "0X2",
+            "0X3"
+        ],
+        "BaseModels": [
+            "0X5",
+            "0X6",
+            "0X7"
+        ]
+    },
+
+    {
+        "Codename": "Silvermont",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": [
+            "0X3",
+            "0X4",
+            "0X5"
+        ],
+        "BaseModels": [
+            "0X7",
+            "0XA",
+            "0XD"
+        ]
+    },
+
+    {
+        "Codename": "Airmont",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X6"],
+        "BaseModels": ["0XC"]
+    },
+
+    {
+        "Codename": "Goldmont",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X5"],
+        "BaseModels": [
+            "0XC",
+            "0XF"
+        ]
+    },
+
+    {
+        "Codename": "Goldmont Plus",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X7"],
+        "BaseModels": ["0XA"]
+    },
+
+    {
+        "Codename": "Tremont",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": [
+            "0X8",
+            "0X9"
+        ],
+        "BaseModels": [
+            "0X6",
+            "0XA",
+            "0XC"
+        ]
+    },
+
+    {
+        "Codename": "P6",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X0"],
+        "BaseModels": [
+            "0X1",
+            "0X3",
+            "0X5",
+            "0X6",
+            "0X7",
+            "0X8",
+            "0XA",
+            "0XB"
+        ]
+    },
+
+    {
+        "Codename": "Penryn (Server)",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X1"],
+        "BaseModels": [
+            "0X7",
+            "0XD"
+        ]
+    },
+
+    {
+        "Codename": "Nehalem (Server)",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": [
+            "0X1", 
+            "0X2"
+        ],
+        "BaseModels": [
+            "0XA",
+            "0XE"
+        ]
+    },
+
+    {
+        "Codename": "Westmere (Server)",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X2"],
+        "BaseModels": [
+            "0XC",
+            "0XF"
+        ]
+    },
+
+    {
+        "Codename": "Sandy Bridge (Server)",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X2"],
+        "BaseModels": ["0XD"]
+    },
+
+    {
+        "Codename": "Ivy Bridge (Server)",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X3"],
+        "BaseModels": ["0XE"]
+    },
+
+    {
+        "Codename": "Haswell (Server)",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X3"],
+        "BaseModels": ["0XF"]
+    },
+
+    {
+        "Codename": "Broadwell (Server)",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": [
+            "0X4",
+            "0X5"
+        ],
+        "BaseModels": [
+            "0X6",
+            "0XF"
+        ]
+    },
+
+    {
+        "Codename": "Skylake (Server)",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X5"],
+        "BaseModels": ["0X5"]
+    },
+
+    {
+        "Codename": "Icelake (Server)",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X6"],
+        "BaseModels": [
+            "0XA",
+            "0XC"
+        ]
+    },
+
+    {
+        "Codename": "Sapphire Rapids",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X8"],
+        "BaseModels": ["0XF"]
+    },
+
+    {
+        "Codename": "Pentium M",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": [
+            "0X0",
+            "0X1"
+        ],
+        "BaseModels": [
+            "0X5",
+            "0X9",
+            "0XD"
+        ]
+    },
+
+    {
+        "Codename": "Modified Pentium M",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X0"],
+        "BaseModels": ["0XE"]
+    },
+
+    {
+        "Codename": "Core (~Merom)",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": [
+            "0X0",
+            "0X1"
+        ],
+        "BaseModels": [
+            "0X6",
+            "0XF"
+        ]
+    },
+
+    {
+        "Codename": "Penryn",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X1"],
+        "BaseModels": ["0X7"]
+    },
+
+    {
+        "Codename": "Nehalem",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X1"],
+        "BaseModels": [
+            "0XE",
+            "0XF"
+        ]
+    },
+
+    {
+        "Codename": "Westmere",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X2"],
+        "BaseModels": ["0X5"]
+    },
+
+    {
+        "Codename": "Sandy Bridge",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X2"],
+        "BaseModels": ["0XA"]
+    },
+
+    {
+        "Codename": "Ivy Bridge",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X3"],
+        "BaseModels": ["0XA"]
+    },
+
+    {
+        "Codename": "Haswell",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": [
+            "0X3",
+            "0X4"
+        ],
+        "BaseModels": [
+            "0X5",
+            "0X6",
+            "0XC"
+        ]
+    },
+
+    {
+        "Codename": "Broadwell",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": [
+            "0X3",
+            "0X4"
+        ],
+        "BaseModels": [
+            "0X7",
+            "0XD"
+        ]
+    },
+
+    {
+        "Codename": "Skylake",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": [
+            "0X4",
+            "0X5"
+        ],
+        "BaseModels": ["0XE"]
+    },
+
+    {
+        "Codename": "Kaby Lake",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X8"],
+        "BaseModels": ["0XE"]
+    },
+
+    {
+        "Codename": "Coffee Lake",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X9"],
+        "BaseModels": ["0XE"]
+    },
+
+    {
+        "Codename": "Cannon Lake",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X6"],
+        "BaseModels": ["0X6"]
+    },
+    
+    {
+        "Codename": "Whiskey Lake",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X8"],
+        "BaseModels": ["0XE"]
+    },
+
+    {
+        "Codename": "Comet Lake",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0XA"],
+        "BaseModels": ["0X2"]
+    },
+
+    {
+        "Codename": "Ice Lake",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X7"],
+        "BaseModels": [
+            "0XD",
+            "0XE"
+        ]
+    },
+
+    {
+        "Codename": "Tiger Lake",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X8"],
+        "BaseModels": [
+            "0XC",
+            "0XD"
+        ]
+    },
+
+    {
+        "Codename": "Rocket Lake",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0XA"],
+        "BaseModels": ["0X7"]
+    },
+
+    {
+        "Codename": "Alder Lake",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0X6",
+        "ExtModels": ["0X9"],
+        "BaseModels": [
+            "0X7",
+            "0XA"
+        ]
+    },
+
+    {
+        "Codename": "Knights Corner",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0XB",
+        "ExtModels": ["0X0"],
+        "BaseModels": ["0X1"]
+    },
+
+    {
+        "Codename": "Knights Ferry",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0XB",
+        "ExtModels": ["0X0"],
+        "BaseModels": ["0X0"]
+    },
+
+    {
+        "Codename": "Netburst",
+        "ExtFamily": "0X0",
+        "BaseFamily": "0XF",
+        "ExtModels": ["0X0"],
+        "BaseModels": [
+            "0X1",
+            "0X2",
+            "0X3",
+            "0X4",
+            "0X6"
+        ]
+    }
+]

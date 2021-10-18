@@ -6,7 +6,7 @@ import plistlib
 import subprocess
 import sys
 import time
-from info import name, version, os_ver, arch
+from info import name, version, os_ver, arch, color_text
 from managers.tree import tree
 from root import root
 
@@ -21,7 +21,7 @@ class UI:
     def __init__(self, dm):
         self.dm = dm
         self.dm.info = {k: v for (k, v) in self.dm.info.items(
-        ) if self.dm.info[k] and v[0] != {}}
+        ) if self.dm.info[k] and (v[0] != {} if isinstance(v, list) else v != {})}
 
     def handle_cmd(self, options=[]):
         cmd = input("\n\nPlease select an option: ")
@@ -34,9 +34,9 @@ class UI:
                 option[2]()
 
                 print("Successfully executed.")
-                print("Going back to main menu in 5 seconds...")
-
-                time.sleep(5)
+                for i in range(5, 0, -1):
+                    print(f"Going back to main menu in {i} {'seconds' if not i == 1 else 'second'}...", end="\r")
+                    time.sleep(1)
 
                 self.clear()
                 self.create_ui()
@@ -44,9 +44,9 @@ class UI:
 
         if not valid:
             self.clear()
-            print("Invalid option! Try again in 5 seconds...")
-
-            time.sleep(5)
+            for i in range(5, 0, -1):
+                print(f"Invalid option! Try again in {i} {'seconds' if not i == 1 else 'second'}..." + " "*10, end="\r")
+                time.sleep(1)
 
             self.clear()
             self.create_ui()
@@ -160,9 +160,9 @@ class UI:
     def title(self):
         spaces = " " * int((53 - len(name)) / 2)
 
-        print(" " * 2 + "#" * 55)
-        print(" #" + spaces + name + spaces + "#")
-        print("#" * 55, "\n" * 2)
+        print(color_text(" " * 2 + "#" * 55, "cyan"))
+        print(color_text(" #" + spaces + name + spaces + "#", "cyan"))
+        print(color_text("#" * 55 + "\n" * 2, "cyan"))
 
     def hack_disclaimer(self):
         kern_ver = int(os.uname().release.split('.')[0])
@@ -175,4 +175,8 @@ class UI:
                 ['kextstat', '-l'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
         if [x in kext_loaded.stdout.decode().lower() for x in ('fakesmc', 'virtualsmc')]:
-            return "DISCLAIMER: \nTHIS IS BEING RAN ON A HACKINTOSH, \nINFORMATION EXTRACTED MIGHT NOT BE COMPLETELY ACCURATE."
+            return color_text("DISCLAIMER:\n"
+                              "THIS IS BEING RUN ON A HACKINTOSH.\n"
+                              "INFORMATION EXTRACTED MIGHT NOT BE COMPLETELY ACCURATE.",
+                              "red"
+                              )
