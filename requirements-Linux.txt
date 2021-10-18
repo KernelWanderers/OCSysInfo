@@ -1,5 +1,4 @@
 requests
 dicttoxml
 distro
-pyobjc
 cpuid
