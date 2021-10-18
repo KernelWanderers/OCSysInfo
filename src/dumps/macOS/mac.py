@@ -1,8 +1,13 @@
 import binascii
+import ctypes
+import json
+import os
 import dumps.macOS.ioreg as ioreg
 import subprocess
-from managers.devicemanager import DeviceManager
 from error.cpu_err import cpu_err
+from managers.devicemanager import DeviceManager
+from util.codename import codename
+from root import root
 
 
 class MacHardwareManager:
@@ -16,7 +21,6 @@ class MacHardwareManager:
     def __init__(self, parent: DeviceManager):
         self.info = parent.info
         self.pci = parent.pci
-        self.intel = parent.intel
 
     def dump(self):
         self.cpu_info()
@@ -25,14 +29,26 @@ class MacHardwareManager:
         self.audio_info()
         self.input_info()
 
+    def extf(self):
+        libname = os.path.join(root, 'src', 'cpuid', 'asm-cpuid.so')
+        c_lib = ctypes.CDLL(libname)
+
+        return (c_lib.EAX() >> 20) & 0xf
+
     def cpu_info(self):
         try:
             # Model of the CPU
             model = subprocess.check_output([
-                'sysctl', 'machdep.cpu.brand_string'], shell=False).decode().split(': ')[1].strip()
+                'sysctl', 'machdep.cpu.brand_string']).decode().split(': ')[1].strip()
         except Exception as e:
             cpu_err(e)
         try:
+            # Manufacturer/Vendor of this CPU;
+            # Used for determining which JSON to use.
+            vendor = 'intel' if 'intel' in subprocess.check_output([
+                'sysctl', 'machdep.cpu.vendor'
+            ]).decode().split(': ')[1].strip().lower() else 'amd'
+
             # Full list of features for this CPU.
             features = subprocess.check_output([
                 'sysctl', 'machdep.cpu.features']).decode().strip()
@@ -52,6 +68,37 @@ class MacHardwareManager:
             # Amount of threads for this processor.
             'Threads': subprocess.check_output(['sysctl', 'machdep.cpu.thread_count']).decode().split(': ')[1].strip() + ' threads'
         }
+
+        try:
+            extf = hex(int(subprocess.check_output(
+                ['sysctl', 'machdep.cpu.extfamily']
+            ).decode().split(': ')[1].strip()))
+
+            fam = hex(int(subprocess.check_output(
+                ['sysctl', 'machdep.cpu.family']
+            ).decode().split(': ')[1].strip()))
+
+            n = int(subprocess.check_output(
+                ['sysctl', 'machdep.cpu.model']
+            ).decode().split(': ')[1].strip())
+
+            # Credits to:
+            # https://github.com/1Revenger1
+            extm = hex((n >> 4) & 0xf)
+            base = hex(n & 0xf)
+
+            _data = json.load(
+                open(os.path.join(root, 'src', 'uarch', f'{vendor}.json'))
+            )
+
+            cname = codename(_data, extf.upper(), fam.upper(),
+                             extm.upper(), base.upper())
+
+            if cname:
+                data['Codename'] = cname
+        except Exception as e:
+            raise e
+            pass
 
         # This will fail if the CPU is _not_
         # of an x86-like architecture, which
@@ -113,21 +160,6 @@ class MacHardwareManager:
                 }
             except:
                 data = {}
-
-            try:
-                igpu = self.intel.get(dev.upper()[2:], {})
-
-                if igpu:
-                    CPU = self.info['CPU'][0][list(
-                        self.info['CPU'][0].keys())[0]]
-
-                    self.info['CPU'][0] = {
-                        list(self.info['CPU'][0].keys())[0]: CPU | {
-                            'Codename': igpu.get('codename')
-                        }
-                    }
-            except:
-                pass
 
             self.info['GPU'].append({
                 model: data
