@@ -125,7 +125,7 @@ class WindowsHardwareManager:
                             self.info['CPU'][0].keys())[0]]
 
                         self.info['CPU'][0] = {
-                            list(self.info['CPU'][0].keys())[0]: CPU | {
+                            list(self.info['CPU'][0].keys())[0]: CPU or  {
                                 'Codename': igpu.get('codename')
                             }
                         }
