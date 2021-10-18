@@ -96,8 +96,7 @@ class MacHardwareManager:
 
             if cname:
                 data['Codename'] = cname
-        except Exception as e:
-            raise e
+        except:
             pass
 
         # This will fail if the CPU is _not_
