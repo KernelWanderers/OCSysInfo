@@ -2,4 +2,3 @@ requests
 dicttoxml
 distro
 wmi
-cpuid
