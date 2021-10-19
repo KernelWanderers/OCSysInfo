@@ -140,3 +140,6 @@ del_*.batch
 del_*.sh
 del_*.bash
 del_*.ps1
+
+# VSCode stuff.
+.vscode

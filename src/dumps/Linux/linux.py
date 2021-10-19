@@ -30,7 +30,7 @@ class LinuxHardwareManager:
         self.input_info()
 
     def extf(self):
-        libname = os.path.join(root, 'src', 'cpuid', 'asm-cpuid.so')
+        libname = os.path.join(root, 'cpp', 'bindings', 'cpuid', 'asm-cpuid.so')
         c_lib = ctypes.CDLL(libname)
 
         return (c_lib.EAX() >> 20) & 0xf
@@ -127,7 +127,7 @@ class LinuxHardwareManager:
                     dev = open(f'{path}/device/device', 'r').read().strip()
 
                     model = self.pci.get_item(dev[2:], ven[2:]).get('device')
-                except Exception as e:
+                except:
                     continue
 
                 self.info.get('GPU').append({

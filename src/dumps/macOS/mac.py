@@ -29,12 +29,6 @@ class MacHardwareManager:
         self.audio_info()
         self.input_info()
 
-    def extf(self):
-        libname = os.path.join(root, 'src', 'cpuid', 'asm-cpuid.so')
-        c_lib = ctypes.CDLL(libname)
-
-        return (c_lib.EAX() >> 20) & 0xf
-
     def cpu_info(self):
         try:
             # Model of the CPU
@@ -96,8 +90,7 @@ class MacHardwareManager:
 
             if cname:
                 data['Codename'] = cname
-        except Exception as e:
-            raise e
+        except:
             pass
 
         # This will fail if the CPU is _not_
@@ -245,12 +238,13 @@ class MacHardwareManager:
                     continue
 
                 try:
-                    dev = hex(device.get('IOHDACodecVendorID'))[6:]
-                    ven = hex(device.get('IOHDACodecVendorID'))[2:6]
+                    dev = '0x' + hex(device.get('IOHDACodecVendorID'))[6:]
+                    ven = '0x' + hex(device.get('IOHDACodecVendorID'))[2:6]
+
                 except:
                     continue
 
-                model = self.pci.get_item(dev, ven)
+                model = self.pci.get_item(dev[2:], ven[2:])
 
                 if model:
                     model = model.get('device')
@@ -287,9 +281,6 @@ class MacHardwareManager:
             self.audio_info(default=True)
 
     def input_info(self):
-        if not self.info.get('Input'):
-            self.info['Input'] = []
-
         device = {
             'IOProviderClass': 'IOHIDDevice'
         }
