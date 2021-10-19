@@ -1,7 +1,12 @@
+import ctypes
 import os
 import re
-import subprocess
+import json
+from dumps.Windows.cpuid import CPUID
+from error.cpu_err import cpu_err
 from managers.devicemanager import DeviceManager
+from root import root
+from util.codename import codename
 
 
 class LinuxHardwareManager:
@@ -15,7 +20,6 @@ class LinuxHardwareManager:
     def __init__(self, parent: DeviceManager):
         self.info = parent.info
         self.pci = parent.pci
-        self.intel = parent.intel
 
     def dump(self):
         self.cpu_info()
@@ -25,11 +29,17 @@ class LinuxHardwareManager:
         self.audio_info()
         self.input_info()
 
+    def extf(self):
+        libname = os.path.join(root, 'cpp', 'bindings', 'cpuid', 'asm-cpuid.so')
+        c_lib = ctypes.CDLL(libname)
+
+        return (c_lib.EAX() >> 20) & 0xf
+
     def cpu_info(self):
         try:
-            cpus = subprocess.getoutput('cat /proc/cpuinfo')
-        except:
-            return
+            cpus = open('/proc/cpuinfo', 'r').read()
+        except Exception as e:
+            cpu_err(e)
 
         cpu = cpus.split('\n\n')
 
@@ -41,39 +51,67 @@ class LinuxHardwareManager:
         model = re.search(r'(?<=model name\t\: ).+(?=\n)', cpu)
         flagers = re.search(r'(?<=flags\t\t\: ).+(?=\n)', cpu)
         cores = re.search(r'(?<=cpu cores\t\: ).+(?=\n)', cpu)
-        # Count the amount of times 'processor'
-        # is matched, since threads are enumerated
-        # individually.
+        _model = re.search(r'(?<=model\t\t\: ).+(?=\n)', cpu)
+        fam = re.search(r'(?<=cpu\sfamily	\: ).+(?=\n)', cpu)
+
         data = {}
 
         if model:
+            model = model.group()
             data = {
-                model.group(0): {}
+                model: {}
             }
         else:
             return
 
         if flagers:
-            flagers = flagers.group(0)
+            flagers = flagers.group()
 
             # List of supported SSE instructions.
-            data[model.group(0)]['SSE'] = list(sorted([flag.replace('_', '.') for flag in flagers.split(' ') if 'sse' in flag.lower(
-            ) and not 'ssse' in flag.lower()], reverse=True))[0]
-            data[model.group(
-                0)]['SSSE3'] = 'Supported' if 'ssse3' in flagers else 'Not Available'
+            data[model]['SSE'] = list(sorted([flag.replace('_', '.') for flag in flagers.split(' ') if 'sse' in flag.lower(
+            ) and not 'ssse' in flag.lower()], reverse=True))[0].upper()
+            data[model]['SSSE3'] = 'Supported' if 'ssse3' in flagers else 'Not Available'
 
         if cores:
-            data[model.group(0)]['Cores'] = cores.group(0)
+            data[model]['Cores'] = cores.group()
 
         try:
-            data[model.group(0)]['Threads'] = subprocess.getoutput(
-                'grep -c processor /proc/cpuinfo')
+            # Count the amount of times 'processor'
+            # is matched, since threads are enumerated
+            # individually.
+            data[model]['Threads'] = open(
+                '/proc/cpuinfo', 'r').read().count('processor')
         except:
             pass
 
-        self.info.get('CPU').append({
-            model.group(0): data
-        })
+        if _model and fam:
+            try:
+                fam = hex(int(fam.group()))
+                n = int(_model.group())
+
+                # Credits to:
+                # https://github.com/1Revenger1
+                extm = hex((n >> 0x4) & 0xf)
+                base = hex(n & 0xf)
+
+                extf = hex(self.extf())
+                vendor = 'intel' if 'intel' in re.search(
+                    r'(?<=vendor_id	\: ).+(?=\n)', cpu).group().lower() else 'amd'
+
+                _data = json.load(
+                    open(os.path.join(root, 'src',
+                         'uarch', f'{vendor}.json'), 'r')
+                )
+
+                cname = codename(_data, extf.upper(),
+                                 fam.upper(), extm.upper(), base.upper())
+
+                if cname:
+                    data[model]['Codename'] = cname
+            except:
+                pass
+
+        self.info.get('CPU').append(data)
 
     def gpu_info(self):
         for file in os.listdir('/sys/class/drm/'):
@@ -82,29 +120,15 @@ class LinuxHardwareManager:
             # inside of sysfs's DRM directory. So we look for those, and traverse
             # them. We look for the `device` and `vendor` file, which should always be there.
             if 'card' in file and not '-' in file:
-                path = '/sys/class/drm/{}'.format(file)
+                path = f'/sys/class/drm/{file}'
 
                 try:
-                    ven = subprocess.getoutput(
-                        'cat {}/device/vendor'.format(path))
-                    dev = subprocess.getoutput(
-                        'cat {}/device/device'.format(path))
+                    ven = open(f'{path}/device/vendor', 'r').read().strip()
+                    dev = open(f'{path}/device/device', 'r').read().strip()
 
-                    model = (self.pci.get_item(dev[2:], ven[2:])).get('device')
+                    model = self.pci.get_item(dev[2:], ven[2:]).get('device')
                 except:
                     continue
-
-                igpu = self.intel.get(dev.upper()[2:], {})
-
-                if igpu:
-                    CPU = self.info['CPU'][0][list(
-                        self.info['CPU'][0].keys())[0]]
-
-                    self.info['CPU'][0] = {
-                        list(self.info['CPU'][0].keys())[0]: CPU | {
-                            'Codename': igpu.get('codename')
-                        }
-                    }
 
                 self.info.get('GPU').append({
                     model: {
@@ -115,15 +139,15 @@ class LinuxHardwareManager:
 
     def net_info(self):
         for file in os.listdir('/sys/class/net'):
-            path = '/sys/class/net/{}/device'.format(file)
+            path = f'/sys/class/net/{file}/device'
 
             # We ensure that the enumerated directory in the sysfs net
             # directory is a valid card, since it'll contain a `vendor` and
             # `device` file.
             if os.path.isfile('{}/device'.format(path)):
                 try:
-                    ven = subprocess.getoutput('cat {}/vendor'.format(path))
-                    dev = subprocess.getoutput('cat {}/device'.format(path))
+                    ven = open(f'{path}/vendor', 'r').read().strip()
+                    dev = open(f'{path}/device', 'r').read().strip()
 
                     model = self.pci.get_item(dev[2:], ven[2:]).get('device')
                 except:
@@ -143,12 +167,12 @@ class LinuxHardwareManager:
             # Sound devices are enumerated similarly to DRM devices,
             # with the format `cardX`, so we look for those, and look
             # for `vendor` and `device` files.
-            if "card" in file.lower() and not "-" in file.lower():
-                path = '/sys/class/sound/{}/device'.format(file)
+            if 'card' in file.lower() and not '-' in file.lower():
+                path = f'/sys/class/sound/{file}/device'
 
                 try:
-                    ven = subprocess.getoutput('cat {}/vendor'.format(path))
-                    dev = subprocess.getoutput('cat {}/device'.format(path))
+                    ven = open(f'{path}/vendor', 'r').read().strip()
+                    dev = open(f'{path}/device', 'r').read().strip()
 
                     model = self.pci.get_item(dev[2:], ven[2:]).get('device')
                 except:
@@ -171,10 +195,10 @@ class LinuxHardwareManager:
         # `board_vendor` to extract its model name,
         # and its vendor's name.
         try:
-            model = subprocess.getoutput(
-                'cat /sys/devices/virtual/dmi/id/board_name')
-            vendor = subprocess.getoutput(
-                'cat /sys/devices/virtual/dmi/id/board_vendor')
+            path = '/sys/devices/virtual/dmi/id'
+
+            model = open(f'{path}/board_name', 'r').read().strip()
+            vendor = open(f'{path}/board_vendor', 'r').read().strip()
         except:
             return
 
@@ -198,31 +222,80 @@ class LinuxHardwareManager:
         # Out of the things we look for,
         # it contains the device name, and its sysfs path.
         try:
-            devices = subprocess.getoutput('cat /proc/bus/input/devices')
+            devices = open('/proc/bus/input/devices', 'r').read().strip()
             sysfs = []
         except:
             return
 
         for device in devices.split('\n\n'):
-            if not any((x in device.lower() for x in ("touchpad", "trackpad", "synaptics", "usb"))):
-                continue
-
             for line in device.split('\n'):
-                if "sysfs" in line.lower():
-                    sysfs.append("/sys{}".format(line.split('=')[1]))
+                if 'sysfs' in line.lower():
+                    sysfs.append('/sys{}'.format(line.split('=')[1]))
 
         for path in sysfs:
+            # RMI4 devices, probably SMBus
+            # TODO: I2C RMI4 devices
+            if 'rmi4' in path.lower():
+                # Check for passed-through devices like trackpad
+                if 'fn' in path:
+                    continue
+
+                if (not os.path.isfile(f'{path}/name')) or \
+                   (not os.path.isfile(f'{path}/id/vendor')):
+                    continue
+
+                try:
+                    prod_id = open(f'{path}/name', 'r').read().strip()
+                    vendor = open(f'{path}/id/vendor', 'r').read().strip()
+                except:
+                    continue
+
+                self.info['Input'].append({
+                    'Synaptics SMbus Trackpad': {
+                        'Device ID': prod_id,
+                        'Vendor': vendor
+                    }
+                })
+
+            # PS2 devices
+            if 'i8042' in path.lower():
+                if not os.path.isfile(f'{path}/name'):
+                    continue
+
+                try:
+                    name = open(f'{path}/name').read().strip()
+                except:
+                    continue
+
+                port = re.search('\d+(?=\/input)', path)
+
+                self.info['Input'].append({
+                    name: {
+                        'PS2 Port': port.group()
+                    }
+                })
+
+            # Thinkpad hotkeys (HKEYs ACPI device)
+            # Also includes Battery level controls, LED control, etc
+            if 'thinkpad_acpi' in path.lower():
+                self.info['Input'].append({
+                    'Thinkpad Fn Keys': {}
+                })
+
+            # TODO: Handle I2C HID
+            if not 'usb' in path.lower():
+                continue
+
             if os.path.isfile('{}/id/vendor'.format(path)):
                 try:
-                    ven = subprocess.getoutput('cat {}/id/vendor'.format(path))
-                    dev = subprocess.getoutput(
-                        'cat {}/id/product'.format(path))
+                    dev = '0x' + open(f'{path}/id/product', 'r').read().strip()
+                    ven = '0x' + open(f'{path}/id/vendor', 'r').read().strip()
                 except:
                     continue
 
                 else:
                     if ven and dev:
-                        name = self.pci.get_item(dev, ven, types="usb")
+                        name = self.pci.get_item(dev[2:], ven[2:], types='usb')
 
                         if not name:
                             continue

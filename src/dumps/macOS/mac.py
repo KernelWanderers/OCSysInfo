@@ -1,21 +1,26 @@
 import binascii
+import ctypes
+import json
+import os
 import dumps.macOS.ioreg as ioreg
 import subprocess
+from error.cpu_err import cpu_err
 from managers.devicemanager import DeviceManager
+from util.codename import codename
+from root import root
 
 
 class MacHardwareManager:
-    '''
+    """
     Instance, implementing `DeviceManager`, for extracting system information
     from macOS using the `IOKit` framework.
 
     https://developer.apple.com/documentation/iokit
-    '''
+    """
 
     def __init__(self, parent: DeviceManager):
         self.info = parent.info
         self.pci = parent.pci
-        self.intel = parent.intel
 
     def dump(self):
         self.cpu_info()
@@ -27,14 +32,20 @@ class MacHardwareManager:
     def cpu_info(self):
         try:
             # Model of the CPU
-            model = subprocess.getoutput(
-                'sysctl -a | grep "brand_string"').split(': ')[1]
-        except:
-            return
-
+            model = subprocess.check_output([
+                'sysctl', 'machdep.cpu.brand_string']).decode().split(': ')[1].strip()
+        except Exception as e:
+            cpu_err(e)
         try:
+            # Manufacturer/Vendor of this CPU;
+            # Used for determining which JSON to use.
+            vendor = 'intel' if 'intel' in subprocess.check_output([
+                'sysctl', 'machdep.cpu.vendor'
+            ]).decode().split(': ')[1].strip().lower() else 'amd'
+
             # Full list of features for this CPU.
-            features = subprocess.getoutput('sysctl machdep.cpu.features')
+            features = subprocess.check_output([
+                'sysctl', 'machdep.cpu.features']).decode().strip()
         except:
             features = None
 
@@ -46,11 +57,41 @@ class MacHardwareManager:
             'SSSE3': '',
 
             # Amount of cores for this processor.
-            'Cores': subprocess.getoutput('sysctl machdep.cpu.core_count').split(': ')[1] + ' cores',
+            'Cores': subprocess.check_output(['sysctl', 'machdep.cpu.core_count']).decode().split(': ')[1].strip() + ' cores',
 
             # Amount of threads for this processor.
-            'Threads': subprocess.getoutput('sysctl machdep.cpu.thread_count').split(': ')[1] + ' threads'
+            'Threads': subprocess.check_output(['sysctl', 'machdep.cpu.thread_count']).decode().split(': ')[1].strip() + ' threads'
         }
+
+        try:
+            extf = hex(int(subprocess.check_output(
+                ['sysctl', 'machdep.cpu.extfamily']
+            ).decode().split(': ')[1].strip()))
+
+            fam = hex(int(subprocess.check_output(
+                ['sysctl', 'machdep.cpu.family']
+            ).decode().split(': ')[1].strip()))
+
+            n = int(subprocess.check_output(
+                ['sysctl', 'machdep.cpu.model']
+            ).decode().split(': ')[1].strip())
+
+            # Credits to:
+            # https://github.com/1Revenger1
+            extm = hex((n >> 4) & 0xf)
+            base = hex(n & 0xf)
+
+            _data = json.load(
+                open(os.path.join(root, 'src', 'uarch', f'{vendor}.json'))
+            )
+
+            cname = codename(_data, extf.upper(), fam.upper(),
+                             extm.upper(), base.upper())
+
+            if cname:
+                data['Codename'] = cname
+        except:
+            pass
 
         # This will fail if the CPU is _not_
         # of an x86-like architecture, which
@@ -112,21 +153,6 @@ class MacHardwareManager:
                 }
             except:
                 data = {}
-
-            try:
-                igpu = self.intel.get(dev.upper()[2:], {})
-
-                if igpu:
-                    CPU = self.info['CPU'][0][list(
-                        self.info['CPU'][0].keys())[0]]
-
-                    self.info['CPU'][0] = {
-                        list(self.info['CPU'][0].keys())[0]: CPU | {
-                            'Codename': igpu.get('codename')
-                        }
-                    }
-            except:
-                pass
 
             self.info['GPU'].append({
                 model: data
@@ -212,12 +238,13 @@ class MacHardwareManager:
                     continue
 
                 try:
-                    dev = hex(device.get('IOHDACodecVendorID'))[6:]
-                    ven = hex(device.get('IOHDACodecVendorID'))[2:6]
+                    dev = '0x' + hex(device.get('IOHDACodecVendorID'))[6:]
+                    ven = '0x' + hex(device.get('IOHDACodecVendorID'))[2:6]
+
                 except:
                     continue
 
-                model = self.pci.get_item(dev, ven)
+                model = self.pci.get_item(dev[2:], ven[2:])
 
                 if model:
                     model = model.get('device')
@@ -254,9 +281,6 @@ class MacHardwareManager:
             self.audio_info(default=True)
 
     def input_info(self):
-        if not self.info.get('Input'):
-            self.info['Input'] = []
-
         device = {
             'IOProviderClass': 'IOHIDDevice'
         }
@@ -276,9 +300,9 @@ class MacHardwareManager:
                 continue
 
             if hid:
-                hid = "(" + hid + ")"
+                hid = " (" + hid + ")"
 
-            if any('{} {}'.format(name, hid) in k for k in self.info['Input']):
+            if any('{}{}'.format(name, hid) in k for k in self.info['Input']):
                 continue
 
             try:
@@ -292,7 +316,7 @@ class MacHardwareManager:
             except:
                 data = {}
 
-            name = '{} {}'.format(name,  hid)
+            name = '{}{}'.format(name,  hid)
 
             self.info['Input'].append({
                 name: data

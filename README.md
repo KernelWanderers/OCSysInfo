@@ -52,8 +52,11 @@ git clone https://github.com/iabtw/OCSysInfo.git
 
 cd OCSysInfo
 
-# Installing dependencies on Windows/Linux
-python3 -m pip install -r requirements.txt
+# Installing dependencies on Windows
+python3 -m pip install -r requirements-Windows.txt
+
+# Installing dependencies on Linux
+python3 -m pip install -r requirements-Linux.txt
 
 # Installing dependencies on macOS
 python3 -m pip install -r requirements-macOS.txt
