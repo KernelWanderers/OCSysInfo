@@ -238,12 +238,13 @@ class MacHardwareManager:
                     continue
 
                 try:
-                    dev = hex(device.get('IOHDACodecVendorID'))[6:]
-                    ven = hex(device.get('IOHDACodecVendorID'))[2:6]
+                    dev = '0x' + hex(device.get('IOHDACodecVendorID'))[6:]
+                    ven = '0x' + hex(device.get('IOHDACodecVendorID'))[2:6]
+
                 except:
                     continue
 
-                model = self.pci.get_item(dev, ven)
+                model = self.pci.get_item(dev[2:], ven[2:])
 
                 if model:
                     model = model.get('device')
@@ -280,9 +281,6 @@ class MacHardwareManager:
             self.audio_info(default=True)
 
     def input_info(self):
-        if not self.info.get('Input'):
-            self.info['Input'] = []
-
         device = {
             'IOProviderClass': 'IOHIDDevice'
         }
