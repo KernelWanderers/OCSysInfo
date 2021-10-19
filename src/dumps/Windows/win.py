@@ -116,10 +116,10 @@ class WindowsHardwareManager:
                     extf = hex(self.extf(cpu, 1, 0))
 
                     vendor = 'intel' if 'intel' in manufacturer.lower() else 'amd'
-                    data = json.load(
+                    _data = json.load(
                         open(os.path.join(root, 'src', 'uarch', f'{vendor}.json'), 'r'))
 
-                    cname = codename(data, extf.upper(),
+                    cname = codename(_data, extf.upper(),
                                      fam.upper(), extm.upper(), base.upper())
 
                     if cname:
