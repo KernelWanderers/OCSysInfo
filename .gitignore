@@ -3,8 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# C extensions
-*.so
+# Random bullshit
+.DS_Store
 
 # Distribution / packaging
 .Python
@@ -140,3 +140,6 @@ del_*.batch
 del_*.sh
 del_*.bash
 del_*.ps1
+
+# VSCode stuff.
+.vscode
