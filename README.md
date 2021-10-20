@@ -66,6 +66,37 @@ python3 -m pip install -r requirements-macOS.txt
 
 OCSysInfo takes advantage of each platform's native interaction protocol, except for Linux, which uses a pseudo file system & its distros expose no consistent way of obtaining this information via command/API, in order to extract information about the system's hardware manually.
 
+### Windows
+
+- `WMI`
+  
+  - Windows's WMI (`Windows Management Instrumentation`) is a protocol allowing us to obtain the current system's data—which is practically anything that we could ever ask for. (Some PCI devices even construcxt the `PCIROOT` path where available! Though, generally this data isn't reliable). Data that we look for are as follows (per class):
+
+    - `Win32_Processor` — information about the current system's CPU in use. Though, we only seek out the following properties:
+      - `Manufacturer`
+      - `Name`
+      - `NumberOfCores`
+      - `NumberOfLogicalProcessors`
+      - CPU BaseFamily and “CombinedModel” – since we manually construct BaseModel and ExternalModel by simply doing the following: 
+        - ExternalModel: `(n >> 0x4) & 0xf`
+        - BaesModel: `n & 0xf`
+      - CPU ExternalFamily is constructed by [getting the return value of the `EAX` register](https://github.com/iabtw/OCSysInfo/blob/main/src/dumps/Windows/win.py#L41-L44), and performing a right bit shift for 20 bits, and using the logical `AND` operator with the value `0xf`: `(eax >> 20) & 0xf` 
+      
+    <br />
+
+    - `Win32_VideoController` — information about the current system's **GPU devices** in use. The only properties we seek out are `Name` (the GPU's friendly name) and `PNPDeviceID`, which is basically its PCI path; it includes the device id and vendor id, which we extract.
+
+    - `Win32_NetworkAdapter` — information about [...] system's **Network controllers** available. We only want the `PNPDeviceID` property, from which we can extract the device/vendor id, which we use to query `devicehunt.com` and `pci-ids.ucw.cz` if nothing was found in `devicehunt.com`; the application does _not_ push the device if it cannot be found on either site.
+
+    - `Win32_SoundDevice` — information about [...] system's **audio I/O controllers** available. As with the network adapter, we only care about `PNPDeviceID`.
+
+    - `Win32_BaseBoard` — information about [...] system's **motherboard**, we only care about the `Product` (motherboard model) and `Manufacturer` (vendor name) properties.
+
+    - `Win32_Keyboard` — information about [...] system's **keyboard(s)**, their connection types, and possibly their display names. We only look for the `Description` (type of connector + display name), and the `DeviceID` property.
+
+    - `Win32_PointingDevice` — same as the one item before, but instead for **mice**/**trackpads**/**touchpads**/etc.
+
+
 ### macOS
 
 - `sysctl`
@@ -100,9 +131,9 @@ OCSysInfo takes advantage of each platform's native interaction protocol, except
   - Devices enumerated inside of `/sys/class/sound` are looked at for the audio controllers — generally, they'll have a relatively similar enumerations as `drm` devices — as a `cardX` format.
 
 - `proc`
-  - General CPU information is extracted via `/proc/cpuinfo`
-    - Generally, just running the `cat` command on this file won't expose some vital information such as thread count. <br />
-      The way we obtain threads from it is by doing some black magic: `grep -c processor /proc/cpuinfo`
+  - We are able to take advantage of what is enumerated and the type of data available in Linux's `procfs` pseudo filesystem. For example, we may look into `/proc/bus/input/devices` to list all the names and paths of each input device, and of course, its location in `sysfs` — which is of use for us. 
+
+  - We may also find `/proc/cpuinfo`, which holds data about the current system's CPU. Though, generally, thread count isn't explicitly stated as is, but rather, each thread has its own set of data enumerated in `cpuinfo`'s dump, so we may simply get the thread count by doing: `<cpuinfo>.count('processor')`
 
 ## Issues
 
