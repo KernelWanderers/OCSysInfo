@@ -80,7 +80,7 @@ OCSysInfo takes advantage of each platform's native interaction protocol, except
       - CPU BaseFamily and “CombinedModel” – since we manually construct BaseModel and ExternalModel by simply doing the following: 
         - ExternalModel: `(n >> 0x4) & 0xf`
         - BaesModel: `n & 0xf`
-      - CPU ExternalFamily is constructed by [getting the return value of the `EAX` register](https://github.com/iabtw/OCSysInfo/blob/main/src/dumps/Windows/win.py#L41-L44), and performing a right bit shift for 20 bits, and using the logical `AND` operator with the value `0xf`: `(eax >> 20) & 0xf` 
+      - CPU ExternalFamily is constructed by [getting the return value of the `EAX` register](https://github.com/iabtw/OCSysInfo/blob/main/src/dumps/Windows/win.py#L41-L44), and performing a right bit shift 20 times, and using the logical `AND` operator with the value `0xf`: `(eax >> 20) & 0xf` 
       
     <br />
 
