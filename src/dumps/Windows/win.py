@@ -1,10 +1,7 @@
-import ctypes
-import pathlib
 import re
 import json
 import os
 import wmi
-from managers.devicemanager import DeviceManager
 from util.codename import codename
 from .cpuid import CPUID
 from error.cpu_err import cpu_err
@@ -19,7 +16,7 @@ class WindowsHardwareManager:
     https://docs.microsoft.com/en-us/windows/win32/wmisdk/wmi-start-page
     """
 
-    def __init__(self, parent: DeviceManager):
+    def __init__(self, parent):
         self.info = parent.info
         self.pci = parent.pci
         self.c = wmi.WMI()

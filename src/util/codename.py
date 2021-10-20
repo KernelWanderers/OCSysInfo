@@ -1,4 +1,4 @@
-def codename(data: list[dict], extf, family, extm, model):
+def codename(data, extf, family, extm, model):
     val = None
     for arch in data:
 

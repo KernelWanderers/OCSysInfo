@@ -5,7 +5,6 @@ import os
 import dumps.macOS.ioreg as ioreg
 import subprocess
 from error.cpu_err import cpu_err
-from managers.devicemanager import DeviceManager
 from util.codename import codename
 from root import root
 
@@ -18,7 +17,7 @@ class MacHardwareManager:
     https://developer.apple.com/documentation/iokit
     """
 
-    def __init__(self, parent: DeviceManager):
+    def __init__(self, parent):
         self.info = parent.info
         self.pci = parent.pci
 

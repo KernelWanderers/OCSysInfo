@@ -49,8 +49,8 @@ CFAllocatorType = type(kCFAllocatorDefault)
 
 NULL = 0
 
-kIOMasterPortDefault: mach_port_t
-kNilOptions: IOOptionBits = NULL
+kIOMasterPortDefault = NULL
+kNilOptions = NULL
 
 # IOKitLib.h
 kIORegistryIterateRecursively = 1
@@ -58,45 +58,45 @@ kIORegistryIterateParents = 2
 
 
 # kern_return_t IORegistryEntryCreateCFProperties(io_registry_entry_t entry, CFMutableDictionaryRef * properties, CFAllocatorRef allocator, IOOptionBits options);
-def IORegistryEntryCreateCFProperties(entry: io_registry_entry_t, properties: pointer, allocator: CFAllocatorType, options: IOOptionBits) -> tuple[kern_return_t, dict]:
+def IORegistryEntryCreateCFProperties(entry, properties, allocator, options):
     raise NotImplementedError
 
 # CFTypeRef IORegistryEntryCreateCFProperty(io_registry_entry_t entry, CFStringRef key, CFAllocatorRef allocator, IOOptionBits options);
-def IORegistryEntryCreateCFProperty(entry: io_registry_entry_t, key: str, allocator: CFAllocatorType, options: IOOptionBits) -> CFTypeRef:
+def IORegistryEntryCreateCFProperty(entry, key: str, allocator, options):
     raise NotImplementedError
 
 # kern_return_t IORegistryEntryGetRegistryEntryID(io_registry_entry_t entry, uint64_t * entryID)
-def IORegistryEntryGetRegistryEntryID(entrY: io_registry_entry_t, entryID: pointer) -> tuple[kern_return_t, int]:
+def IORegistryEntryGetRegistryEntryID(entrY, entryID):
     raise NotImplementedError
 
 # kern_return_t IOServiceGetMatchingServices(mach_port_t masterPort, CFDictionaryRef matching CF_RELEASES_ARGUMENT, io_iterator_t * existing);
-def IOServiceGetMatchingServices(masterPort: mach_port_t, matching: dict, existing: pointer) -> tuple[kern_return_t, io_iterator_t]:
+def IOServiceGetMatchingServices(masterPort, matching, existing):
     raise NotImplementedError
 
 # CFMutableDictionaryRef IORegistryEntryIDMatching(uint64_t entryID);
-def IORegistryEntryIDMatching(entryID: int) -> dict:
+def IORegistryEntryIDMatching(entryID):
     raise NotImplementedError
 
 # CFMutableDictionaryRef IOServiceNameMatching(const char * name);
-def IOServiceNameMatching(name: bytes) -> dict:
+def IOServiceNameMatching(name):
     raise NotImplementedError
 
 # CFMutableDictionaryRef IOServiceMatching(const char * name);
-def IOServiceMatching(name: bytes) -> dict:
+def IOServiceMatching(name):
     raise NotImplementedError
 
 # kern_return_t IOObjectRelease(io_object_t object);
-def IOObjectRelease(object: io_object_t) -> kern_return_t:
+def IOObjectRelease(object):
     raise NotImplementedError
 
 # io_object_t IOIteratorNext(io_iterator_t iterator);
-def IOIteratorNext(iterator: io_iterator_t) -> io_object_t:
+def IOIteratorNext(iterator):
     raise NotImplementedError
 
 objc.loadBundleFunctions(IOKit, globals(), functions)
 objc.loadBundleVariables(IOKit, globals(), variables)
 
-def ioiterator_to_list(iterator: io_iterator_t) -> dict:
+def ioiterator_to_list(iterator):
     item = IOIteratorNext(iterator)
     
     while item:
@@ -114,5 +114,5 @@ def corefoundation_to_native(collection):
     return native
 
 
-def ioname_t_to_str(name) -> str:
+def ioname_t_to_str(name):
     return name.partition(b"\0")[0].decode()

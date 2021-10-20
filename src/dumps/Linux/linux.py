@@ -4,7 +4,6 @@ import re
 import json
 from dumps.Windows.cpuid import CPUID
 from error.cpu_err import cpu_err
-from managers.devicemanager import DeviceManager
 from root import root
 from util.codename import codename
 
@@ -17,7 +16,7 @@ class LinuxHardwareManager:
     https://www.kernel.org/doc/html/latest/admin-guide/sysfs-rules.html
     """
 
-    def __init__(self, parent: DeviceManager):
+    def __init__(self, parent):
         self.info = parent.info
         self.pci = parent.pci
 
