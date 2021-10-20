@@ -279,7 +279,7 @@ class WindowsHardwareManager:
 
                 _items.append({
                     description: {
-                        'DeviceID': devid
+                        'Device ID': devid
                     }
                 })
             except:
