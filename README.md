@@ -69,7 +69,7 @@ OCSysInfo takes advantage of each platform's native interaction protocol, except
 ### Windows
 
 - `WMI`
-  
+
   - Windows's WMI (`Windows Management Instrumentation`) is a protocol allowing us to obtain the current system's data—which is practically anything that we could ever ask for. (Some PCI devices even construcxt the `PCIROOT` path where available! Though, generally this data isn't reliable). Data that we look for are as follows (per class):
 
     - `Win32_Processor` — information about the current system's CPU in use. Though, we only seek out the following properties:
@@ -77,11 +77,11 @@ OCSysInfo takes advantage of each platform's native interaction protocol, except
       - `Name`
       - `NumberOfCores`
       - `NumberOfLogicalProcessors`
-      - CPU BaseFamily and “CombinedModel” – since we manually construct BaseModel and ExternalModel by simply doing the following: 
+      - CPU BaseFamily and “CombinedModel” – since we manually construct BaseModel and ExternalModel by simply doing the following:
         - ExternalModel: `(n >> 0x4) & 0xf`
         - BaesModel: `n & 0xf`
-      - CPU ExternalFamily is constructed by [getting the return value of the `EAX` register](https://github.com/iabtw/OCSysInfo/blob/main/src/dumps/Windows/win.py#L41-L44), and performing a right bit shift 20 times, and using the logical `AND` operator with the value `0xf`: `(eax >> 20) & 0xf` 
-      
+      - CPU ExternalFamily is constructed by [getting the return value of the `EAX` register](https://github.com/iabtw/OCSysInfo/blob/main/src/dumps/Windows/win.py#L41-L44), and performing a right bit shift 20 times, and using the logical `AND` operator with the value `0xf`: `(eax >> 20) & 0xf`
+
     <br />
 
     - `Win32_VideoController` — information about the current system's **GPU devices** in use. The only properties we seek out are `Name` (the GPU's friendly name) and `PNPDeviceID`, which is basically its PCI path; it includes the device id and vendor id, which we extract.
@@ -96,7 +96,6 @@ OCSysInfo takes advantage of each platform's native interaction protocol, except
 
     - `Win32_PointingDevice` — same as the one item before, but instead for **mice**/**trackpads**/**touchpads**/etc.
 
-
 ### macOS
 
 - `sysctl`
@@ -109,6 +108,10 @@ OCSysInfo takes advantage of each platform's native interaction protocol, except
     - Thread count
     - Maximum supported SSE version
     - SSSE3 support
+    - CPU BaseFamily
+    - CPU ExtendedFamily
+    - CPU BaseModel
+    - CPU ExtendedModel
 
 - `IOKit`
 
@@ -131,7 +134,12 @@ OCSysInfo takes advantage of each platform's native interaction protocol, except
   - Devices enumerated inside of `/sys/class/sound` are looked at for the audio controllers — generally, they'll have a relatively similar enumerations as `drm` devices — as a `cardX` format.
 
 - `proc`
-  - We are able to take advantage of what is enumerated and the type of data available in Linux's `procfs` pseudo filesystem. For example, we may look into `/proc/bus/input/devices` to list all the names and paths of each input device, and of course, its location in `sysfs` — which is of use for us. 
+
+  - We are able to take advantage of what is enumerated and the type of data available in Linux's `procfs` pseudo filesystem. For example, we may look into `/proc/bus/input/devices` to list all the names and paths of each input device, and of course, its location in `sysfs` — which is of use for us.
+
+    - Here, we primarily care about devices which are _I2C [RMI4]_ (they have `rmi4` in their path), _PS/2_ devices (they have `i8042` in their path), _HKEY ACPI_ devices (they have `thinkpad_acpi` in their path), and _I2C HID_ (they have `usb` in their path). The latest item mentioned has yet to receive its full implementation
+    
+  <br />
 
   - We may also find `/proc/cpuinfo`, which holds data about the current system's CPU. Though, generally, thread count isn't explicitly stated as is, but rather, each thread has its own set of data enumerated in `cpuinfo`'s dump, so we may simply get the thread count by doing: `<cpuinfo>.count('processor')`
 
