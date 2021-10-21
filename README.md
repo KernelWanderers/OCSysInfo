@@ -137,10 +137,6 @@ OCSysInfo takes advantage of each platform's native interaction protocol, except
 
   - We are able to take advantage of what is enumerated and the type of data available in Linux's `procfs` pseudo filesystem. For example, we may look into `/proc/bus/input/devices` to list all the names and paths of each input device, and of course, its location in `sysfs` — which is of use for us.
 
-    - Here, we primarily care about devices which are _I2C [RMI4]_ (they have `rmi4` in their path), _PS/2_ devices (they have `i8042` in their path), _HKEY ACPI_ devices (they have `thinkpad_acpi` in their path), and _I2C HID_ (they have `usb` in their path). The latest item mentioned has yet to receive its full implementation
-    
-  <br />
-
   - We may also find `/proc/cpuinfo`, which holds data about the current system's CPU. Though, generally, thread count isn't explicitly stated as is, but rather, each thread has its own set of data enumerated in `cpuinfo`'s dump, so we may simply get the thread count by doing: `<cpuinfo>.count('processor')`
 
 ## Issues
