@@ -16,6 +16,7 @@ class DeviceManager:
             "Network": [],
             "Audio": [],
             "Input": [],
+            "Storage": [],
         }
         self.pci = PCIIDs()
         self.platform = platform.system().lower()
