@@ -6,6 +6,8 @@ from util.codename import codename
 from .cpuid import CPUID
 from error.cpu_err import cpu_err
 from root import root
+from operator import itemgetter
+from .win_enum import BUS_TYPE, MEDIA_TYPE, POINT_DEV_INTERFACE
 
 
 class WindowsHardwareManager:
@@ -27,6 +29,7 @@ class WindowsHardwareManager:
         self.net_info()
         self.audio_info()
         self.mobo_info()
+        self.storage_info()
         self.input_info()
 
     # Credits: https://github.com/flababah/cpuid.py/blob/master/example.py#L25
@@ -248,6 +251,37 @@ class WindowsHardwareManager:
                 'Manufacturer': manufacturer
             }
 
+    def storage_info(self):
+        try:
+            # Credits to:
+            # https://github.com/flagersgit
+            STORAGE_DEV = wmi.WMI(
+                namespace="Microsoft/Windows/Storage").query("SELECT * FROM MSFT_PhysicalDisk")
+        except:
+            return
+
+        for STORAGE in STORAGE_DEV:
+            try:
+                model = STORAGE.wmi_property('FriendlyName').value
+
+                if not model:
+                    model = "UNKNOWN"
+
+                type = MEDIA_TYPE.get(
+                    STORAGE.wmi_property('MediaType').value, 'Unspecified')
+                ct_type, location = itemgetter('type', 'location')(BUS_TYPE.get(
+                    STORAGE.wmi_property('BusType').value, 'Unknown'))
+
+                self.info['Storage'].append({
+                    model: {
+                        'Type': type,
+                        'Connector': ct_type,
+                        'Location': location
+                    }
+                })
+            except:
+                continue
+
     def input_info(self):
         try:
             KBS = self.c.instances('Win32_Keyboard')
@@ -268,17 +302,28 @@ class WindowsHardwareManager:
         _items = []
         for item in items:
             try:
+                data = {}
+
                 description = item.wmi_property('Description').value
                 devid = item.wmi_property('DeviceID').value
+
+                data[description] = {
+                    'Device ID': devid
+                }
+
+                try:
+                    devint = POINT_DEV_INTERFACE.get(
+                        item.wmi_property('DeviceInterface').value, None)
+
+                    if devint:
+                        data[description]['Interface'] = devint
+                except:
+                    pass
 
                 if not any(x in description.lower() for x in ('ps/2', 'hid', 'synaptics')):
                     continue
 
-                _items.append({
-                    description: {
-                        'Device ID': devid
-                    }
-                })
+                _items.append(data)
             except:
                 continue
 
