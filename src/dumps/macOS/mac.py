@@ -21,11 +21,17 @@ class MacHardwareManager:
         self.info = parent.info
         self.pci = parent.pci
 
+        self.STORAGE = {
+            'Solid State': 'Solid State Drive (SSD)',
+            'Rotational': 'Hard Disk Drive (HDD)',
+        }
+
     def dump(self):
         self.cpu_info()
         self.gpu_info()
         self.net_info()
         self.audio_info()
+        self.storage_info()
         self.input_info()
 
     def cpu_info(self):
@@ -279,6 +285,57 @@ class MacHardwareManager:
         if not self.info['Audio'] and not default:
             self.audio_info(default=True)
 
+    def storage_info(self):
+
+        device = {
+            'IOProviderClass': 'IOBlockStorageDevice'
+        }
+
+        interface = ioreg.ioiterator_to_list(ioreg.IOServiceGetMatchingServices(
+            ioreg.kIOMasterPortDefault, device, None
+        )[1])
+
+        for i in interface:
+
+            device = ioreg.corefoundation_to_native(ioreg.IORegistryEntryCreateCFProperties(
+                i, None, ioreg.kCFAllocatorDefault, ioreg.kNilOptions
+            ))[1]
+
+            product = device.get('Device Characteristics')
+            protocol = device.get('Protocol Characteristics')
+
+            if not product or not protocol:
+                continue
+
+            try:
+                # Name of the storage device.
+                name = product.get('Product Name').strip()
+                # Type of storage device (SSD, HDD, etc.)
+                _type = product.get('Medium Type').strip()
+
+                # Type of connector (SATA, USB, SCSI, etc.)
+                ct_type = protocol.get('Physical Interconnect').strip()
+                # Whether or not this device is internal or external.
+                location = protocol.get(
+                    'Physical Interconnect Location').strip()
+
+                if ct_type.lower() == "pci-express":
+                    _type = "Non-Volatile Memory Express (NVMe)"
+                else:
+                    _type = self.STORAGE.get(_type, _type)
+            except:
+                continue
+
+            self.info['Storage'].append({
+                name: {
+                    'Type': _type,
+                    'Connector': ct_type,
+                    'Location': location
+                }
+            })
+
+            ioreg.IOObjectRelease(i)
+
     def input_info(self):
         device = {
             'IOProviderClass': 'IOHIDDevice'
@@ -320,3 +377,5 @@ class MacHardwareManager:
             self.info['Input'].append({
                 name: data
             })
+
+            ioreg.IOObjectRelease(i)
