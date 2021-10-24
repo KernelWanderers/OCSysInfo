@@ -212,8 +212,9 @@ class WindowsHardwareManager:
                     }
                 })
 
-            self.info['CPU'][0][self.cpu['model']
-                                ]['Codename'] = self.cpu['codename']
+            if self.cpu.get('codename', None):
+                self.info['CPU'][0][self.cpu['model']
+                                    ]['Codename'] = self.cpu['codename']
 
     def net_info(self):
         try:

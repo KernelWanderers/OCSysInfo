@@ -97,7 +97,7 @@ class LinuxHardwareManager:
             try:
                 fam = hex(int(fam.group()))
                 n = int(_model.group())
-                
+
                 if stepping:
                     stepping = hex(int(stepping.group().strip()))
                 else:
@@ -121,7 +121,8 @@ class LinuxHardwareManager:
                                  fam, extm, base, stepping=stepping)
 
                 if cname:
-                    self.cpu['codename'] = cname if len(cname) > 1 else cname[0]
+                    self.cpu['codename'] = cname if len(
+                        cname) > 1 else cname[0]
             except:
                 self.logger.warning(
                     f'Failed to construct extended family – ({model})')
@@ -187,8 +188,9 @@ class LinuxHardwareManager:
                     }
                 })
 
-        self.info['CPU'][0][self.cpu['model']
-                            ]['Codename'] = self.cpu['codename']
+        if self.cpu.get('codename', None):
+            self.info['CPU'][0][self.cpu['model']
+                                ]['Codename'] = self.cpu['codename']
 
     def net_info(self):
         for file in os.listdir('/sys/class/net'):
