@@ -78,6 +78,13 @@ class MacHardwareManager:
         }
 
         try:
+            try:
+                stepping = hex(int(subprocess.check_output(
+                    ['sysctl', 'machdep.cpu.stepping']
+                ).decode().split(': ')[1].strip()))
+            except:
+                stepping = None
+
             extf = hex(int(subprocess.check_output(
                 ['sysctl', 'machdep.cpu.extfamily']
             ).decode().split(': ')[1].strip()))
@@ -100,11 +107,8 @@ class MacHardwareManager:
                                   'uarch', f'{vendor}.json'), 'r')
             )
 
-            self.logger.info(
-                f'CPUID IDENTIFICATION::: Family: {fam} ExtF: {extf} ExtM: {extm} BaseM: {base}')
-
             cname = codename(_data, extf,
-                             fam, extm, base)
+                             fam, extm, base, stepping=stepping)
 
             if cname:
                 self.cpu['codename'] = cname if len(cname) > 1 else cname[0]
