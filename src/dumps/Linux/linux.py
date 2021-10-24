@@ -56,6 +56,7 @@ class LinuxHardwareManager:
         cores = re.search(r'(?<=cpu cores\t\: ).+(?=\n)', cpu)
         _model = re.search(r'(?<=model\t\t\: ).+(?=\n)', cpu)
         fam = re.search(r'(?<=cpu\sfamily	\: ).+(?=\n)', cpu)
+        stepping = re.search(r'(?<=stepping	\:).+(?=\n)', cpu)
 
         data = {}
 
@@ -96,6 +97,11 @@ class LinuxHardwareManager:
             try:
                 fam = hex(int(fam.group()))
                 n = int(_model.group())
+                
+                if stepping:
+                    stepping = hex(int(stepping.group().strip()))
+                else:
+                    stepping = None
 
                 # Credits to:
                 # https://github.com/1Revenger1
@@ -112,7 +118,7 @@ class LinuxHardwareManager:
                 )
 
                 cname = codename(_data, extf,
-                                 fam, extm, base)
+                                 fam, extm, base, stepping=stepping)
 
                 if cname:
                     self.cpu['codename'] = cname if len(cname) > 1 else cname[0]
