@@ -11,7 +11,7 @@ Basic example of this:
       ├── SSSE3: Supported
       ├── Cores: 6 cores
       ├── Threads: 6 threads
-      └── Codename: Coffee Lake
+      └── Codename: Coffee Lake-S
 
 ─ GPU
   ├── Intel UHD Graphics 630
@@ -33,11 +33,25 @@ Basic example of this:
 
 ─ Input
   ├── TUF GAMING K7 (USB)
-  │   ├── Vendor: 0xb05
-  │   └── Device ID: 0x18aa
+  │   ├── Device ID: 0x18aa
+  │   └── Vendor: 0xb05
   └── USB OPTICAL MOUSE (USB)
-      ├── Vendor: 0x93a
-      └── Device ID: 0x2521
+      ├── Device ID: 0x2521
+      └── Vendor: 0x93a
+
+─ Storage
+  ├── LITEON CV3-8D128-HP
+  │   ├── Type: Solid State Drive (SSD)
+  │   ├── Connector: SATA
+  │   └── Location: Internal
+  ├── KINGSTON SA400S37240G
+  │   ├── Type: Solid State Drive (SSD)
+  │   ├── Connector: SATA
+  │   └── Location: Internal
+  └── WDC WD2500AAJS-00L7A0
+      ├── Type: Hard Disk Drive (HDD)
+      ├── Connector: SATA
+      └── Location: Internal
 ```
 
 ## Installation
