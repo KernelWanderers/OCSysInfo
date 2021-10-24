@@ -107,6 +107,14 @@ class WindowsHardwareManager:
                 _model = re.search(r'(?<=Model\s)\d+', desc)
                 stepping = re.search(r'(?<=Stepping\s)\d+', desc)
 
+                # Chassis Types:
+                #
+                # Laptop        : 9
+                # Notebook      : 10
+                # Sub Notebook  : 14
+                laptop = self.c.instances('Win32_SystemEnclosure')[
+                    0].wmi_propery('ChassisTypes').value[0] in (9, 10, 14)
+
                 if not fam or \
                    not _model:
                     pass
@@ -132,7 +140,7 @@ class WindowsHardwareManager:
                         open(os.path.join(root, 'src', 'uarch', f'{vendor}.json'), 'r'))
 
                     cname = codename(_data, extf,
-                                     fam, extm, base, stepping=stepping)
+                                     fam, extm, base, stepping=stepping, laptop=laptop)
 
                     if cname:
                         self.cpu['codename'] = cname if len(

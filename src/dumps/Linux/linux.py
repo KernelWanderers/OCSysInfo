@@ -98,6 +98,14 @@ class LinuxHardwareManager:
                 fam = hex(int(fam.group()))
                 n = int(_model.group())
 
+                # Chassis Types:
+                #
+                # Laptop        : 9
+                # Notebook      : 10
+                # Sub Notebook  : 14
+                laptop = open('/sys/class/dmi/id/chassis_type',
+                              'r').read() in (9, 10, 14)
+
                 if stepping:
                     stepping = hex(int(stepping.group().strip()))
                 else:
@@ -118,7 +126,7 @@ class LinuxHardwareManager:
                 )
 
                 cname = codename(_data, extf,
-                                 fam, extm, base, stepping=stepping)
+                                 fam, extm, base, stepping=stepping, laptop=laptop)
 
                 if cname:
                     self.cpu['codename'] = cname if len(

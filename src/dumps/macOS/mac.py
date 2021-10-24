@@ -97,6 +97,10 @@ class MacHardwareManager:
                 ['sysctl', 'machdep.cpu.model']
             ).decode().split(': ')[1].strip())
 
+            laptop = 'book' in subprocess.check_output(
+                ['sysctl', 'hw.model']
+            ).decode().lower()
+
             # Credits to:
             # https://github.com/1Revenger1
             extm = hex((n >> 4) & 0xf)
@@ -108,7 +112,7 @@ class MacHardwareManager:
             )
 
             cname = codename(_data, extf,
-                             fam, extm, base, stepping=stepping)
+                             fam, extm, base, stepping=stepping, laptop=laptop)
 
             if cname:
                 self.cpu['codename'] = cname if len(cname) > 1 else cname[0]
