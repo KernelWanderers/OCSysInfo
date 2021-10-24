@@ -70,7 +70,7 @@ OCSysInfo takes advantage of each platform's native interaction protocol, except
 
 - `WMI`
 
-  - Windows's WMI (`Windows Management Instrumentation`) is a protocol allowing us to obtain the current system's data—which is practically anything that we could ever ask for. (Some PCI devices even construcxt the `PCIROOT` path where available! Though, generally this data isn't reliable). Data that we look for are as follows (per class):
+  - Windows's WMI (`Windows Management Instrumentation`) is a protocol allowing us to obtain the current system's data—which is practically anything that we could ever ask for. (Some PCI devices even construct the `PCIROOT` path where available! Though, generally this data isn't reliable). Data that we look for are as follows (per class):
 
     - `Win32_Processor` — information about the current system's CPU in use. Though, we only seek out the following properties:
       - `Manufacturer`
