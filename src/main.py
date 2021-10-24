@@ -19,15 +19,20 @@ if __name__ == "__main__":
         print("Please ensure you've installed the required dependencies.")
     else:
         try:
+            from error.logger import Logger
             from cli.ui import UI
             from managers.devicemanager import DeviceManager
         except Exception as e:
             raise e
         else:
             try:
-                dump = DeviceManager()
-                ui = UI(dump)
+                logger = Logger()
+                logger.info('Launching OCSysInfo...')
+                dump = DeviceManager(logger)
+                ui = UI(dump, logger)
 
+                logger.info('Successfully launched OCSysInfo.')
                 ui.create_ui()
             except KeyboardInterrupt:
+                logger.info('Exited successfully.')
                 exit(0)
