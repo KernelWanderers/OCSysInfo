@@ -1,14 +1,11 @@
-import json
-import os
 import platform
-
 from managers.pciids import PCIIDs
 
 
 class DeviceManager:
     """Instance responsible for exposing all important information about the current system's hardware."""
 
-    def __init__(self):
+    def __init__(self, logger):
         self.info = {
             "CPU": [],
             "Motherboard": {},
@@ -20,6 +17,7 @@ class DeviceManager:
         }
         self.pci = PCIIDs()
         self.platform = platform.system().lower()
+        self.logger = logger
 
         if self.platform == "darwin":
             from dumps.macOS.mac import MacHardwareManager
