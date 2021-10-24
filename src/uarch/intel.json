@@ -643,6 +643,15 @@
   },
 
   {
+    "Codename": "Coffee Lake-U",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0x6",
+    "ExtModel": "0x8",
+    "BaseModel": "0xE",
+    "Stepping": "0xB"
+  },
+
+  {
     "Codename": "Coffee Lake-S",
     "ExtFamily": "0x0",
     "BaseFamily": "0x6",
@@ -652,12 +661,32 @@
   },
 
   {
+    "Codename": "Coffee Lake-S",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0x6",
+    "ExtModel": "0x9",
+    "BaseModel": "0xE",
+    "Stepping": "0xB"
+  },
+
+  {
     "Codename": "Whiskey Lake-U",
     "ExtFamily": "0x0",
     "BaseFamily": "0x6",
     "ExtModel": "0x8",
     "BaseModel": "0xE",
-    "Stepping": "0xB"
+    "Stepping": "0xB",
+    "Laptop": true
+  },
+
+  {
+    "Codename": "Whiskey Lake-U",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0x6",
+    "ExtModel": "0x8",
+    "BaseModel": "0xE",
+    "Stepping": "0xC",
+    "Laptop": true
   },
 
   {
