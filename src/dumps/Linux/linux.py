@@ -2,7 +2,6 @@ import ctypes
 import os
 import re
 import json
-from dumps.Windows.cpuid import CPUID
 from error.cpu_err import cpu_err
 from root import root
 from util.codename import codename
@@ -19,6 +18,8 @@ class LinuxHardwareManager:
     def __init__(self, parent):
         self.info = parent.info
         self.pci = parent.pci
+        self.logger = parent.logger
+        self.cpu = {}
 
     def dump(self):
         self.cpu_info()
@@ -29,7 +30,8 @@ class LinuxHardwareManager:
         self.input_info()
 
     def extf(self):
-        libname = os.path.join(root, 'cpp', 'bindings', 'cpuid', 'asm-cpuid.so')
+        libname = os.path.join(root, 'cpp', 'bindings',
+                               'cpuid', 'asm-cpuid.so')
         c_lib = ctypes.CDLL(libname)
 
         return (c_lib.EAX() >> 20) & 0xf
@@ -38,6 +40,8 @@ class LinuxHardwareManager:
         try:
             cpus = open('/proc/cpuinfo', 'r').read()
         except Exception as e:
+            self.logger.critical(
+                f'Failed to obtain CPU information. This should not happen. \nSnippet relevant to former line^^^\t^^^{str(e)}')
             cpu_err(e)
 
         cpu = cpus.split('\n\n')
@@ -60,8 +64,11 @@ class LinuxHardwareManager:
             data = {
                 model: {}
             }
+            self.cpu['model'] = model
         else:
-            return
+            self.logger.warning(
+                'Failed to obtain basic CPU information (PROC_FS)')
+            exit(0)
 
         if flagers:
             flagers = flagers.group()
@@ -81,6 +88,8 @@ class LinuxHardwareManager:
             data[model]['Threads'] = open(
                 '/proc/cpuinfo', 'r').read().count('processor')
         except:
+            self.logger.warning(
+                f'Failed to resolve thread count for {model} (PROC_FS)')
             pass
 
         if _model and fam:
@@ -102,12 +111,14 @@ class LinuxHardwareManager:
                          'uarch', f'{vendor}.json'), 'r')
                 )
 
-                cname = codename(_data, extf.upper(),
-                                 fam.upper(), extm.upper(), base.upper())
+                cname = codename(_data, extf,
+                                 fam, extm, base)
 
                 if cname:
-                    data[model]['Codename'] = cname
+                    self.cpu['codename'] = cname if len(cname) > 1 else cname[0]
             except:
+                self.logger.warning(
+                    f'Failed to construct extended family – ({model})')
                 pass
 
         self.info.get('CPU').append(data)
@@ -127,7 +138,41 @@ class LinuxHardwareManager:
 
                     model = self.pci.get_item(dev[2:], ven[2:]).get('device')
                 except:
+                    self.logger.warning(
+                        'Failed to obtain vendor/device id for GPU device (SYS_FS/DRM)')
                     continue
+
+                # In some edge cases, we must
+                # verify that the found codename
+                # for Intel's CPUs corresponds to its
+                # iGPU µarch.
+                #
+                # Otherwise, if it's not an edge-case,
+                # it will simply use the guessed codename.
+                if ven and dev and '8086' in ven and self.cpu.get('codename', None):
+
+                    if any([x in n for n in self.cpu['codename']] for x in ('Kaby Lake', 'Coffee Lake', 'Comet Lake')):
+                        try:
+                            _data = json.load(open(os.path.join(root, 'src',
+                                                                'uarch', f'intel_gpu.json'), 'r'))
+                            found = False
+
+                            for uarch in _data:
+                                if found:
+                                    break
+
+                                for id in uarch.get('IDs', []):
+                                    name = uarch.get('Microarch', '')
+
+                                    if dev.lower() == id.lower():
+                                        for guessed in self.cpu['codename']:
+                                            if name.lower() in guessed.lower():
+                                                self.cpu['codename'] = name
+                                                found = True
+
+                        except:
+                            self.logger.warning(
+                                f"Failed to obtain codename for {self.cpu.get('model')}")
 
                 self.info.get('GPU').append({
                     model: {
@@ -135,6 +180,9 @@ class LinuxHardwareManager:
                         'Vendor': ven
                     }
                 })
+
+        self.info['CPU'][0][self.cpu['model']
+                            ]['Codename'] = self.cpu['codename']
 
     def net_info(self):
         for file in os.listdir('/sys/class/net'):
@@ -150,6 +198,8 @@ class LinuxHardwareManager:
 
                     model = self.pci.get_item(dev[2:], ven[2:]).get('device')
                 except:
+                    self.logger.warning(
+                        'Failed to obtain vendor/device id for Network controller (SYS_FS/NET)')
                     return
 
                 else:
@@ -175,6 +225,8 @@ class LinuxHardwareManager:
 
                     model = self.pci.get_item(dev[2:], ven[2:]).get('device')
                 except:
+                    self.logger.warning(
+                        'Failed to obtain vendor/device id for Audio controller (SYS_FS/SOUND)')
                     continue
 
                 else:
@@ -199,6 +251,8 @@ class LinuxHardwareManager:
             model = open(f'{path}/board_name', 'r').read().strip()
             vendor = open(f'{path}/board_vendor', 'r').read().strip()
         except:
+            self.logger.warning(
+                'Failed to obtain Motherboard details (SYS_FS/DMI)')
             return
 
         if model:
@@ -224,6 +278,8 @@ class LinuxHardwareManager:
             devices = open('/proc/bus/input/devices', 'r').read().strip()
             sysfs = []
         except:
+            self.logger.critical(
+                'Failed to obtain Input devices (SYS_FS/INPUT) — THIS GENERALLY SHOULD NOT HAPPEN ON LAPTOP DEVICES.')
             return
 
         for device in devices.split('\n\n'):
@@ -241,12 +297,16 @@ class LinuxHardwareManager:
 
                 if (not os.path.isfile(f'{path}/name')) or \
                    (not os.path.isfile(f'{path}/id/vendor')):
+                    self.logger.warning(
+                        'Failed to identify device using the RMI4 protocol (SYS_FS/INPUT) – Non-critical, ignoring')
                     continue
 
                 try:
                     prod_id = open(f'{path}/name', 'r').read().strip()
                     vendor = open(f'{path}/id/vendor', 'r').read().strip()
                 except:
+                    self.logger.warning(
+                        'Failed to obtain product/vendor id of device using the RMI4 protocol (SYS_FS/INPUT) – Non-critical, ignoring')
                     continue
 
                 self.info['Input'].append({
@@ -259,11 +319,15 @@ class LinuxHardwareManager:
             # PS2 devices
             if 'i8042' in path.lower():
                 if not os.path.isfile(f'{path}/name'):
+                    self.logger.warning(
+                        'Failed to identify PS2 device (SYS_FS/INPUT) – Non-critical, ignoring')
                     continue
 
                 try:
                     name = open(f'{path}/name').read().strip()
                 except:
+                    self.logger.warning(
+                        'Failed to obtain PS2 device name (SYS_FS/INPUT) – Non-critical, ignoring')
                     continue
 
                 port = re.search('\d+(?=\/input)', path)
@@ -290,6 +354,8 @@ class LinuxHardwareManager:
                     dev = '0x' + open(f'{path}/id/product', 'r').read().strip()
                     ven = '0x' + open(f'{path}/id/vendor', 'r').read().strip()
                 except:
+                    self.logger.warning(
+                        'Failed to obtain device/vendor id of ambiguous Input device (SYS_FS/INPUT) – Non-critical, ignoring')
                     continue
 
                 else:
@@ -297,6 +363,8 @@ class LinuxHardwareManager:
                         name = self.pci.get_item(dev[2:], ven[2:], types='usb')
 
                         if not name:
+                            self.logger.warning(
+                                'Failed to identify ambiguous Input device (SYS_FS/INPUT) – Non-critical, ignoring')
                             continue
 
                         self.info['Input'].append({
