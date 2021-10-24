@@ -1,133 +1,578 @@
 [
   {
-    "Codename": "K8",
+    "Codename": "Athlon 64",
     "ExtFamily": "0x0",
     "BaseFamily": "0xF",
-    "ExtModels": ["0x0", "0x1", "0x2", "0x4", "0x5", "0x6", "0x7", "0xC"],
-    "BaseModels": [
-      "0x1",
-      "0x3",
-      "0x4",
-      "0x5",
-      "0x7",
-      "0x8",
-      "0xB",
-      "0xC",
-      "0xD",
-      "0xE",
-      "0xF"
-    ]
+    "ExtModel": "0x0",
+    "BaseModel": "0x4",
+    "Stepping": "0x0"
   },
 
   {
-    "Codename": "K10",
+    "Codename": "Athlon 64 (Mobile)",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x0",
+    "BaseModel": "0x4",
+    "Stepping": ["0x8", "0xA"]
+  },
+
+  {
+    "Codename": "Sledge Hammer",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x0",
+    "BaseModel": "0x5",
+    "Stepping": ["0x0", "0x1"]
+  },
+
+  {
+    "Codename": "Opteron 1xx/2xx/8xx",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x0",
+    "BaseModel": "0x5",
+    "Stepping": ["0x8", "0xA"]
+  },
+
+  {
+    "Codename": "Athlon 64 FX",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x0",
+    "BaseModel": "0x7",
+    "Stepping": "0xA"
+  },
+
+  {
+    "Codename": "Sempron (Mobile)",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x0",
+    "BaseModel": "0x8",
+    "Stepping": "0x2"
+  },
+
+  {
+    "Codename": "Sempron",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x0",
+    "BaseModel": "0xF",
+    "Stepping": "0x0"
+  },
+
+  {
+    "Codename": "Athlon XP-M (Mobile)",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x1",
+    "BaseModel": "0x4",
+    "Stepping": "0x0"
+  },
+
+  {
+    "Codename": "Opteron, Athlon 64 FX",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x1",
+    "BaseModel": "0x5",
+    "Stepping": "0x0"
+  },
+
+  {
+    "Codename": "Athlon, Athlon 64 FX",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x1",
+    "BaseModel": "0x7",
+    "Stepping": "0x0"
+  },
+
+  {
+    "Codename": "Athlon",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x1",
+    "BaseModel": "0xB",
+    "Stepping": "0x0"
+  },
+
+  {
+    "Codename": "Mobile Athlon XP-M",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x1",
+    "BaseModel": "0xC",
+    "Stepping": "0x0"
+  },
+
+  {
+    "Codename": "Athlon, Sempron",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x1",
+    "BaseModel": "0xF",
+    "Stepping": "0x0"
+  },
+
+  {
+    "Codename": "Opteron 1xx/2xx/8xx, `Denmark/Italy/Egypt`",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x2",
+    "BaseModel": "0x1",
+    "Stepping": ["0x0", "0x2"]
+  },
+
+  {
+    "Codename": "Athlon 64 X2",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x2",
+    "BaseModel": "0x3",
+    "Stepping": "0x2"
+  },
+
+  {
+    "Codename": "Turion",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x2",
+    "BaseModel": "0x4",
+    "Stepping": "0x2"
+  },
+
+  {
+    "Codename": "Opteron 1xx/2xx/8xx, `Venus/Troy/Athens`",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x2",
+    "BaseModel": "0x5",
+    "Stepping": "0x1"
+  },
+
+  {
+    "Codename": "Opteron 1xx, `Venus`",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x2",
+    "BaseModel": "0x7",
+    "Stepping": "0x1"
+  },
+
+  {
+    "Codename": "Athlon 64 X2, `Manchester`",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x2",
+    "BaseModel": "0xB",
+    "Stepping": "0x1"
+  },
+
+  {
+    "Codename": "Sempron",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x2",
+    "BaseModel": "0xC",
+    "Stepping": "0x0"
+  },
+
+  {
+    "Codename": "Sempron (Mobile)",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x2",
+    "BaseModel": "0xC",
+    "Stepping": "0x2"
+  },
+
+  {
+    "Codename": "Athlon, Sempron",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x2",
+    "BaseModel": "0xF",
+    "Stepping": ["0x0", "0x2"]
+  },
+
+  {
+    "Codename": "Opteron 2200/8200, `Santa Rosa`",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x4",
+    "BaseModel": "0x1",
+    "Stepping": "0x2"
+  },
+
+  {
+    "Codename": "Opteron 1200, `Santa Ana`",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x4",
+    "BaseModel": "0x3",
+    "Stepping": ["0x2", "0x3"]
+  },
+
+  {
+    "Codename": "Turion 64 X2",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x4",
+    "BaseModel": "0x8",
+    "Stepping": "0x2"
+  },
+
+  {
+    "Codename": "Athlon 64 X2",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x4",
+    "BaseModel": "0xB",
+    "Stepping": "0x2"
+  },
+
+  {
+    "Codename": "Turion 64",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x4",
+    "BaseModel": "0xC",
+    "Stepping": "0x2"
+  },
+
+  {
+    "Codename": "Athlon 64, Sempron",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x4",
+    "BaseModel": "0xF",
+    "Stepping": "0x2"
+  },
+
+  {
+    "Codename": "Opteron",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x5",
+    "BaseModel": "0xD",
+    "Stepping": "0x3"
+  },
+
+  {
+    "Codename": "Athlon 64, Athlon, Sempron",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x5",
+    "BaseModel": "0xF",
+    "Stepping": ["0x2", "0x3"]
+  },
+
+  {
+    "Codename": "Turion 64 X2, Turion 64, Athlon 64 X2, Sempron",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x6",
+    "BaseModel": "0x8",
+    "Stepping": ["0x1", "0x2"]
+  },
+
+  {
+    "Codename": "Athlon Neo X2",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x6",
+    "BaseModel": "0xB",
+    "Stepping": ["0x1", "0x2"]
+  },
+
+  {
+    "Codename": "Athlon 64 FX (Quad FX)",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0xF",
+    "ExtModel": "0xC",
+    "BaseModel": "0x1",
+    "Stepping": "0x3"
+  },
+
+  {
+    "Codename": "Phenom X4 (K10)",
     "ExtFamily": "0x1",
     "BaseFamily": "0xF",
-    "ExtModels": ["0x0"],
-    "BaseModels": ["0x2", "0x4", "0x5", "0x6", "0x8", "0x9", "0xA"]
+    "ExtModel": "0x0",
+    "BaseModel": "0x2"
   },
 
   {
-    "Codename": "Bobcat",
-    "ExtFamily": "0x5",
+    "Codename": "Opteron 2300/8300, `Barcelona` (K10)",
+    "ExtFamily": "0x1",
     "BaseFamily": "0xF",
-    "ExtModels": ["0x0"],
-    "BaseModel": []
+    "ExtModel": "0x0",
+    "BaseModel": "0x2"
   },
 
   {
-    "Codename": "Excavator",
-    "ExtFamily": "0x6",
+    "Codename": "Phenom II X3/X4 (K10)",
+    "ExtFamily": "0x1",
     "BaseFamily": "0xF",
-    "ExtModels": ["0x6", "0x7"],
-    "BaseModels": ["0x0", "0x5"]
+    "ExtModel": "0x0",
+    "BaseModel": "0x4"
   },
 
   {
-    "Codename": "Steamroller",
-    "ExtFamily": "0x6",
+    "Codename": "Athlon II X2/X3/X4 (K10)",
+    "ExtFamily": "0x1",
     "BaseFamily": "0xF",
-    "ExtModels": ["0x3"],
-    "BaseModels": ["0x0", "0x8"]
+    "ExtModel": "0x0",
+    "BaseModel": "0x5"
   },
 
   {
-    "Codename": "Piledriver",
-    "ExtFamily": "0x6",
+    "Codename": "Turion II Neo N/K, `Geneva` (K10)",
+    "ExtFamily": "0x1",
     "BaseFamily": "0xF",
-    "ExtModels": ["0x0", "0x1"],
-    "BaseModels": ["0x1", "0x2", "0x3"]
+    "ExtModel": "0x0",
+    "BaseModel": "0x6"
+  },
+
+  {
+    "Codename": "Opteron 2400/8400, `Istanbul` (K10)",
+    "ExtFamily": "0x1",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x0",
+    "BaseModel": "0x8"
+  },
+
+  {
+    "Codename": "Opteron 6100, `Magny Cours` (K10)",
+    "ExtFamily": "0x1",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x0",
+    "BaseModel": "0x9"
+  },
+
+  {
+    "Codename": "Phenom II X4, `Zosma` (K10)",
+    "ExtFamily": "0x1",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x0",
+    "BaseModel": "0xA"
   },
 
   {
     "Codename": "Bulldozer",
     "ExtFamily": "0x6",
     "BaseFamily": "0xF",
-    "ExtModels": ["0x0"],
-    "BaseModels": ["0x1"]
+    "ExtModel": "0x0",
+    "BaseModel": "0x1"
   },
 
   {
-    "Codename": "Puma",
-    "ExtFamily": "0x7",
+    "Codename": "Piledriver",
+    "ExtFamily": "0x6",
     "BaseFamily": "0xF",
-    "ExtModels": ["0x3"],
-    "BaseModels": ["0x0"]
+    "ExtModel": "0x0",
+    "BaseModel": "0x2"
   },
 
   {
-    "Codename": "Enhanced Jaguar",
-    "ExtFamily": "0x7",
+    "Codename": "Trinity (Bulldozer)",
+    "ExtFamily": "0x6",
     "BaseFamily": "0xF",
-    "ExtModels": [],
-    "BaseModels": []
+    "ExtModel": "0x1",
+    "BaseModel": "0x1"
+  },
+
+  {
+    "Codename": "Richland (Bulldozer)",
+    "ExtFamily": "0x6",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x1",
+    "BaseModel": "0x3"
+  },
+
+  {
+    "Codename": "Kaveri (Steamroller)",
+    "ExtFamily": "0x6",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x3",
+    "BaseModel": "0x0"
+  },
+
+  {
+    "Codename": "Godavari (Steamroller)",
+    "ExtFamily": "0x6",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x0",
+    "BaseModel": "0x1"
+  },
+
+  {
+    "Codename": "Carrizo (Excavator)",
+    "ExtFamily": "0x6",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x6",
+    "BaseModel": "0x0"
+  },
+
+  {
+    "Codename": "Bristol Ridge (Excavator)",
+    "ExtFamily": "0x6",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x6",
+    "BaseModel": "0x5"
+  },
+
+  {
+    "Codename": "Stoney Ridge (Excavator)",
+    "ExtFamily": "0x6",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x7",
+    "BaseModel": "0x0"
   },
 
   {
     "Codename": "Jaguar",
     "ExtFamily": "0x7",
     "BaseFamily": "0xF",
-    "ExtModels": ["0x0"],
-    "BaseModels": ["0x0"]
+    "ExtModel": "0x0",
+    "BaseModel": "0x0"
   },
 
   {
-    "Codename": "Zen",
-    "ExtFamily": "0x8",
+    "Codename": "Puma",
+    "ExtFamily": "0x7",
     "BaseFamily": "0xF",
-    "ExtModels": ["0x0", "0x1", "0x2"],
-    "BaseModels": ["0x0", "0x1", "0x8"]
+    "ExtModel": "0x3",
+    "BaseModel": "0x0"
   },
 
   {
-    "Codename": "Zen+",
+    "Codename": "Naples (Zen)",
     "ExtFamily": "0x8",
     "BaseFamily": "0xF",
-    "ExtModels": ["0x0", "0x1"],
-    "BaseModels": ["0x8"]
+    "ExtModel": "0x0",
+    "BaseModel": "0x1"
   },
 
   {
-    "Codename": "Zen 2",
+    "Codename": "Raven Ridge (Zen)",
     "ExtFamily": "0x8",
     "BaseFamily": "0xF",
-    "ExtModels": ["0x3", "0x4", "0x6", "0x7", "0x9"],
-    "BaseModels": ["0x0", "0x1", "0x7", "0x8"]
+    "ExtModel": "0x1",
+    "BaseModel": "0x1"
+  },
+
+  {
+    "Codename": "Branded Kestrel (Zen)",
+    "ExtFamily": "0x8",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x1",
+    "BaseModel": "0x8"
+  },
+
+  {
+    "Codename": "Colfax (Zen+)",
+    "ExtFamily": "0x8",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x0",
+    "BaseModel": "0x8"
+  },
+
+  {
+    "Codename": "Picasso (Zen+)",
+    "ExtFamily": "0x8",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x1",
+    "BaseModel": "0x8"
+  },
+
+  {
+    "Codename": "Rome (Zen 2)",
+    "ExtFamily": "0x8",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x3",
+    "BaseModel": "0x1"
+  },
+
+  {
+    "Codename": "Renoir (Zen 2)",
+    "ExtFamily": "0x8",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x6",
+    "BaseModel": "0x0"
+  },
+
+  {
+    "Codename": "Lucienne (Zen 2)",
+    "ExtFamily": "0x8",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x6",
+    "BaseModel": "0x8"
+  },
+
+  {
+    "Codename": "Matisse (Zen 2)",
+    "ExtFamily": "0x8",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x7",
+    "BaseModel": "0x1"
+  },
+
+  {
+    "Codename": "Van Gogh (Zen 2)",
+    "ExtFamily": "0x8",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x9",
+    "BaseModel": "0x0"
   },
 
   {
     "Codename": "Zen",
     "ExtFamily": "0x9",
     "BaseFamily": "0xF",
-    "ExtModels": ["0x0"],
-    "BaseModels": ["0x0"]
+    "ExtModel": "0x0",
+    "BaseModel": "0x0"
   },
 
   {
-    "Codename": "Zen 3",
+    "Codename": "EPYC 7003 (Zen 3)",
     "ExtFamily": "0xA",
     "BaseFamily": "0xF",
-    "ExtModels": ["0x0", "0x2", "0x4", "0x5"],
-    "BaseModels": ["0x0", "0x1"]
+    "ExtModel": "0x0",
+    "BaseModel": "0x0"
+  },
+
+  {
+    "Codename": "EPYC 7003 (Zen 3)",
+    "ExtFamily": "0x8",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x0",
+    "BaseModel": "0x1"
+  },
+
+  {
+    "Codename": "Ryzen 5000 (Zen 3)",
+    "ExtFamily": "0x8",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x2",
+    "BaseModel": "0x1"
+  },
+
+  {
+    "Codename": "Rembrant (Zen 3)",
+    "ExtFamily": "0x8",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x4",
+    "BaseModel": "0x0"
+  },
+
+  {
+    "Codename": "Cezanne (Zen 3)",
+    "ExtFamily": "0x8",
+    "BaseFamily": "0xF",
+    "ExtModel": "0x5",
+    "BaseModel": "0x0"
   }
 ]
