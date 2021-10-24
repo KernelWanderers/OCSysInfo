@@ -7,7 +7,7 @@ The JSON files you see here were both manually written according to the followin
 - [Intel CPUID wiki](https://en.wikichip.org/wiki/intel/cpuid)
 - [AMD CPUID wiki](https://en.wikichip.org/wiki/amd/cpuid)
 
-It is not pin-point precise, but it tries to make sense of it using the iGPU model, in order to match with the possible match of teh CPU codename, and/or the stepping value.
+It is not pin-point precise, but it tries to make sense of it using the iGPU model, in order to match with the possible match of the CPU codename, and/or the stepping value.
 
 ```
 Kaby Lake
