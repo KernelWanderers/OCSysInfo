@@ -117,6 +117,8 @@ class WindowsHardwareManager:
 
                     if stepping:
                         stepping = hex(int(stepping.group()))
+                    else:
+                        stepping = None
 
                     # Credits to:
                     # https://github.com/1Revenger1
