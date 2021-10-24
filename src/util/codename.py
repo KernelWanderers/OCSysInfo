@@ -1,13 +1,12 @@
 def codename(data, extf, family, extm, model):
-    val = None
+    vals = []
     for arch in data:
 
-        if arch.get('ExtFamily') == extf and \
-           arch.get('BaseFamily') == family and \
-           extm in arch.get('ExtModels', []) and \
-           model in arch.get('BaseModels', []):
+        if extf.lower() == arch.get('ExtFamily', '').lower() and \
+           family.lower() == arch.get('BaseFamily', '').lower() and \
+           extm.lower() == arch.get('ExtModel', '').lower() and \
+           model.lower() == arch.get('BaseModel', '').lower():
 
-            val = arch.get('Codename')
-            break
+            vals.append(arch.get('Codename'))
 
-    return val
+    return vals
