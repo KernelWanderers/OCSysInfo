@@ -105,6 +105,7 @@ class WindowsHardwareManager:
                 desc = CPU.wmi_property('Description').value
                 fam = re.search(r'(?<=Family\s)\d+', desc)
                 _model = re.search(r'(?<=Model\s)\d+', desc)
+                stepping = re.search(r'(?<=Stepping\s)\d+', desc)
 
                 if not fam or \
                    not _model:
@@ -113,6 +114,9 @@ class WindowsHardwareManager:
                 else:
                     fam = hex(int(fam.group()))
                     n = int(_model.group())
+
+                    if stepping:
+                        stepping = hex(int(stepping.group()))
 
                     # Credits to:
                     # https://github.com/1Revenger1
@@ -126,7 +130,7 @@ class WindowsHardwareManager:
                         open(os.path.join(root, 'src', 'uarch', f'{vendor}.json'), 'r'))
 
                     cname = codename(_data, extf,
-                                     fam, extm, base)
+                                     fam, extm, base, stepping=stepping)
 
                     if cname:
                         self.cpu['codename'] = cname if len(
@@ -170,7 +174,7 @@ class WindowsHardwareManager:
                 # Otherwise, if it's not an edge-case,
                 # it will simply use the guessed codename.
                 if ven and dev and '8086' in ven and self.cpu.get('codename', None):
-                    
+
                     if any([x in n for n in self.cpu['codename']] for x in ('Kaby Lake', 'Coffee Lake', 'Comet Lake')):
                         try:
                             _data = json.load(open(os.path.join(root, 'src',
