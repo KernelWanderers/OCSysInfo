@@ -5,9 +5,27 @@ import os
 import plistlib
 import subprocess
 import sys
-from info import name, version, os_ver, arch, color_text
+from info import name, version, os_ver, arch, color_text, format_text
 from managers.tree import tree
 from root import root
+
+
+def hack_disclaimer():
+    kern_ver = int(os.uname().release.split('.')[0])
+
+    if kern_ver > 19:
+        kext_loaded = subprocess.run(['kmutil', 'showloaded', '--list-only', '--variant-suffix',
+                                     'release'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    else:
+        kext_loaded = subprocess.run(
+            ['kextstat', '-l'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+    if any(x in kext_loaded.stdout.decode().lower() for x in ('fakesmc', 'virtualsmc')):
+        return color_text(format_text('DISCLAIMER:\n', 'bold+underline'), "red") + color_text(
+            f"THIS IS BEING RUN ON A HACKINTOSH.\n"
+            f"INFORMATION EXTRACTED MIGHT NOT BE COMPLETELY ACCURATE.",
+            "red"
+        )
 
 
 class UI:
@@ -61,12 +79,12 @@ class UI:
         print(" ")
 
         options = [
-            ('R. ', 'Return'),
-            ('T. ', 'Dump as TXT'),
-            ('J. ', 'Dump as JSON'),
-            ('X. ', 'Dump as XML'),
-            ('P. ', 'Dump as Plist'),
-            ('Q. ', 'Quit')
+            (color_text('R. ', "yellow"), 'Return'),
+            (color_text('T. ', "yellow"), 'Dump as TXT'),
+            (color_text('J. ', "yellow"), 'Dump as JSON'),
+            (color_text('X. ', "yellow"), 'Dump as XML'),
+            (color_text('P. ', "yellow"), 'Dump as Plist'),
+            (color_text('Q. ', "yellow"), 'Quit')
         ]
 
         cmd_options = [
@@ -88,7 +106,7 @@ class UI:
     def dump_txt(self):
         with open(os.path.join(root, "info_dump.txt"), "w", encoding="utf-8") as file:
             for key in self.dm.info:
-                file.write(tree(key, self.dm.info[key]))
+                file.write(tree(key, self.dm.info[key], color=False))
                 file.write('\n')
 
             file.close()
@@ -121,12 +139,12 @@ class UI:
 
     def create_ui(self):
         options = [
-            ('D. ', 'Discover hardware'),
-            ('T. ', 'Dump as TXT'),
-            ('J. ', 'Dump as JSON'),
-            ('X. ', 'Dump as XML'),
-            ('P. ', 'Dump as Plist'),
-            ('\n\n', 'Q. ', 'Quit')
+            (color_text('D. ', "yellow"), 'Discover hardware'),
+            (color_text('T. ', "yellow"), 'Dump as TXT'),
+            (color_text('J. ', "yellow"), 'Dump as JSON'),
+            (color_text('X. ', "yellow"), 'Dump as XML'),
+            (color_text('P. ', "yellow"), 'Dump as Plist'),
+            ('\n\n', color_text('Q. ', "yellow"), 'Quit')
         ]
 
         cmd_options = [
@@ -144,15 +162,15 @@ class UI:
         self.title()
 
         if sys.platform.lower() == "darwin":
-            hack = self.hack_disclaimer()
+            hack = hack_disclaimer()
 
             if hack:
                 print(f"{hack}\n")
 
-        print(f"Program      :  {name}")
-        print(f"Version      :  {version}")
-        print(f"Platform     :  {os_ver}")
-        print(f"Architecture :  {arch}")
+        print(f"Program      :  {color_text(name, 'green')}")
+        print(f"Version      :  {color_text(version, 'green')}")
+        print(f"Platform     :  {color_text(os_ver, 'green')}")
+        print(f"Architecture :  {color_text(arch, 'green')}")
 
         print("\n")
 
@@ -169,7 +187,7 @@ class UI:
     def enter(self):
         # “Hacky” way of detecting when
         # the Enter key is pressed down.
-        if input("Press [enter] to return... ") != None:
+        if input(color_text("Press [enter] to return... ", "yellow")) != None:
             self.create_ui()
 
     def title(self):
