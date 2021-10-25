@@ -88,7 +88,7 @@ class LinuxHardwareManager:
             # individually.
             data[model]['Threads'] = open(
                 '/proc/cpuinfo', 'r').read().count('processor')
-        except:
+        except Exception:
             self.logger.warning(
                 f'Failed to resolve thread count for {model} (PROC_FS)')
             pass
@@ -131,7 +131,7 @@ class LinuxHardwareManager:
                 if cname:
                     self.cpu['codename'] = cname if len(
                         cname) > 1 else cname[0]
-            except:
+            except Exception:
                 self.logger.warning(
                     f'Failed to construct extended family – ({model})')
                 pass
@@ -152,7 +152,7 @@ class LinuxHardwareManager:
                     dev = open(f'{path}/device/device', 'r').read().strip()
 
                     model = self.pci.get_item(dev[2:], ven[2:]).get('device')
-                except:
+                except Exception:
                     self.logger.warning(
                         'Failed to obtain vendor/device id for GPU device (SYS_FS/DRM)')
                     continue
@@ -185,7 +185,7 @@ class LinuxHardwareManager:
                                                 self.cpu['codename'] = name
                                                 found = True
 
-                        except:
+                        except Exception:
                             self.logger.warning(
                                 f"Failed to obtain codename for {self.cpu.get('model')}")
 
@@ -213,7 +213,7 @@ class LinuxHardwareManager:
                     dev = open(f'{path}/device', 'r').read().strip()
 
                     model = self.pci.get_item(dev[2:], ven[2:]).get('device')
-                except:
+                except Exception:
                     self.logger.warning(
                         'Failed to obtain vendor/device id for Network controller (SYS_FS/NET)')
                     return
@@ -240,7 +240,7 @@ class LinuxHardwareManager:
                     dev = open(f'{path}/device', 'r').read().strip()
 
                     model = self.pci.get_item(dev[2:], ven[2:]).get('device')
-                except:
+                except Exception:
                     self.logger.warning(
                         'Failed to obtain vendor/device id for Audio controller (SYS_FS/SOUND)')
                     continue
@@ -266,7 +266,7 @@ class LinuxHardwareManager:
 
             model = open(f'{path}/board_name', 'r').read().strip()
             vendor = open(f'{path}/board_vendor', 'r').read().strip()
-        except:
+        except Exception:
             self.logger.warning(
                 'Failed to obtain Motherboard details (SYS_FS/DMI)')
             return
@@ -293,7 +293,7 @@ class LinuxHardwareManager:
         try:
             devices = open('/proc/bus/input/devices', 'r').read().strip()
             sysfs = []
-        except:
+        except Exception:
             self.logger.critical(
                 'Failed to obtain Input devices (SYS_FS/INPUT) — THIS GENERALLY SHOULD NOT HAPPEN ON LAPTOP DEVICES.')
             return
@@ -320,7 +320,7 @@ class LinuxHardwareManager:
                 try:
                     prod_id = open(f'{path}/name', 'r').read().strip()
                     vendor = open(f'{path}/id/vendor', 'r').read().strip()
-                except:
+                except Exception:
                     self.logger.warning(
                         'Failed to obtain product/vendor id of device using the RMI4 protocol (SYS_FS/INPUT) – Non-critical, ignoring')
                     continue
@@ -341,7 +341,7 @@ class LinuxHardwareManager:
 
                 try:
                     name = open(f'{path}/name').read().strip()
-                except:
+                except Exception:
                     self.logger.warning(
                         'Failed to obtain PS2 device name (SYS_FS/INPUT) – Non-critical, ignoring')
                     continue
@@ -369,7 +369,7 @@ class LinuxHardwareManager:
                 try:
                     dev = '0x' + open(f'{path}/id/product', 'r').read().strip()
                     ven = '0x' + open(f'{path}/id/vendor', 'r').read().strip()
-                except:
+                except Exception:
                     self.logger.warning(
                         'Failed to obtain device/vendor id of ambiguous Input device (SYS_FS/INPUT) – Non-critical, ignoring')
                     continue

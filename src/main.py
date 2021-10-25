@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
         if sys.platform.lower() == "darwin":
             import objc
-    except:
+    except Exception:
         print("Please ensure you've installed the required dependencies.")
     else:
         try:

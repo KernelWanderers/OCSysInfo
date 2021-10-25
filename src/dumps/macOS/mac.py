@@ -58,7 +58,7 @@ class MacHardwareManager:
             # Full list of features for this CPU.
             features = subprocess.check_output([
                 'sysctl', 'machdep.cpu.features']).decode().strip()
-        except:
+        except Exception:
             self.logger.warning(
                 f'Failed to access CPUID instruction – ({model})')
             features = None
@@ -82,7 +82,7 @@ class MacHardwareManager:
                 stepping = hex(int(subprocess.check_output(
                     ['sysctl', 'machdep.cpu.stepping']
                 ).decode().split(': ')[1].strip()))
-            except:
+            except Exception:
                 stepping = None
 
             extf = hex(int(subprocess.check_output(
@@ -116,7 +116,7 @@ class MacHardwareManager:
 
             if cname:
                 self.cpu['codename'] = cname if len(cname) > 1 else cname[0]
-        except:
+        except Exception:
             self.logger.warning(
                 f'Failed to construct extended family – ({model})')
             pass
@@ -163,7 +163,7 @@ class MacHardwareManager:
             try:
                 model = bytes(device.get('model')).decode()
                 model = model[0:len(model) - 1]
-            except:
+            except Exception:
                 self.logger.warning(
                     'Failed to obtain GPU device model (IOKit)')
                 continue
@@ -181,7 +181,7 @@ class MacHardwareManager:
                     # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
                     'Vendor': ven
                 }
-            except:
+            except Exception:
                 self.logger.warning(
                     'Failed to obtain vendor/device id for GPU device (IOKit)')
                 data = {}
@@ -214,7 +214,7 @@ class MacHardwareManager:
                                             self.cpu['codename'] = name
                                             found = True
 
-                    except:
+                    except Exception:
                         self.logger.warning(
                             f"Failed to obtain codename for {self.cpu.get('model')}")
 
@@ -262,7 +262,7 @@ class MacHardwareManager:
                     # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
                     'Vendor': ven
                 }
-            except:
+            except Exception:
                 self.logger.warning(
                     'Failed to obtain vendor/device id for Network controller (IOKit)')
                 continue
@@ -311,7 +311,7 @@ class MacHardwareManager:
                     dev = '0x' + hex(device.get('IOHDACodecVendorID'))[6:]
                     ven = '0x' + hex(device.get('IOHDACodecVendorID'))[2:6]
 
-                except:
+                except Exception:
                     self.logger.warning(
                         'Failed to obtain vendor/device id of HDA codec device (IOKit)')
                     continue
@@ -328,7 +328,7 @@ class MacHardwareManager:
 
                     ven = '0x' + (binascii.b2a_hex(
                         bytes(reversed(device.get('vendor-id')))).decode()[4:])  # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
-                except:
+                except Exception:
                     self.logger.warning(
                         'Failed to obtain vendor/device id of Multimedia controller (IOKit)')
                     continue
@@ -392,7 +392,7 @@ class MacHardwareManager:
                     _type = "Non-Volatile Memory Express (NVMe)"
                 else:
                     _type = self.STORAGE.get(_type, _type)
-            except:
+            except Exception:
                 self.logger.warning(
                     'Failed to construct valid format for storage device (IOKit)')
                 continue
@@ -440,7 +440,7 @@ class MacHardwareManager:
                     'Device ID': dev,
                     'Vendor': ven
                 }
-            except:
+            except Exception:
                 self.logger.warning(
                     'Failed to obtain vendor/device id for Input device (IOKit)')
                 data = {}

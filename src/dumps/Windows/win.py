@@ -145,7 +145,7 @@ class WindowsHardwareManager:
                     if cname:
                         self.cpu['codename'] = cname if len(
                             cname) > 1 else cname[0]
-            except:
+            except Exception:
                 self.logger.warning(
                     f'Failed to construct extended family – ({model})')
                 pass
@@ -157,7 +157,7 @@ class WindowsHardwareManager:
     def gpu_info(self):
         try:
             GPUS = self.c.instances('Win32_VideoController')
-        except:
+        except Exception:
             return
         else:
             for GPU in GPUS:
@@ -166,7 +166,7 @@ class WindowsHardwareManager:
                     pci = GPU.wmi_property('PNPDeviceID').value
                     match = re.search(
                         '(VEN_(\d|\w){4})\&(DEV_(\d|\w){4})', pci)
-                except:
+                except Exception:
                     self.logger.warning('Failed to obtain GPU device (WMI)')
                     continue
 
@@ -204,7 +204,7 @@ class WindowsHardwareManager:
                                                 self.cpu['codename'] = name
                                                 found = True
 
-                        except:
+                        except Exception:
                             self.logger.warning(
                                 f"Failed to obtain codename for {self.cpu.get('model')}")
 
@@ -227,14 +227,14 @@ class WindowsHardwareManager:
     def net_info(self):
         try:
             NICS = self.c.instances('Win32_NetworkAdapter')
-        except:
+        except Exception:
             return
         else:
             for NIC in NICS:
                 try:
                     path = NIC.wmi_property('PNPDeviceID').value
                     pci = 'pci' in path.lower()
-                except:
+                except Exception:
                     self.logger.warning(
                         'Failed to obtain Network controller (WMI)')
                     continue
@@ -251,7 +251,7 @@ class WindowsHardwareManager:
 
                     try:
                         model = self.pci.get_item(dev[2:], ven[2:])
-                    except:
+                    except Exception:
                         continue
 
                     if not model:
@@ -269,14 +269,14 @@ class WindowsHardwareManager:
     def audio_info(self):
         try:
             HDA = self.c.instances('Win32_SoundDevice')
-        except:
+        except Exception:
             return
         else:
             for AUDIO in HDA:
                 try:
                     path = AUDIO.wmi_property('PNPDeviceID').value
                     is_valid = 'hdaudio' in path.lower()
-                except:
+                except Exception:
                     self.logger.warning('Failed to obtain Sound device (WMI)')
                     continue
 
@@ -292,7 +292,7 @@ class WindowsHardwareManager:
 
                         try:
                             model = self.pci.get_item(dev[2:], ven[2:])
-                        except:
+                        except Exception:
                             continue
 
                         if not model:
@@ -312,7 +312,7 @@ class WindowsHardwareManager:
             MOBO = self.c.instances('Win32_BaseBoard')[0]
             model = MOBO.wmi_property('Product').value
             manufacturer = MOBO.wmi_property('Manufacturer').value
-        except:
+        except Exception:
             self.logger.warning(
                 'Failed to obtain Motherboard details (WMI)')
             return
@@ -328,7 +328,7 @@ class WindowsHardwareManager:
             # https://github.com/flagersgit
             STORAGE_DEV = wmi.WMI(
                 namespace="Microsoft/Windows/Storage").query("SELECT * FROM MSFT_PhysicalDisk")
-        except:
+        except Exception:
             return
 
         for STORAGE in STORAGE_DEV:
@@ -352,7 +352,7 @@ class WindowsHardwareManager:
                         'Location': location
                     }
                 })
-            except:
+            except Exception:
                 self.logger.warning(
                     'Failed to properly resolve storage device (WMI)')
                 continue
@@ -361,7 +361,7 @@ class WindowsHardwareManager:
         try:
             KBS = self.c.instances('Win32_Keyboard')
             PDS = self.c.instances('Win32_PointingDevice')
-        except:
+        except Exception:
             return
         else:
             _kbs = self.get_kbpd(KBS)
@@ -392,7 +392,7 @@ class WindowsHardwareManager:
 
                     if devint:
                         data[description]['Interface'] = devint
-                except:
+                except Exception:
                     self.logger.warning(
                         f'Failed to obtain interface information for "{description}" (WMI)')
                     pass
@@ -401,7 +401,7 @@ class WindowsHardwareManager:
                     continue
 
                 _items.append(data)
-            except:
+            except Exception:
                 self.logger.warning(
                     'Failed to obtain information about keyboard/pointing device (WMI)')
                 continue
