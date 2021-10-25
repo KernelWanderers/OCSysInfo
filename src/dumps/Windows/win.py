@@ -113,7 +113,7 @@ class WindowsHardwareManager:
                 # Notebook      : 10
                 # Sub Notebook  : 14
                 laptop = self.c.instances('Win32_SystemEnclosure')[
-                    0].wmi_propery('ChassisTypes').value[0] in (9, 10, 14)
+                    0].wmi_property('ChassisTypes').value[0] in (9, 10, 14)
 
                 if not fam or \
                    not _model:
