@@ -159,6 +159,8 @@ When opening up issues, please list all hardware information relevant, and the i
 
 ## Credits
 
+The following contains credits to all the people who helped assist in the making, testing, and polishing of this project. This project would be nothing without them.
+
 - @[Joshj23](https://github.com/Joshj23icy) — for extensive help in researching how to discover hardware information on Linux platforms, and providing a big portion of machines used for unit testing.
 
 - @[Flagers](https://github.com/flagersgit) — for general guidance, documentation reference, implementation ideas, general support, documentation, help in fixing the source code's faulty logic, and much, much more.
@@ -179,8 +181,12 @@ When opening up issues, please list all hardware information relevant, and the i
 
 - @[Quist](https://github.com/nadiaholmquist) — for extensive amounts of unit testing on various hardware, they helped immensely with fool-proofing OCSysInfo as best as possible, alongside [Joshj23](https://github.com/Joshj23icy)'s immense help with unit testing.
 
+- @[1Revenger1](https://github.com/1Revenger1) — for implementing input device detection for Linux platforms.
+
 - @[flababah](https://github.com/flababah/) — for https://github.com/flababah/cpuid.py
 
 - @[renegadevi](https://gitlab.com/renegadevi) — for extensive amounts of help with fixing the source code's faulty logic.
 
 - @[khronokernel](https://github.com/khronokernel) — for extensive amounts of help with fixing the source code's faulty logic.
+
+- @[Apethesis](https://github.com/Apethesis) — for assistance in testing the application in its various stages.
