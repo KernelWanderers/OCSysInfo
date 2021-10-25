@@ -1,4 +1,3 @@
 requests
 dicttoxml
 distro
-cpuid

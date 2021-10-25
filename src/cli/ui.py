@@ -17,10 +17,11 @@ class UI:
     and handling specific CLI commands.
     """
 
-    def __init__(self, dm):
+    def __init__(self, dm, logger):
         self.dm = dm
         self.dm.info = {k: v for (k, v) in self.dm.info.items(
         ) if self.dm.info[k] and (v[0] != {} if isinstance(v, list) else v != {})}
+        self.logger = logger
 
     def handle_cmd(self, options=[]):
         cmd = input("\n\nPlease select an option: ")
@@ -48,6 +49,7 @@ class UI:
             self.create_ui()
 
     def discover(self):
+        self.logger.info('Attempting to discover hardware...')
         for key in self.dm.info:
             is_empty = next(iter(self.dm.info[key]), {}) == {} if isinstance(
                 self.dm.info[key], list) else self.dm.info[key] == {}
@@ -79,6 +81,8 @@ class UI:
         for option in options:
             print("".join(option))
 
+        self.logger.info('Successfully ran \'discovery\'.')
+
         self.handle_cmd(cmd_options)
 
     def dump_txt(self):
@@ -88,11 +92,13 @@ class UI:
                 file.write('\n')
 
             file.close()
+            self.logger.info('Successfully dumped info to "info_dump.txt"')
 
     def dump_json(self):
         with open(os.path.join(root, "info_dump.json"), "w") as _json:
             _json.write(json.dumps(self.dm.info, indent=4, sort_keys=False))
             _json.close()
+            self.logger.info('Successfully dumped info to "info_dump.json"')
 
     def dump_xml(self):
         with open(os.path.join(root, "info_dump.xml"), "wb") as xml:
@@ -100,14 +106,17 @@ class UI:
             dicttoxml.LOG.setLevel(logging.ERROR)
             xml.write(dicttoxml.dicttoxml(self.dm.info, root=True))
             xml.close()
+            self.logger.info('Successfully dumped info to "info_dump.xml"')
 
     def dump_plist(self):
         with open(os.path.join(root, "info_dump.plist"), "wb") as plist:
             plistlib.dump(self.dm.info, plist, sort_keys=False)
             plist.close()
+            self.logger.info('Successfully dumped info to "info_dump.plist"')
 
     def quit(self):
         self.clear()
+        self.logger.info('Successfully exited.\n\n')
         exit(0)
 
     def create_ui(self):
@@ -129,6 +138,8 @@ class UI:
             ('Q', 'Q.', self.quit)
         ]
 
+        self.logger.info('Creating UI...')
+
         self.clear()
         self.title()
 
@@ -148,13 +159,15 @@ class UI:
         for option in options:
             print("".join(option))
 
+        self.logger.info('UI creation ran successfully.')
+
         self.handle_cmd(cmd_options)
 
     def clear(self):
         os.system('cls||clear')
 
     def enter(self):
-        # “Hacky” way of detecting when 
+        # “Hacky” way of detecting when
         # the Enter key is pressed down.
         if input("Press [enter] to return... ") != None:
             self.create_ui()

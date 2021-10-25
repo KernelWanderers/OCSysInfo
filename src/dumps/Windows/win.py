@@ -21,6 +21,8 @@ class WindowsHardwareManager:
     def __init__(self, parent):
         self.info = parent.info
         self.pci = parent.pci
+        self.logger = parent.logger
+        self.cpu = {}
         self.c = wmi.WMI()
 
     def dump(self):
@@ -67,7 +69,11 @@ class WindowsHardwareManager:
             # Number of logical processors (threads)
             data['Threads'] = CPU.wmi_property(
                 'NumberOfLogicalProcessors').value
+
+            self.cpu['model'] = model
         except Exception as e:
+            self.logger.critical(
+                f'Failed to obtain CPU information. This should not happen. \nSnippet relevant to former line^^^\t^^^{str(e)}')
             cpu_err(e)
 
         else:
@@ -99,6 +105,15 @@ class WindowsHardwareManager:
                 desc = CPU.wmi_property('Description').value
                 fam = re.search(r'(?<=Family\s)\d+', desc)
                 _model = re.search(r'(?<=Model\s)\d+', desc)
+                stepping = re.search(r'(?<=Stepping\s)\d+', desc)
+
+                # Chassis Types:
+                #
+                # Laptop        : 9
+                # Notebook      : 10
+                # Sub Notebook  : 14
+                laptop = self.c.instances('Win32_SystemEnclosure')[
+                    0].wmi_property('ChassisTypes').value[0] in (9, 10, 14)
 
                 if not fam or \
                    not _model:
@@ -107,6 +122,11 @@ class WindowsHardwareManager:
                 else:
                     fam = hex(int(fam.group()))
                     n = int(_model.group())
+
+                    if stepping:
+                        stepping = hex(int(stepping.group()))
+                    else:
+                        stepping = None
 
                     # Credits to:
                     # https://github.com/1Revenger1
@@ -119,12 +139,15 @@ class WindowsHardwareManager:
                     _data = json.load(
                         open(os.path.join(root, 'src', 'uarch', f'{vendor}.json'), 'r'))
 
-                    cname = codename(_data, extf.upper(),
-                                     fam.upper(), extm.upper(), base.upper())
+                    cname = codename(_data, extf,
+                                     fam, extm, base, stepping=stepping, laptop=laptop)
 
                     if cname:
-                        data['Codename'] = cname
-            except:
+                        self.cpu['codename'] = cname if len(
+                            cname) > 1 else cname[0]
+            except Exception:
+                self.logger.warning(
+                    f'Failed to construct extended family – ({model})')
                 pass
 
             self.info['CPU'].append({
@@ -134,7 +157,7 @@ class WindowsHardwareManager:
     def gpu_info(self):
         try:
             GPUS = self.c.instances('Win32_VideoController')
-        except:
+        except Exception:
             return
         else:
             for GPU in GPUS:
@@ -143,7 +166,8 @@ class WindowsHardwareManager:
                     pci = GPU.wmi_property('PNPDeviceID').value
                     match = re.search(
                         '(VEN_(\d|\w){4})\&(DEV_(\d|\w){4})', pci)
-                except:
+                except Exception:
+                    self.logger.warning('Failed to obtain GPU device (WMI)')
                     continue
 
                 ven, dev = 'Unable to detect.', 'Unable to detect.'
@@ -152,7 +176,41 @@ class WindowsHardwareManager:
                     ven, dev = ['0x' + x.split('_')[1]
                                 for x in match.group(0).split('&')]
 
+                # In some edge cases, we must
+                # verify that the found codename
+                # for Intel's CPUs corresponds to its
+                # iGPU µarch.
+                #
+                # Otherwise, if it's not an edge-case,
+                # it will simply use the guessed codename.
+                if ven and dev and '8086' in ven and self.cpu.get('codename', None):
+
+                    if any([x in n for n in self.cpu['codename']] for x in ('Kaby Lake', 'Coffee Lake', 'Comet Lake')):
+                        try:
+                            _data = json.load(open(os.path.join(root, 'src',
+                                                                'uarch', f'intel_gpu.json'), 'r'))
+                            found = False
+
+                            for uarch in _data:
+                                if found:
+                                    break
+
+                                for id in uarch.get('IDs', []):
+                                    name = uarch.get('Microarch', '')
+
+                                    if dev.lower() == id.lower():
+                                        for guessed in self.cpu['codename']:
+                                            if name.lower() in guessed.lower():
+                                                self.cpu['codename'] = name
+                                                found = True
+
+                        except Exception:
+                            self.logger.warning(
+                                f"Failed to obtain codename for {self.cpu.get('model')}")
+
                 if not gpu:
+                    self.logger.warning(
+                        '[POST]: Failed to obtain GPU device (WMI)')
                     continue
 
                 self.info['GPU'].append({
@@ -162,17 +220,23 @@ class WindowsHardwareManager:
                     }
                 })
 
+            if self.cpu.get('codename', None):
+                self.info['CPU'][0][self.cpu['model']
+                                    ]['Codename'] = self.cpu['codename']
+
     def net_info(self):
         try:
             NICS = self.c.instances('Win32_NetworkAdapter')
-        except:
+        except Exception:
             return
         else:
             for NIC in NICS:
                 try:
                     path = NIC.wmi_property('PNPDeviceID').value
                     pci = 'pci' in path.lower()
-                except:
+                except Exception:
+                    self.logger.warning(
+                        'Failed to obtain Network controller (WMI)')
                     continue
 
                 if pci:
@@ -187,10 +251,12 @@ class WindowsHardwareManager:
 
                     try:
                         model = self.pci.get_item(dev[2:], ven[2:])
-                    except:
+                    except Exception:
                         continue
 
                     if not model:
+                        self.logger.warning(
+                            '[POST]: Failed to obtain Network controller (WMI)')
                         continue
 
                     self.info['Network'].append({
@@ -203,14 +269,15 @@ class WindowsHardwareManager:
     def audio_info(self):
         try:
             HDA = self.c.instances('Win32_SoundDevice')
-        except:
+        except Exception:
             return
         else:
             for AUDIO in HDA:
                 try:
                     path = AUDIO.wmi_property('PNPDeviceID').value
                     is_valid = 'hdaudio' in path.lower()
-                except:
+                except Exception:
+                    self.logger.warning('Failed to obtain Sound device (WMI)')
                     continue
 
                 if is_valid:
@@ -225,10 +292,12 @@ class WindowsHardwareManager:
 
                         try:
                             model = self.pci.get_item(dev[2:], ven[2:])
-                        except:
+                        except Exception:
                             continue
 
                         if not model:
+                            self.logger.warning(
+                                '[POST]: Failed to obtain Sound device (WMI)')
                             continue
 
                         self.info['Audio'].append({
@@ -243,7 +312,9 @@ class WindowsHardwareManager:
             MOBO = self.c.instances('Win32_BaseBoard')[0]
             model = MOBO.wmi_property('Product').value
             manufacturer = MOBO.wmi_property('Manufacturer').value
-        except:
+        except Exception:
+            self.logger.warning(
+                'Failed to obtain Motherboard details (WMI)')
             return
         else:
             self.info['Motherboard'] = {
@@ -257,7 +328,7 @@ class WindowsHardwareManager:
             # https://github.com/flagersgit
             STORAGE_DEV = wmi.WMI(
                 namespace="Microsoft/Windows/Storage").query("SELECT * FROM MSFT_PhysicalDisk")
-        except:
+        except Exception:
             return
 
         for STORAGE in STORAGE_DEV:
@@ -265,6 +336,8 @@ class WindowsHardwareManager:
                 model = STORAGE.wmi_property('FriendlyName').value
 
                 if not model:
+                    self.logger.warning(
+                        'Failed to resolve friendly name for storage device (WMI)')
                     model = "UNKNOWN"
 
                 type = MEDIA_TYPE.get(
@@ -279,14 +352,16 @@ class WindowsHardwareManager:
                         'Location': location
                     }
                 })
-            except:
+            except Exception:
+                self.logger.warning(
+                    'Failed to properly resolve storage device (WMI)')
                 continue
 
     def input_info(self):
         try:
             KBS = self.c.instances('Win32_Keyboard')
             PDS = self.c.instances('Win32_PointingDevice')
-        except:
+        except Exception:
             return
         else:
             _kbs = self.get_kbpd(KBS)
@@ -317,14 +392,18 @@ class WindowsHardwareManager:
 
                     if devint:
                         data[description]['Interface'] = devint
-                except:
+                except Exception:
+                    self.logger.warning(
+                        f'Failed to obtain interface information for "{description}" (WMI)')
                     pass
 
                 if not any(x in description.lower() for x in ('ps/2', 'hid', 'synaptics')):
                     continue
 
                 _items.append(data)
-            except:
+            except Exception:
+                self.logger.warning(
+                    'Failed to obtain information about keyboard/pointing device (WMI)')
                 continue
 
         return _items

@@ -20,6 +20,8 @@ class MacHardwareManager:
     def __init__(self, parent):
         self.info = parent.info
         self.pci = parent.pci
+        self.logger = parent.logger
+        self.cpu = {}
 
         self.STORAGE = {
             'Solid State': 'Solid State Drive (SSD)',
@@ -37,10 +39,15 @@ class MacHardwareManager:
     def cpu_info(self):
         try:
             # Model of the CPU
-            model = subprocess.check_output([
+            model = subprocess.check_output([  # dont forget to fix.
                 'sysctl', 'machdep.cpu.brand_string']).decode().split(': ')[1].strip()
+
+            self.cpu['model'] = model
         except Exception as e:
+            self.logger.critical(
+                f'Failed to obtain CPU information. This should not happen. \nSnippet relevant to former line^^^\t^^^{str(e)}')
             cpu_err(e)
+
         try:
             # Manufacturer/Vendor of this CPU;
             # Used for determining which JSON to use.
@@ -51,7 +58,9 @@ class MacHardwareManager:
             # Full list of features for this CPU.
             features = subprocess.check_output([
                 'sysctl', 'machdep.cpu.features']).decode().strip()
-        except:
+        except Exception:
+            self.logger.warning(
+                f'Failed to access CPUID instruction – ({model})')
             features = None
 
         data = {
@@ -69,6 +78,13 @@ class MacHardwareManager:
         }
 
         try:
+            try:
+                stepping = hex(int(subprocess.check_output(
+                    ['sysctl', 'machdep.cpu.stepping']
+                ).decode().split(': ')[1].strip()))
+            except Exception:
+                stepping = None
+
             extf = hex(int(subprocess.check_output(
                 ['sysctl', 'machdep.cpu.extfamily']
             ).decode().split(': ')[1].strip()))
@@ -81,21 +97,28 @@ class MacHardwareManager:
                 ['sysctl', 'machdep.cpu.model']
             ).decode().split(': ')[1].strip())
 
+            laptop = 'book' in subprocess.check_output(
+                ['sysctl', 'hw.model']
+            ).decode().lower()
+
             # Credits to:
             # https://github.com/1Revenger1
             extm = hex((n >> 4) & 0xf)
             base = hex(n & 0xf)
 
             _data = json.load(
-                open(os.path.join(root, 'src', 'uarch', f'{vendor}.json'))
+                open(os.path.join(root, 'src',
+                                  'uarch', f'{vendor}.json'), 'r')
             )
 
-            cname = codename(_data, extf.upper(), fam.upper(),
-                             extm.upper(), base.upper())
+            cname = codename(_data, extf,
+                             fam, extm, base, stepping=stepping, laptop=laptop)
 
             if cname:
-                data['Codename'] = cname
-        except:
+                self.cpu['codename'] = cname if len(cname) > 1 else cname[0]
+        except Exception:
+            self.logger.warning(
+                f'Failed to construct extended family – ({model})')
             pass
 
         # This will fail if the CPU is _not_
@@ -140,7 +163,9 @@ class MacHardwareManager:
             try:
                 model = bytes(device.get('model')).decode()
                 model = model[0:len(model) - 1]
-            except:
+            except Exception:
+                self.logger.warning(
+                    'Failed to obtain GPU device model (IOKit)')
                 continue
 
             try:
@@ -156,14 +181,52 @@ class MacHardwareManager:
                     # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
                     'Vendor': ven
                 }
-            except:
+            except Exception:
+                self.logger.warning(
+                    'Failed to obtain vendor/device id for GPU device (IOKit)')
                 data = {}
+
+            # In some edge cases, we must
+            # verify that the found codename
+            # for Intel's CPUs corresponds to its
+            # iGPU µarch.
+            #
+            # Otherwise, if it's not an edge-case,
+            # it will simply use the guessed codename.
+            if ven and dev and '8086' in ven and self.cpu.get('codename', None):
+
+                if any([x in n for n in self.cpu['codename']] for x in ('Kaby Lake', 'Coffee Lake', 'Comet Lake')):
+                    try:
+                        _data = json.load(open(os.path.join(root, 'src',
+                                                            'uarch', f'intel_gpu.json'), 'r'))
+                        found = False
+
+                        for uarch in _data:
+                            if found:
+                                break
+
+                            for id in uarch.get('IDs', []):
+                                name = uarch.get('Microarch', '')
+
+                                if dev.lower() == id.lower():
+                                    for guessed in self.cpu['codename']:
+                                        if name.lower() in guessed.lower():
+                                            self.cpu['codename'] = name
+                                            found = True
+
+                    except Exception:
+                        self.logger.warning(
+                            f"Failed to obtain codename for {self.cpu.get('model')}")
 
             self.info['GPU'].append({
                 model: data
             })
 
             ioreg.IOObjectRelease(i)
+
+        if self.cpu.get('codename', None):
+            self.info['CPU'][0][self.cpu['model']
+                                ]['Codename'] = self.cpu['codename']
 
     def net_info(self):
 
@@ -199,7 +262,9 @@ class MacHardwareManager:
                     # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
                     'Vendor': ven
                 }
-            except:
+            except Exception:
+                self.logger.warning(
+                    'Failed to obtain vendor/device id for Network controller (IOKit)')
                 continue
 
             model = self.pci.get_item(dev[2:], ven[2:])
@@ -246,7 +311,9 @@ class MacHardwareManager:
                     dev = '0x' + hex(device.get('IOHDACodecVendorID'))[6:]
                     ven = '0x' + hex(device.get('IOHDACodecVendorID'))[2:6]
 
-                except:
+                except Exception:
+                    self.logger.warning(
+                        'Failed to obtain vendor/device id of HDA codec device (IOKit)')
                     continue
 
                 model = self.pci.get_item(dev[2:], ven[2:])
@@ -261,7 +328,9 @@ class MacHardwareManager:
 
                     ven = '0x' + (binascii.b2a_hex(
                         bytes(reversed(device.get('vendor-id')))).decode()[4:])  # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
-                except:
+                except Exception:
+                    self.logger.warning(
+                        'Failed to obtain vendor/device id of Multimedia controller (IOKit)')
                     continue
 
                 model = self.pci.get_item(dev[2:], ven[2:]).get('device', '')
@@ -323,7 +392,9 @@ class MacHardwareManager:
                     _type = "Non-Volatile Memory Express (NVMe)"
                 else:
                     _type = self.STORAGE.get(_type, _type)
-            except:
+            except Exception:
+                self.logger.warning(
+                    'Failed to construct valid format for storage device (IOKit)')
                 continue
 
             self.info['Storage'].append({
@@ -369,7 +440,9 @@ class MacHardwareManager:
                     'Device ID': dev,
                     'Vendor': ven
                 }
-            except:
+            except Exception:
+                self.logger.warning(
+                    'Failed to obtain vendor/device id for Input device (IOKit)')
                 data = {}
 
             name = '{}{}'.format(name,  hid)

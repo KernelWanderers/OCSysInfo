@@ -3,14 +3,15 @@
 This, fellow user, is the bare minimum necessary in order for OCSysInfo to make a _relatively close_ assumption on the codename of the current CPU (Intel & AMD only for now.)
 
 The JSON files you see here were both manually written according to the following:
+
 - [Intel CPUID wiki](https://en.wikichip.org/wiki/intel/cpuid)
 - [AMD CPUID wiki](https://en.wikichip.org/wiki/amd/cpuid)
 
-It is not precise, lacks some codenames, and most certainly not explicitly distinguishable from other codenames. <br />
-As can be seen with the following example for Intel's codenames:
+It is not pin-point precise, but it tries to make sense of it using the iGPU model, in order to match with the possible match of the CPU codename, and/or the stepping value.
+
 ```
 Kaby Lake
-    ├─ [DT, H, S, X ] <-- Microarchitecture revisions.
+    ├─ [DT, H, S, X ] <-- CPU “core” variants
     │   ├─ Extended Family: 0x0
     │   ├─ Base Family: 0x6
     │   ├─ Extended Model: 0x9
@@ -53,37 +54,13 @@ This is where the issue arises. Some CPU generations/microarchitectures simply a
 
 <br />
 
-To “resolve” this issue, we've simplified how we identify different microarchitectures. AKA, we ditch some values. Which generally does work.
+To “resolve” this issue, we've introduced two methods of verifying:
 
-Lines [386-399](https://github.com/iabtw/OCSysInfo/blob/main/src/uarch/intel.json#L386-L399) in `intel.json`:
-```json
-    {
-        "Codename": "Kaby Lake",
-        "ExtFamily": "0X0",
-        "BaseFamily": "0X6",
-        "ExtModels": ["0X8"],
-        "BaseModels": ["0XE"]
-    },
+- Matching against the iGPU model, which is attached to its µarch.
+- Using the `stepping` value to more specifically distinguish codenames from one another.
+  
+  - This isn't as accurate as we'd like it to be. For example, we can have a case where `Whiskey Lake` CPUs may have a stepping of `0xC`, which is the general stepping value for `Comet Lake` CPUs.
 
-    {
-        "Codename": "Coffee Lake",
-        "ExtFamily": "0X0",
-        "BaseFamily": "0X6",
-        "ExtModels": ["0X9"],
-        "BaseModels": ["0XE"]
-    },
-```
+  - Another example of this would be the `i3-9100F` model from intel, where its stepping is identified as `0xB`, and not `0xA`, as it usually should be for `Coffee Lake` CPUs. Even though, on their website, it's identified as a CFL gen.
 
-We have completely ditched distinguishing these 3 microarchitectures from one another, and as you can see, completely removed `Comet Lake` too. Which will, of course, be rewritten to attempt to resolve this issue. 
-
-`Kaby Lake` is defined by:
-- Extended Model `0x8`
-- Base Model `0xE`
-
-`Coffee Lake` is defined by:
-- Extended Model: `0x9`
-- Base Model `0xE`
-
-`Comet Lake` is `N/A` for the time being.
-
-_I suppose this means goodbye Comet Lake for now..._
+Because Intel has absolutely borked their own CPUID information, we are left to deal with some edge-cases, like the one previously mentioned.
