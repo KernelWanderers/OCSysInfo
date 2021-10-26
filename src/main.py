@@ -15,6 +15,8 @@ if __name__ == "__main__":
 
         if sys.platform.lower() == "darwin":
             import objc
+        if sys.platform.lower() == "windows":
+            import wmi
     except Exception:
         print("Please ensure you've installed the required dependencies.")
     else:
