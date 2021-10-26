@@ -2,39 +2,44 @@
 
 if __name__ == "__main__":
     import sys
+    from util.missing_dep import Requirements, REQUIRED
 
     if sys.version_info < (3, 6, 0):
         print('OCSysInfo requires Python 3.6, while Python ' +
               str(sys.version.partition(' ')[0] + ' was detected. Terminating. '))
         sys.exit(1)
 
-    try:
-        import dicttoxml
-        import requests
-        import distro
+    # Check if there are missing dependencies
+    requirements = Requirements()
+    missing = requirements.test_req()
 
-        if sys.platform.lower() == "darwin":
-            import objc
-        if sys.platform.lower() == "windows":
-            import wmi
-    except Exception:
-        print("Please ensure you've installed the required dependencies.")
+    # If there are missing dependencies,
+    # list them and exit.
+    if missing:
+        for missed in missing:
+            print(
+                f'\033[1m\033[4m\033[91mPackage "{missed}" is not installed!\033[0m')
+
+        try:
+            requirements.install_reqs(missing)
+        except KeyboardInterrupt:
+            exit(0)
+
+    try:
+        from error.logger import Logger
+        from cli.ui import UI
+        from managers.devicemanager import DeviceManager
+    except Exception as e:
+        raise e
     else:
         try:
-            from error.logger import Logger
-            from cli.ui import UI
-            from managers.devicemanager import DeviceManager
-        except Exception as e:
-            raise e
-        else:
-            try:
-                logger = Logger()
-                logger.info('Launching OCSysInfo...')
-                dump = DeviceManager(logger)
-                ui = UI(dump, logger)
+            logger = Logger()
+            logger.info('Launching OCSysInfo...')
+            dump = DeviceManager(logger)
+            ui = UI(dump, logger)
 
-                logger.info('Successfully launched OCSysInfo.')
-                ui.create_ui()
-            except KeyboardInterrupt:
-                logger.info('Exited successfully.')
-                exit(0)
+            logger.info('Successfully launched OCSysInfo.')
+            ui.create_ui()
+        except KeyboardInterrupt:
+            logger.info('Exited successfully.')
+            exit(0)
