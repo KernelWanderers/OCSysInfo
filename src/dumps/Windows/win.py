@@ -2,8 +2,9 @@ import re
 import json
 import os
 import wmi
-from util.codename import codename, gpu as _gpu
 from .cpuid import CPUID
+from util.codename import codename, gpu as _gpu
+from util.pci_root import pci_from_acpi
 from error.cpu_err import cpu_err
 from root import root
 from operator import itemgetter
