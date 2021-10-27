@@ -5,6 +5,7 @@ import dumps.macOS.ioreg as ioreg
 import subprocess
 from error.cpu_err import cpu_err
 from util.codename import codename, gpu
+from util.pci_root import pci_from_acpi
 from root import root
 
 
@@ -168,18 +169,22 @@ class MacHardwareManager:
                 continue
 
             try:
+                # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
                 dev = '0x' + (binascii.b2a_hex(
                     bytes(reversed(device.get('device-id')))).decode()[4:])
+                # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
                 ven = '0x' + (binascii.b2a_hex(
                     bytes(reversed(device.get('vendor-id')))).decode()[4:])
 
-                data = {
-                    # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
-                    'Device ID': dev,
+                path = pci_from_acpi(device.get('acpi-path', ''))
 
-                    # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
+                data = {
+                    'Device ID': dev,
                     'Vendor': ven
                 }
+
+                if path:
+                    data['PCI Path'] = path
             except Exception:
                 self.logger.warning(
                     'Failed to obtain vendor/device id for GPU device (IOKit)')
@@ -259,6 +264,8 @@ class MacHardwareManager:
                 ven = '0x' + (binascii.b2a_hex(
                     bytes(reversed(device.get('vendor-id')))).decode()[4:])
 
+                path = pci_from_acpi(device.get('acpi-path', ''))
+
                 data = {
                     # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
                     'Device ID': dev,
@@ -266,6 +273,9 @@ class MacHardwareManager:
                     # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
                     'Vendor': ven
                 }
+
+                if path:
+                    data['PCI Path'] = path
             except Exception:
                 self.logger.warning(
                     'Failed to obtain vendor/device id for Network controller (IOKit)')
@@ -306,6 +316,8 @@ class MacHardwareManager:
             device = ioreg.corefoundation_to_native(ioreg.IORegistryEntryCreateCFProperties(
                 i, None, ioreg.kCFAllocatorDefault, ioreg.kNilOptions))[1]
 
+            data = {}
+
             if default == False:
                 # Ensure it's the AppleHDACodec device
                 if device.get('DigitalAudioCapabilities'):
@@ -315,6 +327,10 @@ class MacHardwareManager:
                     dev = '0x' + hex(device.get('IOHDACodecVendorID'))[6:]
                     ven = '0x' + hex(device.get('IOHDACodecVendorID'))[2:6]
 
+                    data = {
+                        'Device ID': dev,
+                        'Vendor': ven
+                    }
                 except Exception:
                     self.logger.warning(
                         'Failed to obtain vendor/device id of HDA codec device (IOKit)')
@@ -327,26 +343,34 @@ class MacHardwareManager:
 
             else:
                 try:
+                    # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
                     dev = '0x' + (binascii.b2a_hex(
-                        bytes(reversed(device.get('device-id')))).decode()[4:])  # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
+                        bytes(reversed(device.get('device-id')))).decode()[4:])
 
+                    # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
                     ven = '0x' + (binascii.b2a_hex(
-                        bytes(reversed(device.get('vendor-id')))).decode()[4:])  # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
+                        bytes(reversed(device.get('vendor-id')))).decode()[4:])
+
+                    data = {
+                        'Device ID': dev,
+                        'Vendor': ven
+                    }
                 except Exception:
                     self.logger.warning(
                         'Failed to obtain vendor/device id of Multimedia controller (IOKit)')
                     continue
 
                 model = self.pci.get_item(dev[2:], ven[2:]).get('device', '')
+                path = pci_from_acpi(device.get('acpi-path', ''))
+
+                if path:
+                    data['PCI Path'] = path
 
                 if not model:
                     continue
 
             self.info['Audio'].append({
-                model: {
-                    'Device ID': dev,
-                    'Vendor': ven,
-                }
+                model: data
             })
 
             ioreg.IOObjectRelease(i)
