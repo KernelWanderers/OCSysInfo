@@ -4,7 +4,7 @@ import os
 import wmi
 from .cpuid import CPUID
 from util.codename import codename, gpu as _gpu
-from util.pci_root import pci_from_acpi
+from util.pci_root import pci_from_acpi_win
 from error.cpu_err import cpu_err
 from root import root
 from operator import itemgetter
@@ -181,6 +181,22 @@ class WindowsHardwareManager:
                     if ven and dev:
                         data['Device ID'] = dev
                         data['Vendor'] = ven
+
+                try:
+                    paths = pci_from_acpi_win(self.c, gpu)
+
+                    if paths:
+                        pcip = paths.get('PCI Path', '')
+                        acpi = paths.get('ACPI Path', '')
+
+                        if pcip:
+                            data['PCI Path'] = pcip
+
+                        if acpi:
+                            data['ACPI Path'] = acpi
+                except Exception as e:
+                    print(e)
+                    pass
 
                 gpucname = _gpu(dev, ven)
 
