@@ -5,7 +5,7 @@ import dumps.macOS.ioreg as ioreg
 import subprocess
 from error.cpu_err import cpu_err
 from util.codename import codename, gpu
-from util.pci_root import pci_from_acpi
+from util.pci_root import pci_from_acpi_osx
 from root import root
 
 
@@ -176,7 +176,7 @@ class MacHardwareManager:
                 ven = '0x' + (binascii.b2a_hex(
                     bytes(reversed(device.get('vendor-id')))).decode()[4:])
 
-                path = pci_from_acpi(device.get('acpi-path', ''))
+                path = pci_from_acpi_osx(device.get('acpi-path', ''))
 
                 data = {
                     'Device ID': dev,
@@ -264,7 +264,7 @@ class MacHardwareManager:
                 ven = '0x' + (binascii.b2a_hex(
                     bytes(reversed(device.get('vendor-id')))).decode()[4:])
 
-                path = pci_from_acpi(device.get('acpi-path', ''))
+                path = pci_from_acpi_osx(device.get('acpi-path', ''))
 
                 data = {
                     # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
@@ -361,7 +361,7 @@ class MacHardwareManager:
                     continue
 
                 model = self.pci.get_item(dev[2:], ven[2:]).get('device', '')
-                path = pci_from_acpi(device.get('acpi-path', ''))
+                path = pci_from_acpi_osx(device.get('acpi-path', ''))
 
                 if path:
                     data['PCI Path'] = path
