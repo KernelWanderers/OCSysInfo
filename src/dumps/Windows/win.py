@@ -2,7 +2,7 @@ import re
 import json
 import os
 import wmi
-from util.codename import codename
+from util.codename import codename, gpu as _gpu
 from .cpuid import CPUID
 from error.cpu_err import cpu_err
 from root import root
@@ -137,7 +137,7 @@ class WindowsHardwareManager:
 
                     vendor = 'intel' if 'intel' in manufacturer.lower() else 'amd'
                     _data = json.load(
-                        open(os.path.join(root, 'src', 'uarch', f'{vendor}.json'), 'r'))
+                        open(os.path.join(root, 'src', 'uarch', 'cpu', f'{vendor}.json'), 'r'))
 
                     cname = codename(_data, extf,
                                      fam, extm, base, stepping=stepping, laptop=laptop)
@@ -170,11 +170,21 @@ class WindowsHardwareManager:
                     self.logger.warning('Failed to obtain GPU device (WMI)')
                     continue
 
+                data = {}
                 ven, dev = 'Unable to detect.', 'Unable to detect.'
 
                 if match:
                     ven, dev = ['0x' + x.split('_')[1]
                                 for x in match.group(0).split('&')]
+
+                    if ven and dev:
+                        data['Device ID'] = dev
+                        data['Vendor'] = ven
+
+                gpucname = _gpu(dev, ven)
+
+                if gpucname:
+                    data['Codename'] = gpucname
 
                 # In some edge cases, we must
                 # verify that the found codename
@@ -188,7 +198,7 @@ class WindowsHardwareManager:
                     if any([x in n for n in self.cpu['codename']] for x in ('Kaby Lake', 'Coffee Lake', 'Comet Lake')):
                         try:
                             _data = json.load(open(os.path.join(root, 'src',
-                                                                'uarch', f'intel_gpu.json'), 'r'))
+                                                                'uarch', 'gpu', f'intel_gpu.json'), 'r'))
                             found = False
 
                             for uarch in _data:
@@ -214,10 +224,7 @@ class WindowsHardwareManager:
                     continue
 
                 self.info['GPU'].append({
-                    gpu: {
-                        'Device ID': dev,
-                        'Vendor': ven
-                    }
+                    gpu: data
                 })
 
             if self.cpu.get('codename', None):

@@ -4,7 +4,7 @@ import re
 import json
 from error.cpu_err import cpu_err
 from root import root
-from util.codename import codename
+from util.codename import codename, gpu
 
 
 class LinuxHardwareManager:
@@ -122,7 +122,7 @@ class LinuxHardwareManager:
 
                 _data = json.load(
                     open(os.path.join(root, 'src',
-                         'uarch', f'{vendor}.json'), 'r')
+                         'uarch', 'cpu', f'{vendor}.json'), 'r')
                 )
 
                 cname = codename(_data, extf,
@@ -146,16 +146,25 @@ class LinuxHardwareManager:
             # them. We look for the `device` and `vendor` file, which should always be there.
             if 'card' in file and not '-' in file:
                 path = f'/sys/class/drm/{file}'
+                data = {}
 
                 try:
                     ven = open(f'{path}/device/vendor', 'r').read().strip()
                     dev = open(f'{path}/device/device', 'r').read().strip()
 
                     model = self.pci.get_item(dev[2:], ven[2:]).get('device')
+
+                    data['Device ID'] = dev
+                    data['Vendor'] = ven
                 except Exception:
                     self.logger.warning(
                         'Failed to obtain vendor/device id for GPU device (SYS_FS/DRM)')
                     continue
+
+                gpucname = gpu(dev, ven)
+
+                if gpucname:
+                    data['Codename'] = gpucname
 
                 # In some edge cases, we must
                 # verify that the found codename
@@ -169,7 +178,7 @@ class LinuxHardwareManager:
                     if any([x in n for n in self.cpu['codename']] for x in ('Kaby Lake', 'Coffee Lake', 'Comet Lake')):
                         try:
                             _data = json.load(open(os.path.join(root, 'src',
-                                                                'uarch', f'intel_gpu.json'), 'r'))
+                                                                'uarch', 'gpu', f'intel_gpu.json'), 'r'))
                             found = False
 
                             for uarch in _data:
@@ -190,10 +199,7 @@ class LinuxHardwareManager:
                                 f"Failed to obtain codename for {self.cpu.get('model')}")
 
                 self.info.get('GPU').append({
-                    model: {
-                        'Device ID': dev,
-                        'Vendor': ven
-                    }
+                    model: data
                 })
 
         if self.cpu.get('codename', None):

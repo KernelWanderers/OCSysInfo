@@ -1,11 +1,10 @@
 import binascii
-import ctypes
 import json
 import os
 import dumps.macOS.ioreg as ioreg
 import subprocess
 from error.cpu_err import cpu_err
-from util.codename import codename
+from util.codename import codename, gpu
 from root import root
 
 
@@ -108,7 +107,7 @@ class MacHardwareManager:
 
             _data = json.load(
                 open(os.path.join(root, 'src',
-                                  'uarch', f'{vendor}.json'), 'r')
+                                  'uarch', 'cpu', f'{vendor}.json'), 'r')
             )
 
             cname = codename(_data, extf,
@@ -186,6 +185,11 @@ class MacHardwareManager:
                     'Failed to obtain vendor/device id for GPU device (IOKit)')
                 data = {}
 
+            gpucname = gpu(dev, ven)
+
+            if gpucname:
+                data['Codename'] = gpucname
+
             # In some edge cases, we must
             # verify that the found codename
             # for Intel's CPUs corresponds to its
@@ -198,7 +202,7 @@ class MacHardwareManager:
                 if any([x in n for n in self.cpu['codename']] for x in ('Kaby Lake', 'Coffee Lake', 'Comet Lake')):
                     try:
                         _data = json.load(open(os.path.join(root, 'src',
-                                                            'uarch', f'intel_gpu.json'), 'r'))
+                                                            'uarch', 'gpu', f'intel_gpu.json'), 'r'))
                         found = False
 
                         for uarch in _data:
