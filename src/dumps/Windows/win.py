@@ -194,8 +194,7 @@ class WindowsHardwareManager:
 
                         if acpi:
                             data['ACPI Path'] = acpi
-                except Exception as e:
-                    print(e)
+                except:
                     pass
 
                 gpucname = _gpu(dev, ven)
