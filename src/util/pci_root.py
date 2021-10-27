@@ -33,6 +33,8 @@ def pci_from_acpi_osx(raw_path):
 def pci_from_acpi_win(wmi, name):
 
     try:
+        # Thank you to DhinakG for this.
+        # See: https://github.com/USBToolBox/tool/blob/ba3bb1238c0b552cb8066e29c5dc83b5e8faae32/Windows.py#L46
         raw_path = wmi.query(f'SELECT * FROM Win32_PnPEntity WHERE Name=\'{name}\'')[
             0].GetDeviceProperties(['DEVPKEY_Device_LocationPaths'])[0][0].Data
     except:
