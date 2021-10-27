@@ -11,7 +11,7 @@ if platform.lower() == "darwin":
 elif platform.lower() == "linux":
     REQUIRED = Path(Path(__file__).parent).parent.with_name(
         "requirements-Linux.txt")
-elif platform.lower() == "windows":
+elif platform.lower() in ("windows", "win32"):
     REQUIRED = Path(Path(__file__).parent).parent.with_name(
         "requirements-Windows.txt")
 else:
