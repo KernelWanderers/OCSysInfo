@@ -15,23 +15,31 @@ def pci_from_acpi_osx(raw_path):
             acpi = arg.split('@')[0]
             a_path += f'.{acpi}'
 
-            pcip = arg.split('@')[1].split(',')
-            pcif, pcis = pcip + ['#']
+            _pcip = arg.split('@')[1].split(',')
+            _pcip = re.findall(r'..', _pcip[0])
+            pcip = []
+
+            for i in _pcip:
+                pcip.append(re.sub(r'0', '', i))
 
             if 'pci' in arg.lower():
-                p_path += f'PciRoot(0x{pcif[0]})'
+                p_path += 'PciRoot(0x{})'.format(pcip[0] if pcip else '0')
                 continue
 
-            n = '0x' + pcif[0]
-            n += pcif[1] if len(pcif) > 1 and str(
-                pcif[1]) != '0' else ''
+            temp = '/Pci('
 
-            k = '0x0'
+            if not pcip:
+                temp += '0x0,0x0)'
 
-            if pcis != '#':
-                k = f'0x{pcis}'
+            for n in range(len(pcip)):
+                if n == (len(pcip) - 1) and pcip[n] == '':
+                    temp += f'0x0)'
+                elif n == (len(pcip) - 1):
+                    temp += f'0x{pcip[n]})'
+                elif pcip[n] != '':
+                    temp += f'0x{pcip[n]},'
 
-            p_path += f'/Pci({n},{k})'
+            p_path += temp
 
     return {
         'PCI Path': p_path,
@@ -53,13 +61,13 @@ def pci_from_acpi_win(wmi, name):
         return
 
     data = {
-        'PCI Path': '',
+        'p_path Path': '',
         'ACPI Path': ''
     }
 
     pci, acpi = raw_path
 
-    if pci != '#':
+    if p_path != '#':
         path = ''
 
         for arg in pci.split('#'):
@@ -77,7 +85,7 @@ def pci_from_acpi_win(wmi, name):
 
             path += f'/Pci({hex(int(digit[0:2], 16))},{hex(int(digit[2:], 16))})'
 
-        data['PCI Path'] = path
+        data['p_path Path'] = path
 
     if acpi != '#':
         path = ''
