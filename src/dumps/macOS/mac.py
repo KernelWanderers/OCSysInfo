@@ -45,7 +45,7 @@ class MacHardwareManager:
             self.cpu['model'] = model
         except Exception as e:
             self.logger.critical(
-                f'Failed to obtain CPU information. This should not happen. \nSnippet relevant to former line^^^\t^^^{str(e)}')
+                f'Failed to obtain CPU information. This should not happen. \n\t^^^^^^^^^{str(e)}')
             cpu_err(e)
 
         try:
@@ -58,9 +58,9 @@ class MacHardwareManager:
             # Full list of features for this CPU.
             features = subprocess.check_output([
                 'sysctl', 'machdep.cpu.features']).decode().strip()
-        except Exception:
+        except Exception as e:
             self.logger.warning(
-                f'Failed to access CPUID instruction – ({model})')
+                f'Failed to access CPUID instruction – ({model})\n\t^^^^^^^^^{str(e)}')
             features = None
 
         data = {
@@ -116,9 +116,9 @@ class MacHardwareManager:
 
             if cname:
                 self.cpu['codename'] = cname if len(cname) > 1 else cname[0]
-        except Exception:
+        except Exception as e:
             self.logger.warning(
-                f'Failed to construct extended family – ({model})')
+                f'Failed to construct extended family – ({model})\n\t^^^^^^^^^{str(e)}')
             pass
 
         # This will fail if the CPU is _not_
@@ -163,9 +163,10 @@ class MacHardwareManager:
             try:
                 model = bytes(device.get('model')).decode()
                 model = model[0:len(model) - 1]
-            except Exception:
+            except Exception as e:
                 self.logger.warning(
-                    'Failed to obtain GPU device model (IOKit)')
+                    'Failed to obtain GPU device model (IOKit)' +
+                    f'\t^^^^^^^^^{str(e)}')
                 continue
 
             try:
@@ -191,9 +192,10 @@ class MacHardwareManager:
 
                 if acpi:
                     data['ACPI Path'] = acpi
-            except Exception:
+            except Exception as e:
                 self.logger.warning(
-                    'Failed to obtain vendor/device id for GPU device (IOKit)')
+                    'Failed to obtain vendor/device id for GPU device (IOKit)' +
+                    f'\t^^^^^^^^^{str(e)}')
                 data = {}
 
             gpucname = gpu(dev, ven)
@@ -229,9 +231,9 @@ class MacHardwareManager:
                                             self.cpu['codename'] = name
                                             found = True
 
-                    except Exception:
+                    except Exception as e:
                         self.logger.warning(
-                            f"Failed to obtain codename for {self.cpu.get('model')}")
+                            f"Failed to obtain codename for {self.cpu.get('model')}\n\t^^^^^^^^^{str(e)}")
 
             self.info['GPU'].append({
                 model: data
@@ -288,9 +290,10 @@ class MacHardwareManager:
 
                 if acpi:
                     data['ACPI Path'] = acpi
-            except Exception:
+            except Exception as e:
                 self.logger.warning(
-                    'Failed to obtain vendor/device id for Network controller (IOKit)')
+                    'Failed to obtain vendor/device id for Network controller (IOKit)' +
+                    f'\t^^^^^^^^^{str(e)}')
                 continue
 
             model = self.pci.get_item(dev[2:], ven[2:])
@@ -443,9 +446,10 @@ class MacHardwareManager:
                     _type = "Non-Volatile Memory Express (NVMe)"
                 else:
                     _type = self.STORAGE.get(_type, _type)
-            except Exception:
+            except Exception as e:
                 self.logger.warning(
-                    'Failed to construct valid format for storage device (IOKit)')
+                    'Failed to construct valid format for storage device (IOKit)' +
+                    f'\t^^^^^^^^^{str(e)}')
                 continue
 
             self.info['Storage'].append({
@@ -491,9 +495,10 @@ class MacHardwareManager:
                     'Device ID': dev,
                     'Vendor': ven
                 }
-            except Exception:
+            except Exception as e:
                 self.logger.warning(
-                    'Failed to obtain vendor/device id for Input device (IOKit)')
+                    'Failed to obtain vendor/device id for Input device (IOKit)' +
+                    f'\t^^^^^^^^^{str(e)}')
                 data = {}
 
             name = '{}{}'.format(name,  hid)
