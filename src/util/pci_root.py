@@ -3,17 +3,23 @@ import re
 
 def pci_from_acpi_osx(raw_path):
     if not raw_path:
-        return
+        return {}
 
-    f_path = ''
+    p_path = ''
+    a_path = ''
 
-    for arg in raw_path.split(':')[1].split('/'):
-        if '@' in arg.lower():
+    for arg in raw_path.split(':')[1].split('/')[1:]:
+        if not '@' in arg.lower():
+            a_path += f'\{arg}'
+        else:
+            acpi = arg.split('@')[0]
+            a_path += f'.{acpi}'
+
             pcip = arg.split('@')[1].split(',')
             pcif, pcis = pcip + ['#']
 
             if 'pci' in arg.lower():
-                f_path += f'PciRoot(0x{pcif[0]})'
+                p_path += f'PciRoot(0x{pcif[0]})'
                 continue
 
             n = '0x' + pcif[0]
@@ -25,9 +31,12 @@ def pci_from_acpi_osx(raw_path):
             if pcis != '#':
                 k = f'0x{pcis}'
 
-            f_path += f'/Pci({n},{k})'
+            p_path += f'/Pci({n},{k})'
 
-    return f_path
+    return {
+        'PCI Path': p_path,
+        'ACPI Path': a_path
+    }
 
 
 def pci_from_acpi_win(wmi, name):
