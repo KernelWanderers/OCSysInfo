@@ -1,5 +1,5 @@
 # Source: https://github.com/flababah/cpuid.py/blob/master/cpuid.py
-# Full credit goes to the rightful owners. 
+# Full credit goes to the rightful owners.
 # OCSysInfo does not attempt to claim ownership of this program.
 
 # -*- coding: utf-8 -*-
@@ -12,7 +12,16 @@ from __future__ import print_function
 import platform
 import os
 import ctypes
-from ctypes import c_uint32, c_int, c_long, c_ulong, c_size_t, c_void_p, POINTER, CFUNCTYPE
+from ctypes import (
+    c_uint32,
+    c_int,
+    c_long,
+    c_ulong,
+    c_size_t,
+    c_void_p,
+    POINTER,
+    CFUNCTYPE,
+)
 
 # Posix x86_64:
 # Three first call registers : RDI, RSI, RDX
@@ -27,59 +36,105 @@ from ctypes import c_uint32, c_int, c_long, c_ulong, c_size_t, c_void_p, POINTER
 # Volatile registers         : EAX, ECX, EDX
 
 _POSIX_64_OPC = [
-        0x53,                    # push   %rbx
-        0x89, 0xf0,              # mov    %esi,%eax
-        0x89, 0xd1,              # mov    %edx,%ecx
-        0x0f, 0xa2,              # cpuid
-        0x89, 0x07,              # mov    %eax,(%rdi)
-        0x89, 0x5f, 0x04,        # mov    %ebx,0x4(%rdi)
-        0x89, 0x4f, 0x08,        # mov    %ecx,0x8(%rdi)
-        0x89, 0x57, 0x0c,        # mov    %edx,0xc(%rdi)
-        0x5b,                    # pop    %rbx
-        0xc3                     # retq
+    0x53,  # push   %rbx
+    0x89,
+    0xF0,  # mov    %esi,%eax
+    0x89,
+    0xD1,  # mov    %edx,%ecx
+    0x0F,
+    0xA2,  # cpuid
+    0x89,
+    0x07,  # mov    %eax,(%rdi)
+    0x89,
+    0x5F,
+    0x04,  # mov    %ebx,0x4(%rdi)
+    0x89,
+    0x4F,
+    0x08,  # mov    %ecx,0x8(%rdi)
+    0x89,
+    0x57,
+    0x0C,  # mov    %edx,0xc(%rdi)
+    0x5B,  # pop    %rbx
+    0xC3,  # retq
 ]
 
 _WINDOWS_64_OPC = [
-        0x53,                    # push   %rbx
-        0x89, 0xd0,              # mov    %edx,%eax
-        0x49, 0x89, 0xc9,        # mov    %rcx,%r9
-        0x44, 0x89, 0xc1,        # mov    %r8d,%ecx
-        0x0f, 0xa2,              # cpuid
-        0x41, 0x89, 0x01,        # mov    %eax,(%r9)
-        0x41, 0x89, 0x59, 0x04,  # mov    %ebx,0x4(%r9)
-        0x41, 0x89, 0x49, 0x08,  # mov    %ecx,0x8(%r9)
-        0x41, 0x89, 0x51, 0x0c,  # mov    %edx,0xc(%r9)
-        0x5b,                    # pop    %rbx
-        0xc3                     # retq
+    0x53,  # push   %rbx
+    0x89,
+    0xD0,  # mov    %edx,%eax
+    0x49,
+    0x89,
+    0xC9,  # mov    %rcx,%r9
+    0x44,
+    0x89,
+    0xC1,  # mov    %r8d,%ecx
+    0x0F,
+    0xA2,  # cpuid
+    0x41,
+    0x89,
+    0x01,  # mov    %eax,(%r9)
+    0x41,
+    0x89,
+    0x59,
+    0x04,  # mov    %ebx,0x4(%r9)
+    0x41,
+    0x89,
+    0x49,
+    0x08,  # mov    %ecx,0x8(%r9)
+    0x41,
+    0x89,
+    0x51,
+    0x0C,  # mov    %edx,0xc(%r9)
+    0x5B,  # pop    %rbx
+    0xC3,  # retq
 ]
 
 _CDECL_32_OPC = [
-        0x53,                    # push   %ebx
-        0x57,                    # push   %edi
-        0x8b, 0x7c, 0x24, 0x0c,  # mov    0xc(%esp),%edi
-        0x8b, 0x44, 0x24, 0x10,  # mov    0x10(%esp),%eax
-        0x8b, 0x4c, 0x24, 0x14,  # mov    0x14(%esp),%ecx
-        0x0f, 0xa2,              # cpuid
-        0x89, 0x07,              # mov    %eax,(%edi)
-        0x89, 0x5f, 0x04,        # mov    %ebx,0x4(%edi)
-        0x89, 0x4f, 0x08,        # mov    %ecx,0x8(%edi)
-        0x89, 0x57, 0x0c,        # mov    %edx,0xc(%edi)
-        0x5f,                    # pop    %edi
-        0x5b,                    # pop    %ebx
-        0xc3                     # ret
+    0x53,  # push   %ebx
+    0x57,  # push   %edi
+    0x8B,
+    0x7C,
+    0x24,
+    0x0C,  # mov    0xc(%esp),%edi
+    0x8B,
+    0x44,
+    0x24,
+    0x10,  # mov    0x10(%esp),%eax
+    0x8B,
+    0x4C,
+    0x24,
+    0x14,  # mov    0x14(%esp),%ecx
+    0x0F,
+    0xA2,  # cpuid
+    0x89,
+    0x07,  # mov    %eax,(%edi)
+    0x89,
+    0x5F,
+    0x04,  # mov    %ebx,0x4(%edi)
+    0x89,
+    0x4F,
+    0x08,  # mov    %ecx,0x8(%edi)
+    0x89,
+    0x57,
+    0x0C,  # mov    %edx,0xc(%edi)
+    0x5F,  # pop    %edi
+    0x5B,  # pop    %ebx
+    0xC3,  # ret
 ]
 
 is_windows = os.name == "nt"
-is_64bit   = ctypes.sizeof(ctypes.c_voidp) == 8
+is_64bit = ctypes.sizeof(ctypes.c_voidp) == 8
+
 
 class CPUID_struct(ctypes.Structure):
     _fields_ = [(r, c_uint32) for r in ("eax", "ebx", "ecx", "edx")]
+
 
 class CPUID:
     def __init__(self):
         if platform.machine() not in ("AMD64", "x86_64", "x86", "i686"):
             raise SystemError("Only available for x86")
-        
+
         if is_windows:
             if is_64bit:
                 # VirtualAlloc seems to fail under some weird
@@ -101,7 +156,12 @@ class CPUID:
 
         if is_windows:
             self.win.VirtualAlloc.restype = c_void_p
-            self.win.VirtualAlloc.argtypes = [ctypes.c_void_p, ctypes.c_size_t, ctypes.c_ulong, ctypes.c_ulong]
+            self.win.VirtualAlloc.argtypes = [
+                ctypes.c_void_p,
+                ctypes.c_size_t,
+                ctypes.c_ulong,
+                ctypes.c_ulong,
+            ]
             self.addr = self.win.VirtualAlloc(None, size, 0x1000, 0x40)
             if not self.addr:
                 raise MemoryError("Could not allocate RWX memory")
@@ -118,7 +178,6 @@ class CPUID:
             ret = self.libc.mprotect(self.addr, size, 1 | 2 | 4)
             if ret != 0:
                 raise OSError("Failed to set RWX")
-
 
         ctypes.memmove(self.addr, code, size)
 
@@ -142,7 +201,9 @@ class CPUID:
             self.libc.free.argtypes = [c_void_p]
             self.libc.free(self.addr)
 
+
 if __name__ == "__main__":
+
     def valid_inputs():
         cpuid = CPUID()
         for eax in (0x0, 0x80000000):

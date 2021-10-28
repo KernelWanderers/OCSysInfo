@@ -24,7 +24,7 @@ functions = [
     ("IOServiceNameMatching", CFDictionaryRef + b"r*"),
     ("IOServiceMatching", CFDictionaryRef + b"r*"),
     ("IOObjectRelease", b"II"),
-    ("IOIteratorNext", b"II")
+    ("IOIteratorNext", b"II"),
 ]
 
 variables = [("kIOMasterPortDefault", b"I")]
@@ -61,48 +61,58 @@ kIORegistryIterateParents = 2
 def IORegistryEntryCreateCFProperties(entry, properties, allocator, options):
     raise NotImplementedError
 
+
 # CFTypeRef IORegistryEntryCreateCFProperty(io_registry_entry_t entry, CFStringRef key, CFAllocatorRef allocator, IOOptionBits options);
 def IORegistryEntryCreateCFProperty(entry, key: str, allocator, options):
     raise NotImplementedError
+
 
 # kern_return_t IORegistryEntryGetRegistryEntryID(io_registry_entry_t entry, uint64_t * entryID)
 def IORegistryEntryGetRegistryEntryID(entrY, entryID):
     raise NotImplementedError
 
+
 # kern_return_t IOServiceGetMatchingServices(mach_port_t masterPort, CFDictionaryRef matching CF_RELEASES_ARGUMENT, io_iterator_t * existing);
 def IOServiceGetMatchingServices(masterPort, matching, existing):
     raise NotImplementedError
+
 
 # CFMutableDictionaryRef IORegistryEntryIDMatching(uint64_t entryID);
 def IORegistryEntryIDMatching(entryID):
     raise NotImplementedError
 
+
 # CFMutableDictionaryRef IOServiceNameMatching(const char * name);
 def IOServiceNameMatching(name):
     raise NotImplementedError
+
 
 # CFMutableDictionaryRef IOServiceMatching(const char * name);
 def IOServiceMatching(name):
     raise NotImplementedError
 
+
 # kern_return_t IOObjectRelease(io_object_t object);
 def IOObjectRelease(object):
     raise NotImplementedError
+
 
 # io_object_t IOIteratorNext(io_iterator_t iterator);
 def IOIteratorNext(iterator):
     raise NotImplementedError
 
+
 objc.loadBundleFunctions(IOKit, globals(), functions)
 objc.loadBundleVariables(IOKit, globals(), variables)
 
+
 def ioiterator_to_list(iterator):
     item = IOIteratorNext(iterator)
-    
+
     while item:
         yield item
         item = IOIteratorNext(iterator)
-    
+
     IOObjectRelease(item)
 
 

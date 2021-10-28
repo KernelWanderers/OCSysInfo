@@ -6,17 +6,13 @@ from pathlib import Path
 
 
 if platform.lower() == "darwin":
-    REQUIRED = Path(Path(__file__).parent).parent.with_name(
-        "requirements-macOS.txt")
+    REQUIRED = Path(Path(__file__).parent).parent.with_name("requirements-macOS.txt")
 elif platform.lower() == "linux":
-    REQUIRED = Path(Path(__file__).parent).parent.with_name(
-        "requirements-Linux.txt")
+    REQUIRED = Path(Path(__file__).parent).parent.with_name("requirements-Linux.txt")
 elif platform.lower() in ("windows", "win32"):
-    REQUIRED = Path(Path(__file__).parent).parent.with_name(
-        "requirements-Windows.txt")
+    REQUIRED = Path(Path(__file__).parent).parent.with_name("requirements-Windows.txt")
 else:
-    raise Exception(
-        "Failed to locate requirements file. Maybe it was deleted?")
+    raise Exception("Failed to locate requirements file. Maybe it was deleted?")
 
 
 class Requirements(TestCase):
@@ -41,48 +37,47 @@ class Requirements(TestCase):
         return missing
 
     def install_reqs(self, missing):
-        acceptable = {'y', 'n', 'yes', 'no'}
+        acceptable = {"y", "n", "yes", "no"}
         answer = input(
-            '\n\033[96mDo you wish to install the aforementioned missing packages? [y/n]:\033[0m '
+            "\n\033[96mDo you wish to install the aforementioned missing packages? [y/n]:\033[0m "
         )
 
         if answer.lower() in acceptable:
-            if 'y' in answer.lower():
-                print('\n\n')
+            if "y" in answer.lower():
+                print("\n\n")
                 for missed in missing:
                     self.req(missed, acceptable)
 
-                print(
-                    '\n\033[92mSuccessfully installed required dependencies!\033[0m'
-                )
+                print("\n\033[92mSuccessfully installed required dependencies!\033[0m")
             else:
-                print('Exited successfully.')
+                print("Exited successfully.")
                 exit(0)
 
-    def req(self, requirement, acceptable, heading=''):
+    def req(self, requirement, acceptable, heading=""):
         if not heading:
-            heading = '\033[4m\033[91mNOTE: This is not an optional package.'
+            heading = "\033[4m\033[91mNOTE: This is not an optional package."
 
         ans = input(
             f'{heading}\033[0m\033[96m\nAre you sure you want to install "{requirement}"? [y/n]:\033[0m '
         )
 
         if ans.lower() in acceptable:
-            if 'y' in ans.lower():
-                call(
-                    [executable, '-m', 'pip', 'install', requirement]
-                )
-                print('\n\n')
+            if "y" in ans.lower():
+                call([executable, "-m", "pip", "install", requirement])
+                print("\n\n")
             else:
-                print('\n')
+                print("\n")
 
-                extra = \
-                    '\033[1m\033[91mThis package is not optional.\033[0m' + \
-                    '\033[1m\033[91m You must install it.\033[0m'
+                extra = (
+                    "\033[1m\033[91mThis package is not optional.\033[0m"
+                    + "\033[1m\033[91m You must install it.\033[0m"
+                )
 
                 self.req(requirement, acceptable, heading=extra)
         else:
-            invalid = '\n\033[1m\033[91mInvalid option. ' + \
-                'Please use only "yes", "no", "y" or "n" to answer.'
+            invalid = (
+                "\n\033[1m\033[91mInvalid option. "
+                + 'Please use only "yes", "no", "y" or "n" to answer.'
+            )
 
             self.req(requirement, acceptable, heading=invalid)
