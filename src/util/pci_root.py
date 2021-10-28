@@ -15,31 +15,20 @@ def pci_from_acpi_osx(raw_path):
             acpi = arg.split("@")[0]
             a_path += f".{acpi}"
 
-            _pcip = arg.split("@")[1].split(",")
-            _pcip = re.findall(r"..", _pcip[0])
-            pcip = []
+            # The below logic is
+            # implemented by CorpNewt.
+            #
+            # Thanks, bb!
+            pcip = int(arg.split("@")[1], 16)
 
-            for i in _pcip:
-                pcip.append(re.sub(r"0", "", i))
+            a = hex(pcip >> 16 & 0xFFFF)
+            b = hex(pcip & 0xFFFF)
 
             if "pci" in arg.lower():
                 p_path += "PciRoot(0x{})".format(pcip[0] if pcip else "0")
                 continue
 
-            temp = "/Pci("
-
-            if not pcip:
-                temp += "0x0,0x0)"
-
-            for n in range(len(pcip)):
-                if n == (len(pcip) - 1) and pcip[n] == "":
-                    temp += f"0x0)"
-                elif n == (len(pcip) - 1):
-                    temp += f"0x{pcip[n]})"
-                elif pcip[n] != "":
-                    temp += f"0x{pcip[n]},"
-
-            p_path += temp
+            p_path += f'/Pci({a},{b})'
 
     return {"PCI Path": p_path, "ACPI Path": a_path}
 
