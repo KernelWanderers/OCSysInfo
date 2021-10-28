@@ -139,7 +139,7 @@ class MacHardwareManager:
             model: data
         })
 
-    def gpu_info(self):
+    def gpu_info(self, default=False):
 
         device = {
             'IOProviderClass': 'IOPCIDevice',
@@ -159,7 +159,7 @@ class MacHardwareManager:
             # Obtain CFDictionaryRef of the current PCI device.
             device = ioreg.corefoundation_to_native(ioreg.IORegistryEntryCreateCFProperties(
                 i, None, ioreg.kCFAllocatorDefault, ioreg.kNilOptions))[1]
-
+        
             try:
                 model = bytes(device.get('model')).decode()
                 model = model[0:len(model) - 1]
@@ -340,6 +340,8 @@ class MacHardwareManager:
 
                 if model:
                     model = model.get('device')
+                else:
+                    model = 'N/A'
 
             else:
                 try:
@@ -361,13 +363,14 @@ class MacHardwareManager:
                     continue
 
                 model = self.pci.get_item(dev[2:], ven[2:]).get('device', '')
-                path = pci_from_acpi_osx(device.get('acpi-path', ''))
-
-                if path:
-                    data['PCI Path'] = path
 
                 if not model:
-                    continue
+                    model = 'N/A'
+            
+            path = pci_from_acpi_osx(device.get('acpi-path', ''))
+
+            if path:
+                data['PCI Path'] = path
 
             self.info['Audio'].append({
                 model: data
