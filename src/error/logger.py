@@ -17,9 +17,9 @@ class Logger:
         self.date = '%m/%d/%Y %I:%M:%S %p'
 
         # Adding the base log handlers.
-        self.handler = logging.getLogger('OCSI')
+        self.handler = logging.getLogger()
         self.rotating = RotatingFileHandler(
-            'test.log', mode='a', maxBytes=2**13)
+            'ocsysinfo.log', mode='a', maxBytes=2**13)
 
         # Add the RotatingFileHandler to the default logger.
         self.handler.addHandler(self.rotating)
