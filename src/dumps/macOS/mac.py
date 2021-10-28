@@ -343,9 +343,10 @@ class MacHardwareManager:
                         'Device ID': dev,
                         'Vendor': ven
                     }
-                except Exception:
+                except Exception as e:
                     self.logger.warning(
-                        'Failed to obtain vendor/device id of HDA codec device (IOKit)')
+                        'Failed to obtain vendor/device id of HDA codec device (IOKit)\n' +
+                        f'\t^^^^^^^^^{str(e)}')
                     continue
 
                 model = self.pci.get_item(dev[2:], ven[2:])
@@ -369,9 +370,10 @@ class MacHardwareManager:
                         'Device ID': dev,
                         'Vendor': ven
                     }
-                except Exception:
+                except Exception as e:
                     self.logger.warning(
-                        'Failed to obtain vendor/device id of Multimedia controller (IOKit)')
+                        'Failed to obtain vendor/device id of HDA codec device (IOKit)\n' +
+                        f'\t^^^^^^^^^{str(e)}')
                     continue
 
                 model = self.pci.get_item(dev[2:], ven[2:]).get('device', '')
