@@ -166,7 +166,7 @@ class MacHardwareManager:
             except Exception as e:
                 self.logger.warning(
                     'Failed to obtain GPU device model (IOKit)' +
-                    f'\t^^^^^^^^^{str(e)}')
+                    f'\n\t^^^^^^^^^{str(e)}')
                 continue
 
             try:
@@ -195,7 +195,7 @@ class MacHardwareManager:
             except Exception as e:
                 self.logger.warning(
                     'Failed to obtain vendor/device id for GPU device (IOKit)' +
-                    f'\t^^^^^^^^^{str(e)}')
+                    f'\n\t^^^^^^^^^{str(e)}')
                 data = {}
 
             gpucname = gpu(dev, ven)
@@ -293,7 +293,7 @@ class MacHardwareManager:
             except Exception as e:
                 self.logger.warning(
                     'Failed to obtain vendor/device id for Network controller (IOKit)' +
-                    f'\t^^^^^^^^^{str(e)}')
+                    f'\n\t^^^^^^^^^{str(e)}')
                 continue
 
             model = self.pci.get_item(dev[2:], ven[2:])
@@ -349,7 +349,7 @@ class MacHardwareManager:
                 except Exception as e:
                     self.logger.warning(
                         'Failed to obtain vendor/device id of HDA codec device (IOKit)\n' +
-                        f'\t^^^^^^^^^{str(e)}')
+                        f'\n\t^^^^^^^^^{str(e)}')
                     continue
 
                 model = self.pci.get_item(dev[2:], ven[2:])
@@ -376,7 +376,7 @@ class MacHardwareManager:
                 except Exception as e:
                     self.logger.warning(
                         'Failed to obtain vendor/device id of HDA codec device (IOKit)\n' +
-                        f'\t^^^^^^^^^{str(e)}')
+                        f'\n\t^^^^^^^^^{str(e)}')
                     continue
 
                 model = self.pci.get_item(dev[2:], ven[2:]).get('device', '')
@@ -449,7 +449,7 @@ class MacHardwareManager:
             except Exception as e:
                 self.logger.warning(
                     'Failed to construct valid format for storage device (IOKit)' +
-                    f'\t^^^^^^^^^{str(e)}')
+                    f'\n\t^^^^^^^^^{str(e)}')
                 continue
 
             self.info['Storage'].append({
@@ -498,7 +498,7 @@ class MacHardwareManager:
             except Exception as e:
                 self.logger.warning(
                     'Failed to obtain vendor/device id for Input device (IOKit)' +
-                    f'\t^^^^^^^^^{str(e)}')
+                    f'\n\t^^^^^^^^^{str(e)}')
                 data = {}
 
             name = '{}{}'.format(name,  hid)
