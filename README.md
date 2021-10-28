@@ -205,6 +205,8 @@ The following contains credits to all the people who helped assist in the making
 
 - @[1Revenger1](https://github.com/1Revenger1) — for implementing input device detection for Linux platforms.
 
+- @[Yuichiro](https://github.com/YuiiiPTChan) — for assistance in testing the application in its various stages.
+
 - @[flababah](https://github.com/flababah/) — for https://github.com/flababah/cpuid.py
 
 - @[renegadevi](https://gitlab.com/renegadevi) — for extensive amounts of help with fixing the source code's faulty logic.
