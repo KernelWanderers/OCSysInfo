@@ -400,7 +400,7 @@ class MacHardwareManager:
         # This _will_ also fail on non-x86* architectures.
         #
         # See: https://en.wikipedia.org/wiki/Intel_High_Definition_Audio#Host_controller
-        if not self.info['Audio'] and not default:
+        if not default:
             self.audio_info(default=True)
 
     def storage_info(self):
