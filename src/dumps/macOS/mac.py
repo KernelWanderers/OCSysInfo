@@ -159,7 +159,7 @@ class MacHardwareManager:
             # Obtain CFDictionaryRef of the current PCI device.
             device = ioreg.corefoundation_to_native(ioreg.IORegistryEntryCreateCFProperties(
                 i, None, ioreg.kCFAllocatorDefault, ioreg.kNilOptions))[1]
-        
+
             try:
                 model = bytes(device.get('model')).decode()
                 model = model[0:len(model) - 1]
@@ -183,8 +183,14 @@ class MacHardwareManager:
                     'Vendor': ven
                 }
 
-                if path:
-                    data['PCI Path'] = path
+                pcip = path.get('PCI Path', '')
+                acpi = path.get('ACPI Path', '')
+
+                if pcip:
+                    data['PCI Path'] = pcip
+
+                if acpi:
+                    data['ACPI Path'] = acpi
             except Exception:
                 self.logger.warning(
                     'Failed to obtain vendor/device id for GPU device (IOKit)')
@@ -274,8 +280,14 @@ class MacHardwareManager:
                     'Vendor': ven
                 }
 
-                if path:
-                    data['PCI Path'] = path
+                pcip = path.get('PCI Path', '')
+                acpi = path.get('ACPI Path', '')
+
+                if pcip:
+                    data['PCI Path'] = pcip
+
+                if acpi:
+                    data['ACPI Path'] = acpi
             except Exception:
                 self.logger.warning(
                     'Failed to obtain vendor/device id for Network controller (IOKit)')
@@ -366,11 +378,17 @@ class MacHardwareManager:
 
                 if not model:
                     model = 'N/A'
-            
+
             path = pci_from_acpi_osx(device.get('acpi-path', ''))
 
-            if path:
-                data['PCI Path'] = path
+            pcip = path.get('PCI Path', '')
+            acpi = path.get('ACPI Path', '')
+
+            if pcip:
+                data['PCI Path'] = pcip
+
+            if acpi:
+                data['ACPI Path'] = acpi
 
             self.info['Audio'].append({
                 model: data
