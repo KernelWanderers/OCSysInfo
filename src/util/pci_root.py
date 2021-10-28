@@ -25,7 +25,7 @@ def pci_from_acpi_osx(raw_path):
             b = hex(pcip & 0xFFFF)
 
             if "pci" in arg.lower():
-                p_path += "PciRoot(0x{})".format(pcip[0] if pcip else "0")
+                p_path += f'PciRoot({a})'
                 continue
 
             p_path += f'/Pci({a},{b})'
