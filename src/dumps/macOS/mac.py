@@ -41,7 +41,7 @@ class MacHardwareManager:
             # Model of the CPU
             model = (
                 subprocess.check_output(
-                    ["sysctl", "machdep.cpu.brand_string"]  # dont forget to fix.
+                    ["sysctl", "machdep.cpu.brand_string"]
                 )
                 .decode()
                 .split(": ")[1]
@@ -106,7 +106,8 @@ class MacHardwareManager:
             try:
                 stepping = hex(
                     int(
-                        subprocess.check_output(["sysctl", "machdep.cpu.stepping"])
+                        subprocess.check_output(
+                            ["sysctl", "machdep.cpu.stepping"])
                         .decode()
                         .split(": ")[1]
                         .strip()
@@ -117,7 +118,8 @@ class MacHardwareManager:
 
             extf = hex(
                 int(
-                    subprocess.check_output(["sysctl", "machdep.cpu.extfamily"])
+                    subprocess.check_output(
+                        ["sysctl", "machdep.cpu.extfamily"])
                     .decode()
                     .split(": ")[1]
                     .strip()
@@ -151,7 +153,8 @@ class MacHardwareManager:
             base = hex(n & 0xF)
 
             _data = json.load(
-                open(os.path.join(root, "src", "uarch", "cpu", f"{vendor}.json"), "r")
+                open(os.path.join(root, "src", "uarch",
+                     "cpu", f"{vendor}.json"), "r")
             )
 
             cname = codename(
@@ -218,7 +221,7 @@ class MacHardwareManager:
 
             try:
                 model = bytes(device.get("model")).decode()
-                model = model[0 : len(model) - 1]
+                model = model[0: len(model) - 1]
             except Exception as e:
                 self.logger.error(
                     "Failed to obtain GPU device model (IOKit)"
@@ -314,7 +317,8 @@ class MacHardwareManager:
             ioreg.IOObjectRelease(i)
 
         if self.cpu.get("codename", None):
-            self.info["CPU"][0][self.cpu["model"]]["Codename"] = self.cpu["codename"]
+            self.info["CPU"][0][self.cpu["model"]
+                                ]["Codename"] = self.cpu["codename"]
 
     def net_info(self):
 
@@ -526,7 +530,8 @@ class MacHardwareManager:
                 # Type of connector (SATA, USB, SCSI, etc.)
                 ct_type = protocol.get("Physical Interconnect").strip()
                 # Whether or not this device is internal or external.
-                location = protocol.get("Physical Interconnect Location").strip()
+                location = protocol.get(
+                    "Physical Interconnect Location").strip()
 
                 if ct_type.lower() == "pci-express":
                     _type = "Non-Volatile Memory Express (NVMe)"
