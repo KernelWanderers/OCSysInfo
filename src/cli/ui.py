@@ -11,20 +11,26 @@ from root import root
 
 
 def hack_disclaimer():
-    kern_ver = int(os.uname().release.split('.')[0])
+    kern_ver = int(os.uname().release.split(".")[0])
 
     if kern_ver > 19:
-        kext_loaded = subprocess.run(['kmutil', 'showloaded', '--list-only', '--variant-suffix',
-                                     'release'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        kext_loaded = subprocess.run(
+            ["kmutil", "showloaded", "--list-only", "--variant-suffix", "release"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
     else:
         kext_loaded = subprocess.run(
-            ['kextstat', '-l'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            ["kextstat", "-l"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        )
 
-    if any(x in kext_loaded.stdout.decode().lower() for x in ('fakesmc', 'virtualsmc')):
-        return color_text(format_text('DISCLAIMER:\n', 'bold+underline'), "red") + color_text(
+    if any(x in kext_loaded.stdout.decode().lower() for x in ("fakesmc", "virtualsmc")):
+        return color_text(
+            format_text("DISCLAIMER:\n", "bold+underline"), "red"
+        ) + color_text(
             f"THIS IS BEING RUN ON A HACKINTOSH.\n"
             f"INFORMATION EXTRACTED MIGHT NOT BE COMPLETELY ACCURATE.",
-            "red"
+            "red",
         )
 
 
@@ -37,8 +43,11 @@ class UI:
 
     def __init__(self, dm, logger):
         self.dm = dm
-        self.dm.info = {k: v for (k, v) in self.dm.info.items(
-        ) if self.dm.info[k] and (v[0] != {} if isinstance(v, list) else v != {})}
+        self.dm.info = {
+            k: v
+            for (k, v) in self.dm.info.items()
+            if self.dm.info[k] and (v[0] != {} if isinstance(v, list) else v != {})
+        }
         self.logger = logger
 
     def handle_cmd(self, options=[]):
@@ -67,122 +76,162 @@ class UI:
             self.create_ui()
 
     def discover(self):
-        self.logger.info('Attempting to discover hardware...')
+        self.logger.info("Attempting to discover hardware...", __file__)
         for key in self.dm.info:
-            is_empty = next(iter(self.dm.info[key]), {}) == {} if isinstance(
-                self.dm.info[key], list) else self.dm.info[key] == {}
+            try:
+                is_empty = (
+                    next(iter(self.dm.info[key]), {}) == {}
+                    if isinstance(self.dm.info[key], list)
+                    else self.dm.info[key] == {}
+                )
 
-            if key and not is_empty:
-                val = tree(key, self.dm.info[key])
-                print(val)
+                if key and not is_empty:
+                    val = tree(key, self.dm.info[key])
+                    print(val)
+            except Exception as e:
+                self.logger.critical(
+                    f"Failed to discover hardware! This should not happen.\n\t^^^^^^^^^{str(e)}",
+                    __file__,
+                )
+                raise e
 
         print(" ")
 
         options = [
-            (color_text('R. ', "yellow"), 'Return'),
-            (color_text('T. ', "yellow"), 'Dump as TXT'),
-            (color_text('J. ', "yellow"), 'Dump as JSON'),
-            (color_text('X. ', "yellow"), 'Dump as XML'),
-            (color_text('P. ', "yellow"), 'Dump as Plist'),
-            (color_text('Q. ', "yellow"), 'Quit')
+            (color_text("R. ", "yellow"), "Return"),
+            (color_text("T. ", "yellow"), "Dump as TXT"),
+            (color_text("J. ", "yellow"), "Dump as JSON"),
+            (color_text("X. ", "yellow"), "Dump as XML"),
+            (color_text("P. ", "yellow"), "Dump as Plist"),
+            (color_text("Q. ", "yellow"), "Quit"),
         ]
 
         cmd_options = [
-            ('R', 'R.', self.create_ui),
-            ('T', 'T.', self.dump_txt),
-            ('J', 'J.', self.dump_json),
-            ('X', 'X.', self.dump_xml),
-            ('P', 'P.', self.dump_plist),
-            ('Q', 'Q.', self.quit)
+            ("R", "R.", self.create_ui),
+            ("T", "T.", self.dump_txt),
+            ("J", "J.", self.dump_json),
+            ("X", "X.", self.dump_xml),
+            ("P", "P.", self.dump_plist),
+            ("Q", "Q.", self.quit),
         ]
 
         for option in options:
             print("".join(option))
 
-        self.logger.info('Successfully ran \'discovery\'.')
+        self.logger.info("Successfully ran 'discovery'.", __file__)
 
         self.handle_cmd(cmd_options)
 
     def dump_txt(self):
-        with open(os.path.join(root, "info_dump.txt"), "w", encoding="utf-8") as file:
-            for key in self.dm.info:
-                file.write(tree(key, self.dm.info[key], color=False))
-                file.write('\n')
+        try:
+            with open(
+                os.path.join(root, "info_dump.txt"), "w", encoding="utf-8"
+            ) as file:
+                for key in self.dm.info:
+                    file.write(tree(key, self.dm.info[key], color=False))
+                    file.write("\n")
 
-            file.close()
-            self.logger.info('Successfully dumped info to "info_dump.txt"')
+                file.close()
+                self.logger.info(
+                    'Successfully dumped info to "info_dump.txt"', __file__
+                )
+        except Exception as e:
+            self.logger.error(f"Failed to dump to TXT!\n\t^^^^^^^^^{str(e)}", __file__)
 
     def dump_json(self):
-        with open(os.path.join(root, "info_dump.json"), "w") as _json:
-            _json.write(json.dumps(self.dm.info, indent=4, sort_keys=False))
-            _json.close()
-            self.logger.info('Successfully dumped info to "info_dump.json"')
+        try:
+            with open(os.path.join(root, "info_dump.json"), "w") as _json:
+                _json.write(json.dumps(self.dm.info, indent=4, sort_keys=False))
+                _json.close()
+                self.logger.info(
+                    'Successfully dumped info to "info_dump.json"', __file__
+                )
+        except Exception as e:
+            self.logger.error(f"Failed to dump to JSON!\n\t^^^^^^^^^{str(e)}", __file__)
 
     def dump_xml(self):
-        with open(os.path.join(root, "info_dump.xml"), "wb") as xml:
-            # Disables debug prints from `dicttoxml`
-            dicttoxml.LOG.setLevel(logging.ERROR)
-            xml.write(dicttoxml.dicttoxml(self.dm.info, root=True))
-            xml.close()
-            self.logger.info('Successfully dumped info to "info_dump.xml"')
+        try:
+            with open(os.path.join(root, "info_dump.xml"), "wb") as xml:
+                # Disables debug prints from `dicttoxml`
+                dicttoxml.LOG.setLevel(logging.ERROR)
+                xml.write(dicttoxml.dicttoxml(self.dm.info, root=True))
+                xml.close()
+                self.logger.info(
+                    'Successfully dumped info to "info_dump.xml"', __file__
+                )
+        except Exception as e:
+            self.logger.error(f"Failed to dump to XML!\n\t^^^^^^^^^{str(e)}", __file__)
 
     def dump_plist(self):
-        with open(os.path.join(root, "info_dump.plist"), "wb") as plist:
-            plistlib.dump(self.dm.info, plist, sort_keys=False)
-            plist.close()
-            self.logger.info('Successfully dumped info to "info_dump.plist"')
+        try:
+            with open(os.path.join(root, "info_dump.plist"), "wb") as plist:
+                plistlib.dump(self.dm.info, plist, sort_keys=False)
+                plist.close()
+                self.logger.info(
+                    'Successfully dumped info to "info_dump.plist"', __file__
+                )
+        except Exception as e:
+            self.logger.error(
+                f"Failed to dump to Plist!\n\t^^^^^^^^^{str(e)}", __file__
+            )
 
     def quit(self):
         self.clear()
-        self.logger.info('Successfully exited.\n\n')
+        self.logger.info("Successfully exited.\n\n")
         exit(0)
 
     def create_ui(self):
         options = [
-            (color_text('D. ', "yellow"), 'Discover hardware'),
-            (color_text('T. ', "yellow"), 'Dump as TXT'),
-            (color_text('J. ', "yellow"), 'Dump as JSON'),
-            (color_text('X. ', "yellow"), 'Dump as XML'),
-            (color_text('P. ', "yellow"), 'Dump as Plist'),
-            ('\n\n', color_text('Q. ', "yellow"), 'Quit')
+            (color_text("D. ", "yellow"), "Discover hardware"),
+            (color_text("T. ", "yellow"), "Dump as TXT"),
+            (color_text("J. ", "yellow"), "Dump as JSON"),
+            (color_text("X. ", "yellow"), "Dump as XML"),
+            (color_text("P. ", "yellow"), "Dump as Plist"),
+            ("\n\n", color_text("Q. ", "yellow"), "Quit"),
         ]
 
         cmd_options = [
-            ('D', 'D.', self.discover),
-            ('T', 'T.', self.dump_txt),
-            ('J', 'J.', self.dump_json),
-            ('X', 'X.', self.dump_xml),
-            ('P', 'P.', self.dump_plist),
-            ('Q', 'Q.', self.quit)
+            ("D", "D.", self.discover),
+            ("T", "T.", self.dump_txt),
+            ("J", "J.", self.dump_json),
+            ("X", "X.", self.dump_xml),
+            ("P", "P.", self.dump_plist),
+            ("Q", "Q.", self.quit),
         ]
 
-        self.logger.info('Creating UI...')
+        self.logger.info("Creating UI...", __file__)
 
-        self.clear()
-        self.title()
+        try:
+            self.clear()
+            self.title()
 
-        if sys.platform.lower() == "darwin":
-            hack = hack_disclaimer()
+            if sys.platform.lower() == "darwin":
+                hack = hack_disclaimer()
 
-            if hack:
-                print(f"{hack}\n")
+                if hack:
+                    print(f"{hack}\n")
 
-        print(f"Program      :  {color_text(name, 'green')}")
-        print(f"Version      :  {color_text(version, 'green')}")
-        print(f"Platform     :  {color_text(os_ver, 'green')}")
-        print(f"Architecture :  {color_text(arch, 'green')}")
+            print(f"Program      :  {color_text(name, 'green')}")
+            print(f"Version      :  {color_text(version, 'green')}")
+            print(f"Platform     :  {color_text(os_ver, 'green')}")
+            print(f"Architecture :  {color_text(arch, 'green')}")
 
-        print("\n")
+            print("\n")
 
-        for option in options:
-            print("".join(option))
+            for option in options:
+                print("".join(option))
 
-        self.logger.info('UI creation ran successfully.')
+            self.logger.info("UI creation ran successfully.", __file__)
 
-        self.handle_cmd(cmd_options)
+            self.handle_cmd(cmd_options)
+        except Exception as e:
+            self.logger.critical(
+                f"Failed to create UI! This should not happen. \n\t^^^^^^^^^{str(e)}",
+                __file__,
+            )
 
     def clear(self):
-        os.system('cls||clear')
+        os.system("cls||clear")
 
     def enter(self):
         # “Hacky” way of detecting when
@@ -198,18 +247,26 @@ class UI:
         print(color_text("#" * 55 + "\n" * 2, "cyan"))
 
     def hack_disclaimer(self):
-        kern_ver = int(os.uname().release.split('.')[0])
+        kern_ver = int(os.uname().release.split(".")[0])
 
         if kern_ver > 19:
-            kext_loaded = subprocess.run(['kmutil', 'showloaded', '--list-only', '--variant-suffix',
-                                         'release'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            kext_loaded = subprocess.run(
+                ["kmutil", "showloaded", "--list-only", "--variant-suffix", "release"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
         else:
             kext_loaded = subprocess.run(
-                ['kextstat', '-l'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                ["kextstat", "-l"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+            )
 
-        if [x in kext_loaded.stdout.decode().lower() for x in ('fakesmc', 'virtualsmc')]:
-            return color_text("DISCLAIMER:\n"
-                              "THIS IS BEING RUN ON A HACKINTOSH.\n"
-                              "INFORMATION EXTRACTED MIGHT NOT BE COMPLETELY ACCURATE.",
-                              "red"
-                              )
+        if [
+            x in kext_loaded.stdout.decode().lower() for x in ("fakesmc", "virtualsmc")
+        ]:
+            self.logger.info("Detected hackintosh!", __file__)
+            return color_text(
+                "DISCLAIMER:\n"
+                "THIS IS BEING RUN ON A HACKINTOSH.\n"
+                "INFORMATION EXTRACTED MIGHT NOT BE COMPLETELY ACCURATE.",
+                "red",
+            )
