@@ -2,6 +2,8 @@
 
 A basic, high-level and efficient CLI for discovering hardware information about the current system.
 
+<br />
+
 <details>
 <summary>Example</summary>
 <br>
@@ -16,59 +18,59 @@ A basic, high-level and efficient CLI for discovering hardware information about
       └── Codename: Coffee Lake-S
 
 ─ GPU
-├── Intel UHD Graphics 630
-│ ├── Device ID: 0x3e92
-│ ├── Vendor: 0x8086
-│ ├── PCI Path: PciRoot(0x0)/Pci(0x2,0x0)
-│ └── ACPI Path: \_SB.PCI0.GFX0
-└── AMD Radeon WhateverGreenDowngradeFixed 390X Hawaii XT
-├── Device ID: 0x67b0
-├── Vendor: 0x1002
-├── PCI Path: PciRoot(0x0)/Pci(0x1,0x0)/Pci(0x0,0x0)
-├── ACPI Path: \_SB.PCI0.PEG0.PEGP
-└── Codename: Hawaii
+  ├── Intel UHD Graphics 630
+  │   ├── Device ID: 0x3e92
+  │   ├── Vendor: 0x8086
+  │   ├── PCI Path: PciRoot(0x0)/Pci(0x2,0x0)
+  │   └── ACPI Path: \_SB.PCI0.GFX0
+  └── AMD Radeon WhateverGreenDowngradeFixed 390X Hawaii XT
+      ├── Device ID: 0x67b0
+      ├── Vendor: 0x1002
+      ├── PCI Path: PciRoot(0x0)/Pci(0x1,0x0)/Pci(0x0,0x0)
+      ├── ACPI Path: \_SB.PCI0.PEG0.PEGP
+      └── Codename: Hawaii
 
 ─ Network
-└── RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller
-├── Device ID: 0x8168
-├── Vendor: 0x10ec
-├── PCI Path: PciRoot(0x0)/Pci(0x1c,0x4)/Pci(0x0,0x0)
-└── ACPI Path: \_SB.PCI0.RP05.PXSX
+  └── RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller
+      ├── Device ID: 0x8168
+      ├── Vendor: 0x10ec
+      ├── PCI Path: PciRoot(0x0)/Pci(0x1c,0x4)/Pci(0x0,0x0)
+      └── ACPI Path: \_SB.PCI0.RP05.PXSX
 
 ─ Audio
-├── Realtek ALC887
-│ ├── Device ID: 0x0887
-│ └── Vendor: 0x10ec
-├── 200 Series PCH HD Audio
-│ ├── Device ID: 0xa2f0
-│ ├── Vendor: 0x8086
-│ ├── PCI Path: PciRoot(0x0)/Pci(0x1f,0x3)
-│ └── ACPI Path: \_SB.PCI0.HDAS
-└── Hawaii HDMI Audio [Radeon R9 290/290X / 390/390X]
-├── Device ID: 0xaac8
-└── Vendor: 0x1002
+  ├── Realtek ALC887
+  │   ├── Device ID: 0x0887
+  │   └── Vendor: 0x10ec
+  ├── 200 Series PCH HD Audio
+  │   ├── Device ID: 0xa2f0
+  │   ├── Vendor: 0x8086
+  │   ├── PCI Path: PciRoot(0x0)/Pci(0x1f,0x3)
+  │   └── ACPI Path: \_SB.PCI0.HDAS
+  └── Hawaii HDMI Audio [Radeon R9 290/290X / 390/390X]
+      ├── Device ID: 0xaac8
+      └── Vendor: 0x1002
 
 ─ Input
-├── TUF GAMING K7 (USB)
-│ ├── Device ID: 0x18aa
-│ └── Vendor: 0xb05
-└── USB OPTICAL MOUSE (USB)
-├── Device ID: 0x2521
-└── Vendor: 0x93a
+  ├── TUF GAMING K7 (USB)
+  │   ├── Device ID: 0x18aa
+  │   └── Vendor: 0xb05
+  └── USB OPTICAL MOUSE (USB)
+      ├── Device ID: 0x2521
+      └── Vendor: 0x93a
 
 ─ Storage
-├── LITEON CV3-8D128-HP
-│ ├── Type: Solid State Drive (SSD)
-│ ├── Connector: SATA
-│ └── Location: Internal
-├── KINGSTON SA400S37240G
-│ ├── Type: Solid State Drive (SSD)
-│ ├── Connector: SATA
-│ └── Location: Internal
-└── WDC WD2500AAJS-00L7A0
-├── Type: Hard Disk Drive (HDD)
-├── Connector: SATA
-└── Location: Internal
+  ├── LITEON CV3-8D128-HP
+  │   ├── Type: Solid State Drive (SSD)
+  │   ├── Connector: SATA
+  │   └── Location: Internal
+  ├── KINGSTON SA400S37240G
+  │   ├── Type: Solid State Drive (SSD)
+  │   ├── Connector: SATA
+  │   └── Location: Internal
+  └── WDC WD2500AAJS-00L7A0
+      ├── Type: Hard Disk Drive (HDD)
+      ├── Connector: SATA
+      └── Location: Internal
 ```
 </details>
 
