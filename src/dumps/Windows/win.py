@@ -413,14 +413,14 @@ class WindowsHardwareManager:
                             __file__,
                         )
 
-                        if not model:
-                            self.logger.warning(
-                                "[POST]: Failed to obtain Sound device (WMI)", __file__
-                            )
-
-                        self.info["Audio"].append(
-                            {model.get("device", "Unknown Sound Device"): data}
+                    if not model:
+                        self.logger.warning(
+                            "[POST]: Failed to obtain Sound device (WMI)", __file__
                         )
+
+                    self.info["Audio"].append(
+                        {model.get("device", "Unknown Sound Device"): data}
+                    )
 
     def mobo_info(self):
         try:
