@@ -68,7 +68,8 @@ class WindowsHardwareManager:
             data["Cores"] = CPU.wmi_property("NumberOfCores").value
 
             # Number of logical processors (threads)
-            data["Threads"] = CPU.wmi_property("NumberOfLogicalProcessors").value
+            data["Threads"] = CPU.wmi_property(
+                "NumberOfLogicalProcessors").value
 
             self.cpu["model"] = model
         except Exception as e:
@@ -142,17 +143,21 @@ class WindowsHardwareManager:
                     vendor = "intel" if "intel" in manufacturer.lower() else "amd"
                     _data = json.load(
                         open(
-                            os.path.join(root, "src", "uarch", "cpu", f"{vendor}.json"),
+                            os.path.join(root, "src", "uarch",
+                                         "cpu", f"{vendor}.json"),
                             "r",
                         )
                     )
+
+                    if vendor == "amd" and int(fam, 16) > 15:
+                        fam = hex(int(fam, 16) - int(extf, 16))
 
                     cname = codename(
                         _data, extf, fam, extm, base, stepping=stepping, laptop=laptop
                     )
 
                     if cname:
-                        self.cpu["codename"] = cname if len(cname) > 1 else cname[0]
+                        self.cpu["codename"] = cname
             except Exception as e:
                 self.logger.warning(
                     f"Failed to construct extended family – ({model})\n\t^^^^^^^^^{str(e)}",
@@ -176,7 +181,8 @@ class WindowsHardwareManager:
                 try:
                     gpu = GPU.wmi_property("Name").value
                     pci = GPU.wmi_property("PNPDeviceID").value
-                    match = re.search("(VEN_(\d|\w){4})\&(DEV_(\d|\w){4})", pci)
+                    match = re.search(
+                        "(VEN_(\d|\w){4})\&(DEV_(\d|\w){4})", pci)
                 except Exception as e:
                     self.logger.error(
                         f"Failed to obtain GPU device (WMI)\n\t^^^^^^^^^{str(e)}",
@@ -197,7 +203,7 @@ class WindowsHardwareManager:
                         data["Vendor"] = ven
 
                 try:
-                    paths = pci_from_acpi_win(self.c, gpu)
+                    paths = pci_from_acpi_win(self.c, pci)
 
                     if paths:
                         pcip = paths.get("PCI Path", "")
@@ -208,8 +214,9 @@ class WindowsHardwareManager:
 
                         if acpi:
                             data["ACPI Path"] = acpi
-                except:
-                    pass
+                except Exception as e:
+                    self.logger.warning(
+                        f'Failed to construct PCI/ACPI paths for GPU device\n\t^^^^^^^^^{str(e)}', __file__)
 
                 gpucname = _gpu(dev, ven)
 
@@ -253,7 +260,8 @@ class WindowsHardwareManager:
                                     if dev.lower() == id.lower():
                                         for guessed in self.cpu["codename"]:
                                             if name.lower() in guessed.lower():
-                                                self.cpu["codename"] = [guessed]
+                                                self.cpu["codename"] = [
+                                                    guessed]
                                                 found = True
 
                         except Exception as e:
@@ -289,6 +297,7 @@ class WindowsHardwareManager:
                 try:
                     path = NIC.wmi_property("PNPDeviceID").value
                     pci = "pci" in path.lower()
+                    data = {}
                 except Exception as e:
                     self.logger.warning(
                         f"Failed to obtain Network controller (WMI)\n\t^^^^^^^^^{str(e)}",
@@ -297,7 +306,8 @@ class WindowsHardwareManager:
                     continue
 
                 if pci:
-                    match = re.search("(VEN_(\d|\w){4})\&(DEV_(\d|\w){4})", path)
+                    match = re.search(
+                        "(VEN_(\d|\w){4})\&(DEV_(\d|\w){4})", path)
 
                     ven, dev = "Unable to detect.", "Unable to detect."
 
@@ -315,6 +325,27 @@ class WindowsHardwareManager:
                         )
                         continue
 
+                    data = {
+                        "Device ID": dev,
+                        "Vendor": ven
+                    }
+
+                    try:
+                        paths = pci_from_acpi_win(self.c, path)
+
+                        if paths:
+                            pcip = paths.get("PCI Path", "")
+                            acpi = paths.get("ACPI Path", "")
+
+                            if pcip:
+                                data["PCI Path"] = pcip
+
+                            if acpi:
+                                data["ACPI Path"] = acpi
+                    except Exception as e:
+                        self.logger.warning(
+                            f'Failed to construct PCI/ACPI paths for Network controller\n\t^^^^^^^^^{str(e)}', __file__)
+
                     if not model:
                         self.logger.warning(
                             "[POST]: Failed to obtain Network controller (WMI)",
@@ -323,7 +354,7 @@ class WindowsHardwareManager:
                         continue
 
                     self.info["Network"].append(
-                        {model.get("device"): {"Device ID": dev, "Vendor": ven}}
+                        {model.get("device"): data}
                     )
 
     def audio_info(self):
@@ -340,6 +371,7 @@ class WindowsHardwareManager:
                 try:
                     path = AUDIO.wmi_property("PNPDeviceID").value
                     is_valid = "hdaudio" in path.lower()
+                    data = {}
                 except Exception as e:
                     self.logger.error(
                         f"Failed to obtain Sound device (WMI)\n\t^^^^^^^^^{str(e)}",
@@ -348,7 +380,8 @@ class WindowsHardwareManager:
                     continue
 
                 if is_valid:
-                    match = re.search("(VEN_(\d|\w){4})\&(DEV_(\d|\w){4})", path)
+                    match = re.search(
+                        "(VEN_(\d|\w){4})\&(DEV_(\d|\w){4})", path)
 
                     ven, dev = "Unable to detect.", "Unable to detect."
 
@@ -356,6 +389,11 @@ class WindowsHardwareManager:
                         ven, dev = [
                             "0x" + x.split("_")[1] for x in match.group(0).split("&")
                         ]
+
+                        data = {
+                            'Device ID': dev,
+                            'Vendor': ven
+                        }
 
                         try:
                             model = self.pci.get_item(dev[2:], ven[2:])
@@ -366,6 +404,22 @@ class WindowsHardwareManager:
                             )
                             continue
 
+                    try:
+                        paths = pci_from_acpi_win(self.c, path)
+
+                        if paths:
+                            pcip = paths.get("PCI Path", "")
+                            acpi = paths.get("ACPI Path", "")
+
+                            if pcip:
+                                data["PCI Path"] = pcip
+
+                            if acpi:
+                                data["ACPI Path"] = acpi
+                    except Exception as e:
+                        self.logger.warning(
+                            f'Failed to construct PCI/ACPI paths for Sound device\n\t^^^^^^^^^{str(e)}', __file__)
+
                         if not model:
                             self.logger.warning(
                                 "[POST]: Failed to obtain Sound device (WMI)", __file__
@@ -373,7 +427,7 @@ class WindowsHardwareManager:
                             continue
 
                         self.info["Audio"].append(
-                            {model.get("device"): {"Device ID": dev, "Vendor": ven}}
+                            {model.get("device"): data}
                         )
 
     def mobo_info(self):
@@ -388,7 +442,8 @@ class WindowsHardwareManager:
             )
             return
         else:
-            self.info["Motherboard"] = {"Model": model, "Manufacturer": manufacturer}
+            self.info["Motherboard"] = {
+                "Model": model, "Manufacturer": manufacturer}
 
     def storage_info(self):
         try:
@@ -419,8 +474,13 @@ class WindowsHardwareManager:
                     STORAGE.wmi_property("MediaType").value, "Unspecified"
                 )
                 ct_type, location = itemgetter("type", "location")(
-                    BUS_TYPE.get(STORAGE.wmi_property("BusType").value, "Unknown")
+                    BUS_TYPE.get(STORAGE.wmi_property(
+                        "BusType").value, "Unknown")
                 )
+
+                if "nvme" in ct_type.lower():
+                    type = "NVMe"
+                    ct_type = "PCI Express"
 
                 self.info["Storage"].append(
                     {model: {"Type": type, "Connector": ct_type, "Location": location}}
