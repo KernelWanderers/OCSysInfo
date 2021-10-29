@@ -209,6 +209,8 @@ The following contains credits to all the people who helped assist in the making
 
 - @[Emiyl](https://github.com/emiyl) — for providing extensive assistance with testing the application, and debugging it.
 
+- @[ThatsNiceGuy](https://github.com/ThatsNiceGuy) — for extensive amounts of help in regards to testing the application, and debugging it.
+
 - @[flababah](https://github.com/flababah/) — for https://github.com/flababah/cpuid.py
 
 - @[renegadevi](https://gitlab.com/renegadevi) — for extensive amounts of help with fixing the source code's faulty logic.
