@@ -25,14 +25,14 @@ class Requirements(TestCase):
         missing = []
         requirements = REQUIRED.open()
 
-        for requirement in requirements:
-            requirement = str(requirement)
+        for _requirement in requirements:
+            _requirement = str(_requirement).strip()
 
-            with self.subTest(requirement=requirement):
+            with self.subTest(requirement=_requirement):
                 try:
-                    require(requirement)
+                    require(_requirement)
                 except DistributionNotFound:
-                    missing.append(requirement.strip())
+                    missing.append(_requirement)
 
         return missing
 
