@@ -326,7 +326,7 @@ class LinuxHardwareManager:
                     continue
 
                 try:
-                    pcir = pci_from_acpi_linux(f"{path}/device", self.logger)
+                    pcir = pci_from_acpi_linux(f"{path}", self.logger)
 
                     if pcir:
                         acpi = pcir.get("ACPI Path")
