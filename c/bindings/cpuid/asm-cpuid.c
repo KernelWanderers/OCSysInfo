@@ -9,7 +9,7 @@
 // OCSysInfo does not attempt to claim ownership of this program.
 // All the rights go to the rightful owners.
 //
-extern "C" int EAX()
+int EAX()
 {
     int n[5] = {};
     int i, val;
