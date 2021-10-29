@@ -238,7 +238,7 @@ class MacHardwareManager:
                     ]
                 )
 
-                path = pci_from_acpi_osx(device.get("acpi-path", ""))
+                path = pci_from_acpi_osx(device.get("acpi-path", ""), self.logger)
 
                 data = {"Device ID": dev, "Vendor": ven}
 
@@ -353,7 +353,7 @@ class MacHardwareManager:
                     ]
                 )
 
-                path = pci_from_acpi_osx(device.get("acpi-path", ""))
+                path = pci_from_acpi_osx(device.get("acpi-path", ""), self.logger)
 
                 data = {
                     # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
@@ -471,7 +471,7 @@ class MacHardwareManager:
                 if not model:
                     model = "N/A"
 
-            path = pci_from_acpi_osx(device.get("acpi-path", ""))
+            path = pci_from_acpi_osx(device.get("acpi-path", ""), self.logger)
 
             pcip = path.get("PCI Path", "")
             acpi = path.get("ACPI Path", "")

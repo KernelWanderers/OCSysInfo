@@ -68,14 +68,13 @@ class WindowsHardwareManager:
             data["Cores"] = CPU.wmi_property("NumberOfCores").value
 
             # Number of logical processors (threads)
-            data["Threads"] = CPU.wmi_property(
-                "NumberOfLogicalProcessors").value
+            data["Threads"] = CPU.wmi_property("NumberOfLogicalProcessors").value
 
             self.cpu["model"] = model
         except Exception as e:
             self.logger.critical(
                 f"Failed to obtain CPU information. This should not happen. \n\t^^^^^^^^^{str(e)}",
-                __file__
+                __file__,
             )
             cpu_err(e)
 
@@ -143,8 +142,7 @@ class WindowsHardwareManager:
                     vendor = "intel" if "intel" in manufacturer.lower() else "amd"
                     _data = json.load(
                         open(
-                            os.path.join(root, "src", "uarch",
-                                         "cpu", f"{vendor}.json"),
+                            os.path.join(root, "src", "uarch", "cpu", f"{vendor}.json"),
                             "r",
                         )
                     )
@@ -161,7 +159,7 @@ class WindowsHardwareManager:
             except Exception as e:
                 self.logger.warning(
                     f"Failed to construct extended family – ({model})\n\t^^^^^^^^^{str(e)}",
-                    __file__
+                    __file__,
                 )
                 pass
 
@@ -173,7 +171,7 @@ class WindowsHardwareManager:
         except Exception as e:
             self.logger.critical(
                 f"Failed to obtain list of GPU devices (WMI)\n\t^^^^^^^^^{str(e)}",
-                __file__
+                __file__,
             )
             return
         else:
@@ -181,12 +179,11 @@ class WindowsHardwareManager:
                 try:
                     gpu = GPU.wmi_property("Name").value
                     pci = GPU.wmi_property("PNPDeviceID").value
-                    match = re.search(
-                        "(VEN_(\d|\w){4})\&(DEV_(\d|\w){4})", pci)
+                    match = re.search("(VEN_(\d|\w){4})\&(DEV_(\d|\w){4})", pci)
                 except Exception as e:
                     self.logger.error(
                         f"Failed to obtain GPU device (WMI)\n\t^^^^^^^^^{str(e)}",
-                        __file__
+                        __file__,
                     )
                     continue
 
@@ -203,7 +200,7 @@ class WindowsHardwareManager:
                         data["Vendor"] = ven
 
                 try:
-                    paths = pci_from_acpi_win(self.c, pci)
+                    paths = pci_from_acpi_win(self.c, pci, self.logger)
 
                     if paths:
                         pcip = paths.get("PCI Path", "")
@@ -216,7 +213,9 @@ class WindowsHardwareManager:
                             data["ACPI Path"] = acpi
                 except Exception as e:
                     self.logger.warning(
-                        f'Failed to construct PCI/ACPI paths for GPU device\n\t^^^^^^^^^{str(e)}', __file__)
+                        f"Failed to construct PCI/ACPI paths for GPU device\n\t^^^^^^^^^{str(e)}",
+                        __file__,
+                    )
 
                 gpucname = _gpu(dev, ven)
 
@@ -260,14 +259,13 @@ class WindowsHardwareManager:
                                     if dev.lower() == id.lower():
                                         for guessed in self.cpu["codename"]:
                                             if name.lower() in guessed.lower():
-                                                self.cpu["codename"] = [
-                                                    guessed]
+                                                self.cpu["codename"] = [guessed]
                                                 found = True
 
                         except Exception as e:
                             self.logger.warning(
                                 f"Failed to obtain codename for {self.cpu.get('model')}\n\t^^^^^^^^^{str(e)}",
-                                __file__
+                                __file__,
                             )
 
                 if not gpu:
@@ -289,7 +287,7 @@ class WindowsHardwareManager:
         except Exception as e:
             self.logger.critical(
                 f"Failed to obtain list of Network controllers (WMI)\n\t^^^^^^^^^{str(e)}",
-                __file__
+                __file__,
             )
             return
         else:
@@ -301,13 +299,12 @@ class WindowsHardwareManager:
                 except Exception as e:
                     self.logger.warning(
                         f"Failed to obtain Network controller (WMI)\n\t^^^^^^^^^{str(e)}",
-                        __file__
+                        __file__,
                     )
                     continue
 
                 if pci:
-                    match = re.search(
-                        "(VEN_(\d|\w){4})\&(DEV_(\d|\w){4})", path)
+                    match = re.search("(VEN_(\d|\w){4})\&(DEV_(\d|\w){4})", path)
 
                     ven, dev = "Unable to detect.", "Unable to detect."
 
@@ -321,17 +318,14 @@ class WindowsHardwareManager:
                     except Exception as e:
                         self.logger.error(
                             f"Failed to obtain Network controller (WMI)\n\t^^^^^^^^^{str(e)}",
-                            __file__
+                            __file__,
                         )
                         continue
 
-                    data = {
-                        "Device ID": dev,
-                        "Vendor": ven
-                    }
+                    data = {"Device ID": dev, "Vendor": ven}
 
                     try:
-                        paths = pci_from_acpi_win(self.c, path)
+                        paths = pci_from_acpi_win(self.c, path, self.logger)
 
                         if paths:
                             pcip = paths.get("PCI Path", "")
@@ -344,12 +338,14 @@ class WindowsHardwareManager:
                                 data["ACPI Path"] = acpi
                     except Exception as e:
                         self.logger.warning(
-                            f'Failed to construct PCI/ACPI paths for Network controller\n\t^^^^^^^^^{str(e)}', __file__)
+                            f"Failed to construct PCI/ACPI paths for Network controller\n\t^^^^^^^^^{str(e)}",
+                            __file__,
+                        )
 
                     if not model:
                         self.logger.warning(
                             "[POST]: Failed to obtain Network controller (WMI)",
-                            __file__
+                            __file__,
                         )
 
                     self.info["Network"].append(
@@ -362,7 +358,7 @@ class WindowsHardwareManager:
         except Exception as e:
             self.logger.critical(
                 f"Failed to obtain list of Sound devices (WMI)\n\t^^^^^^^^^{str(e)}",
-                __file__
+                __file__,
             )
             return
         else:
@@ -374,13 +370,12 @@ class WindowsHardwareManager:
                 except Exception as e:
                     self.logger.error(
                         f"Failed to obtain Sound device (WMI)\n\t^^^^^^^^^{str(e)}",
-                        __file__
+                        __file__,
                     )
                     continue
 
                 if is_valid:
-                    match = re.search(
-                        "(VEN_(\d|\w){4})\&(DEV_(\d|\w){4})", path)
+                    match = re.search("(VEN_(\d|\w){4})\&(DEV_(\d|\w){4})", path)
 
                     ven, dev = "Unable to detect.", "Unable to detect."
 
@@ -389,22 +384,19 @@ class WindowsHardwareManager:
                             "0x" + x.split("_")[1] for x in match.group(0).split("&")
                         ]
 
-                        data = {
-                            'Device ID': dev,
-                            'Vendor': ven
-                        }
+                        data = {"Device ID": dev, "Vendor": ven}
 
                         try:
                             model = self.pci.get_item(dev[2:], ven[2:])
                         except Exception as e:
                             self.logger.warning(
                                 f"Failed to obtain Sound device (WMI)\n\t^^^^^^^^^{str(e)}",
-                                __file__
+                                __file__,
                             )
                             continue
 
                     try:
-                        paths = pci_from_acpi_win(self.c, path)
+                        paths = pci_from_acpi_win(self.c, path, self.logger)
 
                         if paths:
                             pcip = paths.get("PCI Path", "")
@@ -417,7 +409,9 @@ class WindowsHardwareManager:
                                 data["ACPI Path"] = acpi
                     except Exception as e:
                         self.logger.warning(
-                            f'Failed to construct PCI/ACPI paths for Sound device\n\t^^^^^^^^^{str(e)}', __file__)
+                            f"Failed to construct PCI/ACPI paths for Sound device\n\t^^^^^^^^^{str(e)}",
+                            __file__,
+                        )
 
                         if not model:
                             self.logger.warning(
@@ -436,12 +430,11 @@ class WindowsHardwareManager:
         except Exception as e:
             self.logger.critical(
                 f"Failed to obtain Motherboard details (WMI)\n\t^^^^^^^^^{str(e)}",
-                __file__
+                __file__,
             )
             return
         else:
-            self.info["Motherboard"] = {
-                "Model": model, "Manufacturer": manufacturer}
+            self.info["Motherboard"] = {"Model": model, "Manufacturer": manufacturer}
 
     def storage_info(self):
         try:
@@ -453,7 +446,7 @@ class WindowsHardwareManager:
         except Exception as e:
             self.logger.critical(
                 f"Failed to obtain list of Storage devices (WMI)\n\t^^^^^^^^^{str(e)}",
-                __file__
+                __file__,
             )
             return
 
@@ -464,7 +457,7 @@ class WindowsHardwareManager:
                 if not model:
                     self.logger.warning(
                         "Failed to resolve friendly name for storage device (WMI)",
-                        __file__
+                        __file__,
                     )
                     model = "UNKNOWN"
 
@@ -472,8 +465,7 @@ class WindowsHardwareManager:
                     STORAGE.wmi_property("MediaType").value, "Unspecified"
                 )
                 ct_type, location = itemgetter("type", "location")(
-                    BUS_TYPE.get(STORAGE.wmi_property(
-                        "BusType").value, "Unknown")
+                    BUS_TYPE.get(STORAGE.wmi_property("BusType").value, "Unknown")
                 )
 
                 if "nvme" in ct_type.lower():
@@ -486,7 +478,7 @@ class WindowsHardwareManager:
             except Exception as e:
                 self.logger.warning(
                     f"Failed to properly resolve storage device (WMI)\n\t^^^^^^^^^{str(e)}",
-                    __file__
+                    __file__,
                 )
                 continue
 
@@ -497,7 +489,7 @@ class WindowsHardwareManager:
         except Exception as e:
             self.logger.critical(
                 f"Failed to obtain list of Input devices (WMI)\n\t^^^^^^^^^{str(e)}",
-                __file__
+                __file__,
             )
             return
         else:
@@ -531,7 +523,7 @@ class WindowsHardwareManager:
                 except Exception as e:
                     self.logger.error(
                         f'Failed to obtain interface information for "{description}" (WMI)\n\t^^^^^^^^^{str(e)}',
-                        __file__
+                        __file__,
                     )
                     pass
 
@@ -544,7 +536,7 @@ class WindowsHardwareManager:
             except Exception as e:
                 self.logger.error(
                     f"Failed to obtain information about keyboard/pointing device (WMI)\n\t^^^^^^^^^{str(e)}",
-                    __file__
+                    __file__,
                 )
                 continue
 
