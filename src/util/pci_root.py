@@ -25,25 +25,26 @@ def pci_from_acpi_osx(raw_path):
             b = hex(pcip & 0xFFFF)
 
             if "pci" in arg.lower():
-                p_path += f'PciRoot({a})'
+                p_path += f"PciRoot({a})"
                 continue
 
-            p_path += f'/Pci({a},{b})'
+            p_path += f"/Pci({a},{b})"
 
     return {"PCI Path": p_path, "ACPI Path": a_path}
 
 
-def pci_from_acpi_win(wmi, name):
+def pci_from_acpi_win(wmi, instance_id):
 
     try:
         # Thank you to DhinakG for this.
         # See: https://github.com/USBToolBox/tool/blob/ba3bb1238c0b552cb8066e29c5dc83b5e8faae32/Windows.py#L46
         raw_path = (
-            wmi.query(f"SELECT * FROM Win32_PnPEntity WHERE Name='{name}'")[0]
+            wmi.query(
+                f"SELECT * FROM Win32_PnPEntity WHERE PNPDeviceID = '{instance_id}'")[0]
             .GetDeviceProperties(["DEVPKEY_Device_LocationPaths"])[0][0]
             .Data
         )
-    except:
+    except Exception:
         return {}
 
     if not raw_path:
@@ -51,44 +52,53 @@ def pci_from_acpi_win(wmi, name):
 
     data = {"PCI Path": "", "ACPI Path": ""}
 
-    pci, acpi = raw_path
+    devices = raw_path
 
-    if pci != "#":
-        path = ""
 
-        for arg in pci.split("#"):
-            digit = re.search(r"(?<=\()(\d*|\w*)+(?=\))", arg)
+    for device in devices:
+        if not 'acpi' in device.lower() and 'pci' in device.lower():
+            path = ""
 
-            if not digit:
-                path = None
-                break
+            for arg in device.split("#"):
+                if "usb" in arg.lower():
+                    break
 
-            digit = digit.group()
+                # Thank you to DhinakG for this.
+                digit = arg[:-1].split("(")[1]
 
-            if "pciroot" in arg.lower():
-                path += f"PciRoot({hex(int(digit, 16))})"
-                continue
+                if not digit:
+                    path = None
+                    return
 
-            path += f"/Pci({hex(int(digit[0:2], 16))},{hex(int(digit[2:], 16))})"
+                if "pciroot" in arg.lower():
+                    path += f"PciRoot({hex(int(digit, 16))})"
+                    continue
 
-        data["PCI Path"] = path
+                path += f"/Pci({hex(int(digit[0:2], 16))},{hex(int(digit[2:], 16))})"
 
-    if acpi != "#":
-        path = ""
+            data["PCI Path"] = path
 
-        for arg in acpi.split("#"):
-            if "_SB" in arg:
-                path += "\_SB"
-                continue
+        elif 'acpi' in device.lower():
+            path = ""
 
-            prop = re.search(r"(?<=\()(\w*|\d*)+(?=\))", arg)
+            for arg in device.split("#"):
+                if "_SB" in arg:
+                    path += "\_SB"
+                    continue
 
-            if not prop:
-                path = None
-                break
+                try:
+                    # Thank you to DhinakG for this.
+                    _acpi, val = arg[:-1].split("(")
+                except Exception:
+                    path = None
+                    break
 
-            path += f".{prop.group()}"
+                if _acpi.lower() == 'pci':
+                    path = None
+                    break
 
-        data["ACPI Path"] = path
+                path += f".{val}"
 
+            data["ACPI Path"] = path
+    
     return data
