@@ -40,9 +40,7 @@ class MacHardwareManager:
         try:
             # Model of the CPU
             model = (
-                subprocess.check_output(
-                    ["sysctl", "machdep.cpu.brand_string"]
-                )
+                subprocess.check_output(["sysctl", "machdep.cpu.brand_string"])
                 .decode()
                 .split(": ")[1]
                 .strip()
@@ -106,8 +104,7 @@ class MacHardwareManager:
             try:
                 stepping = hex(
                     int(
-                        subprocess.check_output(
-                            ["sysctl", "machdep.cpu.stepping"])
+                        subprocess.check_output(["sysctl", "machdep.cpu.stepping"])
                         .decode()
                         .split(": ")[1]
                         .strip()
@@ -118,8 +115,7 @@ class MacHardwareManager:
 
             extf = hex(
                 int(
-                    subprocess.check_output(
-                        ["sysctl", "machdep.cpu.extfamily"])
+                    subprocess.check_output(["sysctl", "machdep.cpu.extfamily"])
                     .decode()
                     .split(": ")[1]
                     .strip()
@@ -153,8 +149,7 @@ class MacHardwareManager:
             base = hex(n & 0xF)
 
             _data = json.load(
-                open(os.path.join(root, "src", "uarch",
-                     "cpu", f"{vendor}.json"), "r")
+                open(os.path.join(root, "src", "uarch", "cpu", f"{vendor}.json"), "r")
             )
 
             cname = codename(
@@ -218,10 +213,9 @@ class MacHardwareManager:
                     i, None, ioreg.kCFAllocatorDefault, ioreg.kNilOptions
                 )
             )[1]
-
             try:
                 model = bytes(device.get("model")).decode()
-                model = model[0: len(model) - 1]
+                model = model[0 : len(model) - 1]
             except Exception as e:
                 self.logger.error(
                     "Failed to obtain GPU device model (IOKit)"
@@ -278,9 +272,12 @@ class MacHardwareManager:
             # it will simply use the guessed codename.
             if ven and dev and "8086" in ven and self.cpu.get("codename", None):
 
+                if type(self.cpu["codename"]) == str:
+                    self.cpu["codename"] = [self.cpu["codename"]]
+
                 if any(
-                    [x in n for n in self.cpu["codename"]]
-                    for x in ("Kaby Lake", "Coffee Lake", "Comet Lake")
+                    [x.lower() in n.lower() for n in self.cpu["codename"]]
+                    for x in ("kaby Lake", "coffee Lake", "comet Lake")
                 ):
                     try:
                         _data = json.load(
@@ -303,7 +300,7 @@ class MacHardwareManager:
                                 if dev.lower() == id.lower():
                                     for guessed in self.cpu["codename"]:
                                         if name.lower() in guessed.lower():
-                                            self.cpu["codename"] = name
+                                            self.cpu["codename"] = [name]
                                             found = True
 
                     except Exception as e:
@@ -317,8 +314,7 @@ class MacHardwareManager:
             ioreg.IOObjectRelease(i)
 
         if self.cpu.get("codename", None):
-            self.info["CPU"][0][self.cpu["model"]
-                                ]["Codename"] = self.cpu["codename"]
+            self.info["CPU"][0][self.cpu["model"]]["Codename"] = self.cpu["codename"][0]
 
     def net_info(self):
 
@@ -530,8 +526,7 @@ class MacHardwareManager:
                 # Type of connector (SATA, USB, SCSI, etc.)
                 ct_type = protocol.get("Physical Interconnect").strip()
                 # Whether or not this device is internal or external.
-                location = protocol.get(
-                    "Physical Interconnect Location").strip()
+                location = protocol.get("Physical Interconnect Location").strip()
 
                 if ct_type.lower() == "pci-express":
                     _type = "Non-Volatile Memory Express (NVMe)"

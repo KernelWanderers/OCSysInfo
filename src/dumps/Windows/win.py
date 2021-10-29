@@ -225,9 +225,12 @@ class WindowsHardwareManager:
                 # it will simply use the guessed codename.
                 if ven and dev and "8086" in ven and self.cpu.get("codename", None):
 
+                    if type(self.cpu["codename"]) == str:
+                        self.cpu["codename"] = [self.cpu["codename"]]
+
                     if any(
-                        [x in n for n in self.cpu["codename"]]
-                        for x in ("Kaby Lake", "Coffee Lake", "Comet Lake")
+                        [x.lower() in n.lower() for n in self.cpu["codename"]]
+                        for x in ("kaby Lake", "coffee Lake", "comet Lake")
                     ):
                         try:
                             _data = json.load(
@@ -250,7 +253,7 @@ class WindowsHardwareManager:
                                     if dev.lower() == id.lower():
                                         for guessed in self.cpu["codename"]:
                                             if name.lower() in guessed.lower():
-                                                self.cpu["codename"] = name
+                                                self.cpu["codename"] = [name]
                                                 found = True
 
                         except Exception as e:
@@ -270,7 +273,7 @@ class WindowsHardwareManager:
             if self.cpu.get("codename", None):
                 self.info["CPU"][0][self.cpu["model"]]["Codename"] = self.cpu[
                     "codename"
-                ]
+                ][0]
 
     def net_info(self):
         try:

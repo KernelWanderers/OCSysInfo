@@ -634,6 +634,26 @@
   },
 
   {
+    "Codename": "Kaby Lake-R",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0x6",
+    "ExtModel": "0x8",
+    "BaseModel": "0xE",
+    "Stepping": "0xA",
+    "Laptop": true
+  },
+
+  {
+    "Codename": "Kaby Lake-R",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0x6",
+    "ExtModel": "0x9",
+    "BaseModel": "0xE",
+    "Stepping": "0xA",
+    "Laptop": true
+  },
+
+  {
     "Codename": "Coffee Lake-U",
     "ExtFamily": "0x0",
     "BaseFamily": "0x6",
