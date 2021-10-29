@@ -228,7 +228,7 @@ class LinuxHardwareManager:
                                     if dev.lower() == id.lower():
                                         for guessed in self.cpu["codename"]:
                                             if name.lower() in guessed.lower():
-                                                self.cpu["codename"] = [name]
+                                                self.cpu["codename"] = [guessed]
                                                 found = True
 
                         except Exception as e:
