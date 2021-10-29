@@ -79,6 +79,8 @@ def pci_from_acpi_win(wmi, instance_id, logger):
             path = ""
 
             for arg in device.split("#"):
+                # A valid PCI path shouldn't have
+                # a `USB(...)` as any argument.
                 if "usb" in arg.lower():
                     logger.warning(
                         "[USB WARNING]: Non-constructable ACPI/PCI path - ignoring.. (WMI)"
@@ -86,12 +88,15 @@ def pci_from_acpi_win(wmi, instance_id, logger):
                     break
 
                 # Thank you to DhinakG for this.
+                #
+                # E.g: PCI(0301) -> ['PCI', '0301']
                 digit = arg[:-1].split("(")[1]
 
                 if not digit:
                     path = None
                     return
 
+                # Add PCIROOT (domain)
                 if "pciroot" in arg.lower():
                     path += f"PciRoot({hex(int(digit, 16))})"
                     continue
@@ -202,6 +207,9 @@ def pci_from_acpi_linux(device_path, logger):
                         if busp == slotc:
                             busp = "0x0"
 
+                        # As far as we can tell,
+                        # The bus ID should never be equal
+                        # to the slot ID.
                         if busc and busc != "0x0" and slotc != "0x0" and busc == slotp:
                             busc = "0x0"
 
