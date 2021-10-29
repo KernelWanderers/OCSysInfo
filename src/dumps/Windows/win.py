@@ -75,7 +75,7 @@ class WindowsHardwareManager:
         except Exception as e:
             self.logger.critical(
                 f"Failed to obtain CPU information. This should not happen. \n\t^^^^^^^^^{str(e)}",
-                __file__,
+                __file__
             )
             cpu_err(e)
 
@@ -161,7 +161,7 @@ class WindowsHardwareManager:
             except Exception as e:
                 self.logger.warning(
                     f"Failed to construct extended family – ({model})\n\t^^^^^^^^^{str(e)}",
-                    __file__,
+                    __file__
                 )
                 pass
 
@@ -173,7 +173,7 @@ class WindowsHardwareManager:
         except Exception as e:
             self.logger.critical(
                 f"Failed to obtain list of GPU devices (WMI)\n\t^^^^^^^^^{str(e)}",
-                __file__,
+                __file__
             )
             return
         else:
@@ -186,7 +186,7 @@ class WindowsHardwareManager:
                 except Exception as e:
                     self.logger.error(
                         f"Failed to obtain GPU device (WMI)\n\t^^^^^^^^^{str(e)}",
-                        __file__,
+                        __file__
                     )
                     continue
 
@@ -267,14 +267,14 @@ class WindowsHardwareManager:
                         except Exception as e:
                             self.logger.warning(
                                 f"Failed to obtain codename for {self.cpu.get('model')}\n\t^^^^^^^^^{str(e)}",
-                                __file__,
+                                __file__
                             )
 
                 if not gpu:
                     self.logger.warning(
                         "[POST]: Failed to obtain GPU device (WMI)", __file__
                     )
-                    continue
+                    gpu = "Unknown GPU Device"
 
                 self.info["GPU"].append({gpu: data})
 
@@ -289,7 +289,7 @@ class WindowsHardwareManager:
         except Exception as e:
             self.logger.critical(
                 f"Failed to obtain list of Network controllers (WMI)\n\t^^^^^^^^^{str(e)}",
-                __file__,
+                __file__
             )
             return
         else:
@@ -301,7 +301,7 @@ class WindowsHardwareManager:
                 except Exception as e:
                     self.logger.warning(
                         f"Failed to obtain Network controller (WMI)\n\t^^^^^^^^^{str(e)}",
-                        __file__,
+                        __file__
                     )
                     continue
 
@@ -321,7 +321,7 @@ class WindowsHardwareManager:
                     except Exception as e:
                         self.logger.error(
                             f"Failed to obtain Network controller (WMI)\n\t^^^^^^^^^{str(e)}",
-                            __file__,
+                            __file__
                         )
                         continue
 
@@ -349,12 +349,11 @@ class WindowsHardwareManager:
                     if not model:
                         self.logger.warning(
                             "[POST]: Failed to obtain Network controller (WMI)",
-                            __file__,
+                            __file__
                         )
-                        continue
 
                     self.info["Network"].append(
-                        {model.get("device"): data}
+                        {model.get("device", "Unknown Network Controller"): data}
                     )
 
     def audio_info(self):
@@ -363,7 +362,7 @@ class WindowsHardwareManager:
         except Exception as e:
             self.logger.critical(
                 f"Failed to obtain list of Sound devices (WMI)\n\t^^^^^^^^^{str(e)}",
-                __file__,
+                __file__
             )
             return
         else:
@@ -375,7 +374,7 @@ class WindowsHardwareManager:
                 except Exception as e:
                     self.logger.error(
                         f"Failed to obtain Sound device (WMI)\n\t^^^^^^^^^{str(e)}",
-                        __file__,
+                        __file__
                     )
                     continue
 
@@ -400,7 +399,7 @@ class WindowsHardwareManager:
                         except Exception as e:
                             self.logger.warning(
                                 f"Failed to obtain Sound device (WMI)\n\t^^^^^^^^^{str(e)}",
-                                __file__,
+                                __file__
                             )
                             continue
 
@@ -424,10 +423,9 @@ class WindowsHardwareManager:
                             self.logger.warning(
                                 "[POST]: Failed to obtain Sound device (WMI)", __file__
                             )
-                            continue
 
                         self.info["Audio"].append(
-                            {model.get("device"): data}
+                            {model.get("device", "Unknown Sound Device"): data}
                         )
 
     def mobo_info(self):
@@ -438,7 +436,7 @@ class WindowsHardwareManager:
         except Exception as e:
             self.logger.critical(
                 f"Failed to obtain Motherboard details (WMI)\n\t^^^^^^^^^{str(e)}",
-                __file__,
+                __file__
             )
             return
         else:
@@ -455,7 +453,7 @@ class WindowsHardwareManager:
         except Exception as e:
             self.logger.critical(
                 f"Failed to obtain list of Storage devices (WMI)\n\t^^^^^^^^^{str(e)}",
-                __file__,
+                __file__
             )
             return
 
@@ -466,7 +464,7 @@ class WindowsHardwareManager:
                 if not model:
                     self.logger.warning(
                         "Failed to resolve friendly name for storage device (WMI)",
-                        __file__,
+                        __file__
                     )
                     model = "UNKNOWN"
 
@@ -488,7 +486,7 @@ class WindowsHardwareManager:
             except Exception as e:
                 self.logger.warning(
                     f"Failed to properly resolve storage device (WMI)\n\t^^^^^^^^^{str(e)}",
-                    __file__,
+                    __file__
                 )
                 continue
 
@@ -499,7 +497,7 @@ class WindowsHardwareManager:
         except Exception as e:
             self.logger.critical(
                 f"Failed to obtain list of Input devices (WMI)\n\t^^^^^^^^^{str(e)}",
-                __file__,
+                __file__
             )
             return
         else:
@@ -533,7 +531,7 @@ class WindowsHardwareManager:
                 except Exception as e:
                     self.logger.error(
                         f'Failed to obtain interface information for "{description}" (WMI)\n\t^^^^^^^^^{str(e)}',
-                        __file__,
+                        __file__
                     )
                     pass
 
@@ -546,7 +544,7 @@ class WindowsHardwareManager:
             except Exception as e:
                 self.logger.error(
                     f"Failed to obtain information about keyboard/pointing device (WMI)\n\t^^^^^^^^^{str(e)}",
-                    __file__,
+                    __file__
                 )
                 continue
 
