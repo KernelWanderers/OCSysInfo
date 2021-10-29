@@ -29,11 +29,14 @@ def tree(name, data, nest=1, parent="", looped={}, value="", color=True):
             s = color_text("└── ", "cyan") if color else "└── "
 
             if len(looped):
-                sp = re.sub(
-                    r"├",
-                    color_text("│", "cyan") if color else "│",
-                    re.sub(r"─", " ", re.sub(r"└", " ", parent)),
-                ) + (f if i < l else s)
+                sp = (
+                    re.sub(
+                        r"├",
+                        color_text("│", "cyan") if color else "│",
+                        re.sub(r"─", " ", re.sub(r"└", " ", parent)),
+                    )
+                    + (f if i < l else s)
+                )
             else:
                 sp = " " * len(parent if len(parent) else spacing) + (f if i < l else s)
 
