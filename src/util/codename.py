@@ -27,6 +27,7 @@ def codename(data, extf, family, extm, model, stepping=None, laptop=False):
             if (
                 laptop
                 and arch.get("Laptop", None)
+                and valid_stepping
                 or stepping
                 and arch.get("Stepping", None)
                 and valid_stepping
