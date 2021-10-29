@@ -5,6 +5,7 @@ import json
 from error.cpu_err import cpu_err
 from root import root
 from util.codename import codename, gpu
+from util.pci_root import pci_from_acpi_linux
 
 
 class LinuxHardwareManager:
@@ -32,7 +33,7 @@ class LinuxHardwareManager:
     def extf(self):
         libname = os.path.join(root, "c", "bindings", "cpuid", "asm-cpuid.so")
         c_lib = ctypes.CDLL(libname)
-        
+
         return (c_lib.EAX() >> 20) & 0xF
 
     def cpu_info(self):
@@ -168,23 +169,39 @@ class LinuxHardwareManager:
             # inside of sysfs's DRM directory. So we look for those, and traverse
             # them. We look for the `device` and `vendor` file, which should always be there.
             if "card" in file and not "-" in file:
-                path = f"/sys/class/drm/{file}"
+                path = f"/sys/class/drm/{file}/device"
                 data = {}
 
                 try:
-                    ven = open(f"{path}/device/vendor", "r").read().strip()
-                    dev = open(f"{path}/device/device", "r").read().strip()
+                    ven = open(f"{path}/vendor", "r").read().strip()
+                    dev = open(f"{path}/device", "r").read().strip()
 
                     model = self.pci.get_item(dev[2:], ven[2:]).get("device")
 
-                    data["Device ID"] = dev
-                    data["Vendor"] = ven
+                    data = {"Device ID": dev, "Vendor": ven}
                 except Exception as e:
                     self.logger.warning(
                         f"Failed to obtain vendor/device id for GPU device (SYS_FS/DRM)\n\t^^^^^^^^^{str(e)}",
                         __file__,
                     )
                     continue
+
+                try:
+                    pcir = pci_from_acpi_linux(path, self.logger)
+
+                    if pcir:
+                        acpi = pcir.get("ACPI Path")
+                        pcip = pcir.get("PCI Path")
+
+                        if acpi:
+                            data["ACPI Path"] = acpi
+
+                        if pcip:
+                            data["PCI Path"] = pcip
+                except Exception as e:
+                    self.logger.error(
+                        f"Failed during ACPI/PCI path construction (SYS_FS/DRM)\n\t^^^^^^^^^{str(e)}"
+                    )
 
                 gpucname = gpu(dev, ven)
 
@@ -245,6 +262,7 @@ class LinuxHardwareManager:
     def net_info(self):
         for file in os.listdir("/sys/class/net"):
             path = f"/sys/class/net/{file}/device"
+            data = {}
 
             # We ensure that the enumerated directory in the sysfs net
             # directory is a valid card, since it'll contain a `vendor` and
@@ -254,6 +272,8 @@ class LinuxHardwareManager:
                     ven = open(f"{path}/vendor", "r").read().strip()
                     dev = open(f"{path}/device", "r").read().strip()
 
+                    data = {"Device ID": dev, "Vendor": ven}
+
                     model = self.pci.get_item(dev[2:], ven[2:]).get("device")
                 except Exception as e:
                     self.logger.error(
@@ -262,10 +282,25 @@ class LinuxHardwareManager:
                     )
                     return
 
-                else:
-                    self.info.get("Network").append(
-                        {model: {"Device ID": dev, "Vendor": ven}}
+                try:
+                    pcir = pci_from_acpi_linux(path, self.logger)
+
+                    if pcir:
+                        acpi = pcir.get("ACPI Path")
+                        pcip = pcir.get("PCI Path")
+
+                        if acpi:
+                            data["ACPI Path"] = acpi
+
+                        if pcip:
+                            data["PCI Path"] = pcip
+                except Exception as e:
+                    self.logger.error(
+                        f"Failed during ACPI/PCI path construction (SYS_FS/NET)\n\t^^^^^^^^^{str(e)}"
                     )
+
+                else:
+                    self.info.get("Network").append({model: data})
 
     def audio_info(self):
         for file in os.listdir("/sys/class/sound"):
@@ -275,11 +310,13 @@ class LinuxHardwareManager:
             # for `vendor` and `device` files.
             if "card" in file.lower() and not "-" in file.lower():
                 path = f"/sys/class/sound/{file}/device"
+                data = {}
 
                 try:
                     ven = open(f"{path}/vendor", "r").read().strip()
                     dev = open(f"{path}/device", "r").read().strip()
 
+                    data = {"Device ID": dev, "Vendor": ven}
                     model = self.pci.get_item(dev[2:], ven[2:]).get("device")
                 except Exception as e:
                     self.logger.warning(
@@ -288,10 +325,38 @@ class LinuxHardwareManager:
                     )
                     continue
 
-                else:
-                    self.info.get("Audio").append(
-                        {model: {"Device ID": dev, "Vendor": ven}}
+                try:
+                    pcir = pci_from_acpi_linux(f"{path}/device", self.logger)
+
+                    if pcir:
+                        acpi = pcir.get("ACPI Path")
+                        pcip = pcir.get("PCI Path")
+
+                        if acpi:
+                            data["ACPI Path"] = acpi
+
+                        if pcip:
+                            data["PCI Path"] = pcip
+                except Exception as e:
+                    self.logger.error(
+                        f"Failed during ACPI/PCI path construction (SYS_FS/SOUND)\n\t^^^^^^^^^{str(e)}"
                     )
+
+                try:
+                    dirs = [n for n in os.listdir(path) if "hdaudio" in n.lower()]
+
+                    for dir in dirs:
+                        chip_name = open(f"{path}/{dir}/chip_name", "r").read().strip()
+
+                        if "alc" in chip_name.lower():
+                            data["ALC Codec"] = chip_name
+                except Exception as e:
+                    self.logger.warning(
+                        f"Failed to obtain ALC codec for Audio controller (SYS_FS/SOUND)\n\t^^^^^^^^^{str(e)}"
+                    )
+
+                else:
+                    self.info.get("Audio").append({model: data})
 
     def mobo_info(self):
 
