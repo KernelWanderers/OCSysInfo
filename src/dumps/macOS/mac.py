@@ -157,7 +157,7 @@ class MacHardwareManager:
             )
 
             if cname:
-                self.cpu["codename"] = cname if len(cname) > 1 else cname[0]
+                self.cpu["codename"] = cname
         except Exception as e:
             self.logger.warning(
                 f"Failed to construct extended family – ({model})\n\t^^^^^^^^^{str(e)}",
