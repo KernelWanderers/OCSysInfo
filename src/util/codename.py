@@ -24,18 +24,12 @@ def codename(data, extf, family, extm, model, stepping=None, laptop=False):
                 stepping and stepping.lower() in arch.get("Stepping", "").lower()
             )
 
-            if (
-                laptop
-                and arch.get("Laptop", None)
-                and valid_stepping
-                or stepping
-                and arch.get("Stepping", None)
-                and valid_stepping
-            ):
+            if laptop and arch.get("Laptop", None) and valid_stepping:
                 vals = [arch.get("Codename")]
-                if laptop and arch.get("Laptop", None):
-                    break
+                break
 
+            if stepping and arch.get("Stepping", None) and valid_stepping:
+                vals.append(arch.get("Codename"))
                 continue
 
             vals.append(arch.get("Codename"))

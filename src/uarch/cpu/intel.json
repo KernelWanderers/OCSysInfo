@@ -621,7 +621,8 @@
     "BaseFamily": "0x6",
     "ExtModel": "0x8",
     "BaseModel": "0xE",
-    "Stepping": "0x9"
+    "Stepping": "0x9",
+    "Laptop": true
   },
 
   {
