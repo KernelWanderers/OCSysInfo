@@ -98,6 +98,14 @@ python3 -m pip install -r requirements-Linux.txt
 python3 -m pip install -r requirements-macOS.txt
 ```
 
+(If your on macOS) You can also run the .command file after installing dependencies, or cd to the src directory and run main.py:
+
+```sh
+cd src
+
+python3 main.py
+```
+
 ## Implementations
 
 OCSysInfo takes advantage of each platform's native interaction protocol, except for Linux, which uses a pseudo file system & its distros expose no consistent way of obtaining this information via command/API, in order to extract information about the system's hardware manually.
