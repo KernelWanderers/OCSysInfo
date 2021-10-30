@@ -78,8 +78,8 @@ A basic, high-level and efficient CLI for discovering hardware information about
 
 ## Installation
 
-Firstly, we do not support `py2` – the only support provided is for `python 3.6` and greater. <br />
-So please ensure you have `python 3.6` or greater installed.
+Firstly, we do not support `py2` – the only support provided is for `python 3.8` and greater. <br />
+So please ensure you have `python 3.8` or greater installed.
 
 In order to install `OCSysInfo`, you can either download the repository manually via GitHub, and run the `main.py` script located inside of `src` (do also make sure to install the dependencies as shown below), or, via git:
 
