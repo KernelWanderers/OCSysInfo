@@ -2,16 +2,13 @@ import os
 
 
 def _get_valid(slot):
-    parts = [n.split(".")[0] for n in slot.split(":")]
 
     try:
-        bus, slot = hex(int(parts[1].split(".")[0], 16)), hex(
-            int(parts[2].split(".")[0], 16)
-        )
+        slot, func = [hex(int(n, 16)) for n in slot.split(':')[2].split('.')]
     except Exception as e:
         return [None, None]
 
-    return [bus, slot]
+    return [slot, func]
 
 
 def pci_from_acpi_osx(raw_path, logger):
@@ -159,7 +156,7 @@ def pci_from_acpi_linux(device_path, logger):
     # Whether or not there's 1 or 2 components
     # of the entire PCI path.
     #
-    # E.g:
+    # Examples of this:
     # 1 - PciRoot(0x0)/Pci(0x2,0x0)
     # 2 - PciRoot(0x0)/Pci(0x1,0x0)/Pci(0x0,0x0)
     amount = 1 if len(acpi.split(".")) < 4 else 2
@@ -190,33 +187,24 @@ def pci_from_acpi_linux(device_path, logger):
                     if (
                         "pcie" in nest
                         and not slot in nest
-                        and slot.split(":")[0] == nest.split(":")[0]
                     ):
                         # Add PCIROOT (domain)
-                        pcip += "PciRoot({})".format(hex(int(nest.split(":")[0], 16)))
+                        pcip += "PciRoot({})".format(
+                            hex(int(path.split(":")[1], 16)))
 
                         """
-                        busc  - Child bus ID
-                        slotc - Child slot ID
-                        busp  - Parent bus ID
-                        slotp - Parent slot ID
+                        slotc - Child slot
+                        funcc - Child function
+                        slotp - Parent slot
+                        funcp - Parent function
                         """
-                        busc, slotc = _get_valid(path)
-                        busp, slotp = _get_valid(slot)
+                        slotc, funcc = _get_valid(path)
+                        slotp, funcp = _get_valid(slot)
 
-                        if busp == slotc:
-                            busp = "0x0"
-
-                        # As far as we can tell,
-                        # The bus ID should never be equal
-                        # to the slot ID.
-                        if busc and busc != "0x0" and slotc != "0x0" and busc == slotp:
-                            busc = "0x0"
-
-                        pcip += f"/Pci({slotc},{busp})"
+                        pcip += f"/Pci({slotc},{funcc})"
 
                         if amount == 2:
-                            pcip += f"/Pci({slotp},{busc})"
+                            pcip += f"/Pci({slotp},{funcp})"
 
                         found = True
 
@@ -229,10 +217,10 @@ def pci_from_acpi_linux(device_path, logger):
         # This should, by default,
         # only have a single PCI path component.
         if not pcip:
-            domain = hex(int(slot.split(":")[0], 16))
-            bus, slot = _get_valid(slot)
+            domain = hex(int(slot.split(":")[1], 16))
+            slot, func = _get_valid(slot)
 
-            pcip += f"PciRoot({domain})/Pci({slot},{bus})"
+            pcip += f"PciRoot({domain})/Pci({slot},{func})"
 
         if pcip:
             data["PCI Path"] = pcip
