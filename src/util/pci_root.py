@@ -4,7 +4,7 @@ import os
 def _get_valid(slot):
 
     try:
-        slot, func = [hex(int(n, 16)) for n in slot.split(':')[2].split('.')]
+        slot, func = [hex(int(n, 16)) for n in slot.split(":")[2].split(".")]
     except Exception as e:
         return [None, None]
 
@@ -184,13 +184,9 @@ def pci_from_acpi_linux(device_path, logger):
                     if found:
                         break
 
-                    if (
-                        "pcie" in nest
-                        and not slot in nest
-                    ):
-                        # Add PCIROOT (domain)
-                        pcip += "PciRoot({})".format(
-                            hex(int(path.split(":")[1], 16)))
+                    if "pcie" in nest and not slot in nest:
+                        # Add PCIROOT (bus id)
+                        pcip += "PciRoot({})".format(hex(int(path.split(":")[1], 16)))
 
                         """
                         slotc - Child slot
