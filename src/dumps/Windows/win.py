@@ -417,6 +417,7 @@ class WindowsHardwareManager:
                         self.logger.warning(
                             "[POST]: Failed to obtain Sound device (WMI)", __file__
                         )
+                        model = {}
 
                     self.info["Audio"].append(
                         {model.get("device", "Unknown Sound Device"): data}
@@ -506,33 +507,14 @@ class WindowsHardwareManager:
         _items = []
         for item in items:
             try:
-                data = {}
-
                 description = item.wmi_property("Description").value
-                devid = item.wmi_property("DeviceID").value
-
-                data[description] = {"Device ID": devid}
-
-                try:
-                    devint = POINT_DEV_INTERFACE.get(
-                        item.wmi_property("DeviceInterface").value, None
-                    )
-
-                    if devint:
-                        data[description]["Interface"] = devint
-                except Exception as e:
-                    self.logger.error(
-                        f'Failed to obtain interface information for "{description}" (WMI)\n\t^^^^^^^^^{str(e)}',
-                        __file__,
-                    )
-                    pass
 
                 if not any(
                     x in description.lower() for x in ("ps/2", "hid", "synaptics")
                 ):
                     continue
 
-                _items.append(data)
+                _items.append({description: {}})
             except Exception as e:
                 self.logger.error(
                     f"Failed to obtain information about keyboard/pointing device (WMI)\n\t^^^^^^^^^{str(e)}",
