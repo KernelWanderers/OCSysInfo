@@ -122,10 +122,10 @@ class UI:
 
         self.handle_cmd(cmd_options)
 
-    def dump_txt(self):
+    def dump_txt(self, path=root):
         try:
             with open(
-                os.path.join(root, "info_dump.txt"), "w", encoding="utf-8"
+                os.path.join(path, "info_dump.txt"), "w", encoding="utf-8"
             ) as file:
                 for key in self.dm.info:
                     file.write(tree(key, self.dm.info[key], color=False))
@@ -138,9 +138,9 @@ class UI:
         except Exception as e:
             self.logger.error(f"Failed to dump to TXT!\n\t^^^^^^^^^{str(e)}", __file__)
 
-    def dump_json(self):
+    def dump_json(self, path=root):
         try:
-            with open(os.path.join(root, "info_dump.json"), "w") as _json:
+            with open(os.path.join(path, "info_dump.json"), "w") as _json:
                 _json.write(json.dumps(self.dm.info, indent=4, sort_keys=False))
                 _json.close()
                 self.logger.info(
@@ -149,9 +149,9 @@ class UI:
         except Exception as e:
             self.logger.error(f"Failed to dump to JSON!\n\t^^^^^^^^^{str(e)}", __file__)
 
-    def dump_xml(self):
+    def dump_xml(self, path=root):
         try:
-            with open(os.path.join(root, "info_dump.xml"), "wb") as xml:
+            with open(os.path.join(path, "info_dump.xml"), "wb") as xml:
                 # Disables debug prints from `dicttoxml`
                 dicttoxml.LOG.setLevel(logging.ERROR)
                 xml.write(dicttoxml.dicttoxml(self.dm.info, root=True))
@@ -162,9 +162,9 @@ class UI:
         except Exception as e:
             self.logger.error(f"Failed to dump to XML!\n\t^^^^^^^^^{str(e)}", __file__)
 
-    def dump_plist(self):
+    def dump_plist(self, path=root):
         try:
-            with open(os.path.join(root, "info_dump.plist"), "wb") as plist:
+            with open(os.path.join(path, "info_dump.plist"), "wb") as plist:
                 plistlib.dump(self.dm.info, plist, sort_keys=False)
                 plist.close()
                 self.logger.info(
