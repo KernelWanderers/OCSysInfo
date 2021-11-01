@@ -29,6 +29,7 @@ if __name__ == "__main__":
     try:
         from error.logger import Logger
         from cli.ui import UI
+        from cli.flags import FlagParser
         from managers.devicemanager import DeviceManager
     except Exception as e:
         raise e
@@ -38,9 +39,9 @@ if __name__ == "__main__":
             logger.info("Launching OCSysInfo...", __file__)
             dump = DeviceManager(logger)
             ui = UI(dump, logger)
+            flag_parser = FlagParser(ui)
 
             logger.info("Successfully launched OCSysInfo.", __file__)
-            ui.create_ui()
         except KeyboardInterrupt:
             logger.info("Exited successfully.", __file__)
             exit(0)
