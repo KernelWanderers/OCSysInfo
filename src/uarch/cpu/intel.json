@@ -635,6 +635,16 @@
   },
 
   {
+    "Codename": "Kaby Lake-H",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0x6",
+    "ExtModel": "0x9",
+    "BaseModel": "0xE",
+    "Stepping": "0x9",
+    "Laptop": true
+  },
+
+  {
     "Codename": "Kaby Lake-R",
     "ExtFamily": "0x0",
     "BaseFamily": "0x6",

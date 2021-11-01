@@ -28,10 +28,6 @@ def codename(data, extf, family, extm, model, stepping=None, laptop=False):
                 vals = [arch.get("Codename")]
                 break
 
-            if stepping and arch.get("Stepping", None) and valid_stepping:
-                vals.append(arch.get("Codename"))
-                continue
-
             vals.append(arch.get("Codename"))
 
     return vals if vals else ["Unknown"]

@@ -16,7 +16,6 @@ A basic, high-level and efficient CLI for discovering hardware information about
       ├── Cores: 6 cores
       ├── Threads: 6 threads
       └── Codename: Coffee Lake-S
-
 ─ GPU
   ├── Intel UHD Graphics 630
   │   ├── Device ID: 0x3e92
@@ -29,14 +28,12 @@ A basic, high-level and efficient CLI for discovering hardware information about
       ├── PCI Path: PciRoot(0x0)/Pci(0x1,0x0)/Pci(0x0,0x0)
       ├── ACPI Path: \_SB.PCI0.PEG0.PEGP
       └── Codename: Hawaii
-
 ─ Network
   └── RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller
       ├── Device ID: 0x8168
       ├── Vendor: 0x10ec
       ├── PCI Path: PciRoot(0x0)/Pci(0x1c,0x4)/Pci(0x0,0x0)
       └── ACPI Path: \_SB.PCI0.RP05.PXSX
-
 ─ Audio
   ├── Realtek ALC887
   │   ├── Device ID: 0x0887
@@ -49,7 +46,6 @@ A basic, high-level and efficient CLI for discovering hardware information about
   └── Hawaii HDMI Audio [Radeon R9 290/290X / 390/390X]
       ├── Device ID: 0xaac8
       └── Vendor: 0x1002
-
 ─ Input
   ├── TUF GAMING K7 (USB)
   │   ├── Device ID: 0x18aa
@@ -57,7 +53,6 @@ A basic, high-level and efficient CLI for discovering hardware information about
   └── USB OPTICAL MOUSE (USB)
       ├── Device ID: 0x2521
       └── Vendor: 0x93a
-
 ─ Storage
   ├── LITEON CV3-8D128-HP
   │   ├── Type: Solid State Drive (SSD)
@@ -85,15 +80,11 @@ In order to install `OCSysInfo`, you can either download the repository manually
 
 ```sh
 git clone https://github.com/iabtw/OCSysInfo.git
-
 cd OCSysInfo
-
 # Installing dependencies on Windows
 python3 -m pip install -r requirements-Windows.txt
-
 # Installing dependencies on Linux
 python3 -m pip install -r requirements-Linux.txt
-
 # Installing dependencies on macOS
 python3 -m pip install -r requirements-macOS.txt
 ```
