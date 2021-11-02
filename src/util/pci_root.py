@@ -14,7 +14,8 @@ def _get_valid(slot):
 def pci_from_acpi_osx(raw_path, logger):
     if not raw_path:
         logger.warning(
-            "Failed to obtain constructable path from anonymous device (IOKit)"
+            "Failed to obtain constructable path from anonymous device (IOKit)",
+            __file__,
         )
         return {}
 
