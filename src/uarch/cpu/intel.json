@@ -621,8 +621,7 @@
     "BaseFamily": "0x6",
     "ExtModel": "0x8",
     "BaseModel": "0xE",
-    "Stepping": "0x9",
-    "Laptop": true
+    "Stepping": "0x9"
   },
 
   {
@@ -640,8 +639,7 @@
     "BaseFamily": "0x6",
     "ExtModel": "0x9",
     "BaseModel": "0xE",
-    "Stepping": "0x9",
-    "Laptop": true
+    "Stepping": "0x9"
   },
 
   {
@@ -670,7 +668,18 @@
     "BaseFamily": "0x6",
     "ExtModel": "0x8",
     "BaseModel": "0xE",
-    "Stepping": "0xA"
+    "Stepping": "0xA",
+    "Laptop": true
+  },
+
+  {
+    "Codename": "Coffee Lake-H",
+    "ExtFamily": "0x0",
+    "BaseFamily": "0x6",
+    "ExtModel": "0x9",
+    "BaseModel": "0xE",
+    "Stepping": "0xA",
+    "Laptop": true
   },
 
   {
@@ -679,7 +688,8 @@
     "BaseFamily": "0x6",
     "ExtModel": "0x8",
     "BaseModel": "0xE",
-    "Stepping": "0xB"
+    "Stepping": "0xB",
+    "Laptop": true
   },
 
   {
