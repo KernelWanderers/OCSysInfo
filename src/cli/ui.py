@@ -231,7 +231,16 @@ class UI:
             )
 
     def clear(self):
-        os.system("cls||clear")
+        if sys.platform == "win32":
+            os.system("cls")
+        elif sys.platform == "darwin":
+            # Special thanks to [A.J Uppal](https://stackoverflow.com/users/3113477/a-j-uppal)
+            # for this!
+            #
+            # Original comment: https://stackoverflow.com/a/29887659/13120761
+            print("\033c", end=None)
+        elif sys.platform == "linux":
+            os.system("clear")
 
     def enter(self):
         # “Hacky” way of detecting when
