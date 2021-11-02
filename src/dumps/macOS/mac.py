@@ -54,7 +54,7 @@ class MacHardwareManager:
             )
             cpu_err(e)
 
-        if '.vendor' in subprocess.check_output(["sysctl", "machdep.cpu"]).decode():
+        if ".vendor" in subprocess.check_output(["sysctl", "machdep.cpu"]).decode():
             try:
                 # Manufacturer/Vendor of this CPU;
                 # Used for determining which JSON to use.
@@ -106,8 +106,7 @@ class MacHardwareManager:
                 try:
                     stepping = hex(
                         int(
-                            subprocess.check_output(
-                                ["sysctl", "machdep.cpu.stepping"])
+                            subprocess.check_output(["sysctl", "machdep.cpu.stepping"])
                             .decode()
                             .split(": ")[1]
                             .strip()
@@ -118,8 +117,7 @@ class MacHardwareManager:
 
                 extf = hex(
                     int(
-                        subprocess.check_output(
-                            ["sysctl", "machdep.cpu.extfamily"])
+                        subprocess.check_output(["sysctl", "machdep.cpu.extfamily"])
                         .decode()
                         .split(": ")[1]
                         .strip()
@@ -128,8 +126,7 @@ class MacHardwareManager:
 
                 fam = hex(
                     int(
-                        subprocess.check_output(
-                            ["sysctl", "machdep.cpu.family"])
+                        subprocess.check_output(["sysctl", "machdep.cpu.family"])
                         .decode()
                         .split(": ")[1]
                         .strip()
@@ -154,8 +151,9 @@ class MacHardwareManager:
                 base = hex(n & 0xF)
 
                 _data = json.load(
-                    open(os.path.join(root, "src", "uarch",
-                         "cpu", f"{vendor}.json"), "r")
+                    open(
+                        os.path.join(root, "src", "uarch", "cpu", f"{vendor}.json"), "r"
+                    )
                 )
 
                 cname = codename(
@@ -203,9 +201,7 @@ class MacHardwareManager:
                 "IOPCIClassMatch": "0x03000000&0xff000000",
             }
         else:
-            device = {
-                "IONameMatched": "gpu,*"
-            }
+            device = {"IONameMatched": "gpu,*"}
 
         # Obtain generator instance, whose values are `CFDictionary`-ies
         interface = ioreg.ioiterator_to_list(
@@ -226,7 +222,7 @@ class MacHardwareManager:
 
             try:
                 # For Apple's M1 iGFX
-                if not default and not 'gpu' in device.get("IONameMatched").lower():
+                if not default and not "gpu" in device.get("IONameMatched").lower():
                     continue
             except Exception:
                 continue
@@ -239,7 +235,7 @@ class MacHardwareManager:
 
                 if default:
                     model = bytes(model).decode()
-                    model = model[0: len(model) - 1]
+                    model = model[0 : len(model) - 1]
             except Exception as e:
                 self.logger.error(
                     "Failed to obtain GPU device model (IOKit)"
@@ -269,8 +265,7 @@ class MacHardwareManager:
                 data = {"Device ID": dev, "Vendor": ven}
 
                 if default:
-                    path = pci_from_acpi_osx(
-                        device.get("acpi-path", ""), self.logger)
+                    path = pci_from_acpi_osx(device.get("acpi-path", ""), self.logger)
 
                     pcip = path.get("PCI Path", "")
                     acpi = path.get("ACPI Path", "")
@@ -346,8 +341,7 @@ class MacHardwareManager:
             ioreg.IOObjectRelease(i)
 
         if self.cpu.get("codename", None):
-            self.info["CPU"][0][self.cpu["model"]
-                                ]["Codename"] = self.cpu["codename"][0]
+            self.info["CPU"][0][self.cpu["model"]]["Codename"] = self.cpu["codename"][0]
 
         if default:
             self.gpu_info(default=False)
@@ -389,8 +383,7 @@ class MacHardwareManager:
                     ]
                 )
 
-                path = pci_from_acpi_osx(
-                    device.get("acpi-path", ""), self.logger)
+                path = pci_from_acpi_osx(device.get("acpi-path", ""), self.logger)
 
                 data = {
                     # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
@@ -563,8 +556,7 @@ class MacHardwareManager:
                 # Type of connector (SATA, USB, SCSI, etc.)
                 ct_type = protocol.get("Physical Interconnect").strip()
                 # Whether or not this device is internal or external.
-                location = protocol.get(
-                    "Physical Interconnect Location").strip()
+                location = protocol.get("Physical Interconnect Location").strip()
 
                 if ct_type.lower() == "pci-express":
                     _type = "Non-Volatile Memory Express (NVMe)"
