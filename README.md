@@ -79,14 +79,14 @@ So please ensure you have `python 3.8` or greater installed.
 In order to install `OCSysInfo`, you can either download the repository manually via GitHub, and run the `main.py` script located inside of `src` (do also make sure to install the dependencies as shown below), or, via git:
 
 ```sh
+# Clone the repository
 git clone https://github.com/iabtw/OCSysInfo.git
+
+# Switch to the repository folder
 cd OCSysInfo
-# Installing dependencies on Windows
-python3 -m pip install -r requirements-Windows.txt
-# Installing dependencies on Linux
-python3 -m pip install -r requirements-Linux.txt
-# Installing dependencies on macOS
-python3 -m pip install -r requirements-macOS.txt
+
+# Install dependencies
+python3 -m pip install -r requirements.txt
 ```
 
 ## Implementations
