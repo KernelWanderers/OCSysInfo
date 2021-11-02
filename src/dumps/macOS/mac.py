@@ -189,13 +189,19 @@ class MacHardwareManager:
 
         self.info["CPU"].append({model: data})
 
-    def gpu_info(self, default=False):
+    def gpu_info(self, default=True):
 
-        device = {
-            "IOProviderClass": "IOPCIDevice",
-            # Bit mask matching, ensuring that the 3rd byte is one of the display controller (0x03).
-            "IOPCIClassMatch": "0x03000000&0xff000000",
-        }
+
+        if default:
+            device = {
+                "IOProviderClass": "IOPCIDevice",
+                # Bit mask matching, ensuring that the 3rd byte is one of the display controller (0x03).
+                "IOPCIClassMatch": "0x03000000&0xff000000",
+            }
+        else:
+            device = {
+                "IOProviderClass": "AppleARMIODevice"
+            }
 
         # Obtain generator instance, whose values are `CFDictionary`-ies
         interface = ioreg.ioiterator_to_list(
@@ -315,6 +321,9 @@ class MacHardwareManager:
 
         if self.cpu.get("codename", None):
             self.info["CPU"][0][self.cpu["model"]]["Codename"] = self.cpu["codename"][0]
+        
+        if default:
+            self.gpu_info(default=False)
 
     def net_info(self):
 
