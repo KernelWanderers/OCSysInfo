@@ -1,0 +1,11 @@
+# Cross-platform
+requests; python_version >= '3.8'
+dicttoxml; python_version >= '3.8'
+distro; python_version >= '3.8'
+
+# macOS
+pyobjc; python_version >= '3.8' and sys_platform == 'darwin'
+
+# Windows
+wmi; python_version >= '3.8' and sys_platform == 'win32'
+pywin32; python_version >= '3.8' and sys_platform == 'win32'
