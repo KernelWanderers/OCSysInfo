@@ -95,5 +95,3 @@ class Requirements(TestCase):
                 
         
         return deps
-
-Requirements().test_req()
