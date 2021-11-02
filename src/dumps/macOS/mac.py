@@ -191,7 +191,6 @@ class MacHardwareManager:
 
     def gpu_info(self, default=True):
 
-
         if default:
             device = {
                 "IOProviderClass": "IOPCIDevice",
