@@ -5,9 +5,13 @@ from sys import platform, executable
 from pathlib import Path
 
 try:
-    REQUIRED = Path(Path(__file__).parent).parent.with_name("requirements.txt").open().read()
+    REQUIRED = (
+        Path(Path(__file__).parent).parent.with_name("requirements.txt").open().read()
+    )
 except Exception as e:
-    raise Exception(f"Failed to locate requirements file. Maybe it was deleted?\n\n{str(e)}")
+    raise Exception(
+        f"Failed to locate requirements file. Maybe it was deleted?\n\n{str(e)}"
+    )
 
 
 class Requirements(TestCase):
@@ -80,18 +84,19 @@ class Requirements(TestCase):
     def extract_req(self, requirements):
         deps = []
 
-        for requirement in [r for r in requirements.split('\n') if r and r != ' ' and not '#' in r]:
+        for requirement in [
+            r for r in requirements.split("\n") if r and r != " " and not "#" in r
+        ]:
             # Requirement, conditions
-            r, c = requirement.split(';')
-            sys_platform = ''
+            r, c = requirement.split(";")
+            sys_platform = ""
 
-            if 'sys_platform' in c.lower():
-                sys_platform = c.split('sys_platform == ')[1][:-1].split("'")[1]
+            if "sys_platform" in c.lower():
+                sys_platform = c.split("sys_platform == ")[1][:-1].split("'")[1]
 
             if sys_platform and not platform.lower() == sys_platform:
                 continue
-            
+
             deps.append(r)
-                
-        
+
         return deps
