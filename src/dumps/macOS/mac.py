@@ -54,38 +54,39 @@ class MacHardwareManager:
             )
             cpu_err(e)
 
-        try:
-            # Manufacturer/Vendor of this CPU;
-            # Used for determining which JSON to use.
-            vendor = (
-                "intel"
-                if "intel"
-                in subprocess.check_output(["sysctl", "machdep.cpu.vendor"])
-                .decode()
-                .split(": ")[1]
-                .strip()
-                .lower()
-                else "amd"
-            )
+        if '.vendor' in subprocess.check_output(["sysctl", "machdep.cpu"]).decode():
+            try:
+                # Manufacturer/Vendor of this CPU;
+                # Used for determining which JSON to use.
+                vendor = (
+                    "intel"
+                    if "intel"
+                    in subprocess.check_output(["sysctl", "machdep.cpu.vendor"])
+                    .decode()
+                    .split(": ")[1]
+                    .strip()
+                    .lower()
+                    else "amd"
+                )
 
-            # Full list of features for this CPU.
-            features = (
-                subprocess.check_output(["sysctl", "machdep.cpu.features"])
-                .decode()
-                .strip()
-            )
-        except Exception as e:
-            self.logger.warning(
-                f"Failed to access CPUID instruction – ({model})\n\t^^^^^^^^^{str(e)}",
-                __file__,
-            )
+                # Full list of features for this CPU.
+                features = (
+                    subprocess.check_output(["sysctl", "machdep.cpu.features"])
+                    .decode()
+                    .strip()
+                )
+            except Exception as e:
+                self.logger.warning(
+                    f"Failed to access CPUID instruction – ({model})\n\t^^^^^^^^^{str(e)}",
+                    __file__,
+                )
+                vendor = None
+                features = None
+        else:
+            vendor = None
             features = None
 
         data = {
-            # Highest supported SSE version.
-            "SSE": "",
-            # SSSE3 instruction availability
-            "SSSE3": "",
             # Amount of cores for this processor.
             "Cores": subprocess.check_output(["sysctl", "machdep.cpu.core_count"])
             .decode()
@@ -100,70 +101,74 @@ class MacHardwareManager:
             + " threads",
         }
 
-        try:
+        if vendor:
             try:
-                stepping = hex(
+                try:
+                    stepping = hex(
+                        int(
+                            subprocess.check_output(
+                                ["sysctl", "machdep.cpu.stepping"])
+                            .decode()
+                            .split(": ")[1]
+                            .strip()
+                        )
+                    )
+                except Exception:
+                    stepping = None
+
+                extf = hex(
                     int(
-                        subprocess.check_output(["sysctl", "machdep.cpu.stepping"])
+                        subprocess.check_output(
+                            ["sysctl", "machdep.cpu.extfamily"])
                         .decode()
                         .split(": ")[1]
                         .strip()
                     )
                 )
-            except Exception:
-                stepping = None
 
-            extf = hex(
-                int(
-                    subprocess.check_output(["sysctl", "machdep.cpu.extfamily"])
+                fam = hex(
+                    int(
+                        subprocess.check_output(
+                            ["sysctl", "machdep.cpu.family"])
+                        .decode()
+                        .split(": ")[1]
+                        .strip()
+                    )
+                )
+
+                n = int(
+                    subprocess.check_output(["sysctl", "machdep.cpu.model"])
                     .decode()
                     .split(": ")[1]
                     .strip()
                 )
-            )
 
-            fam = hex(
-                int(
-                    subprocess.check_output(["sysctl", "machdep.cpu.family"])
-                    .decode()
-                    .split(": ")[1]
-                    .strip()
+                laptop = (
+                    "book"
+                    in subprocess.check_output(["sysctl", "hw.model"]).decode().lower()
                 )
-            )
 
-            n = int(
-                subprocess.check_output(["sysctl", "machdep.cpu.model"])
-                .decode()
-                .split(": ")[1]
-                .strip()
-            )
+                # Credits to:
+                # https://github.com/1Revenger1
+                extm = hex((n >> 4) & 0xF)
+                base = hex(n & 0xF)
 
-            laptop = (
-                "book"
-                in subprocess.check_output(["sysctl", "hw.model"]).decode().lower()
-            )
+                _data = json.load(
+                    open(os.path.join(root, "src", "uarch",
+                         "cpu", f"{vendor}.json"), "r")
+                )
 
-            # Credits to:
-            # https://github.com/1Revenger1
-            extm = hex((n >> 4) & 0xF)
-            base = hex(n & 0xF)
+                cname = codename(
+                    _data, extf, fam, extm, base, stepping=stepping, laptop=laptop
+                )
 
-            _data = json.load(
-                open(os.path.join(root, "src", "uarch", "cpu", f"{vendor}.json"), "r")
-            )
-
-            cname = codename(
-                _data, extf, fam, extm, base, stepping=stepping, laptop=laptop
-            )
-
-            if cname:
-                self.cpu["codename"] = cname
-        except Exception as e:
-            self.logger.warning(
-                f"Failed to construct extended family – ({model})\n\t^^^^^^^^^{str(e)}",
-                __file__,
-            )
-            pass
+                if cname:
+                    self.cpu["codename"] = cname
+            except Exception as e:
+                self.logger.warning(
+                    f"Failed to construct extended family – ({model})\n\t^^^^^^^^^{str(e)}",
+                    __file__,
+                )
 
         # This will fail if the CPU is _not_
         # of an x86-like architecture, which
@@ -199,7 +204,7 @@ class MacHardwareManager:
             }
         else:
             device = {
-                "IOProviderClass": "AppleARMIODevice"
+                "IONameMatched": "gpu,*"
             }
 
         # Obtain generator instance, whose values are `CFDictionary`-ies
@@ -212,15 +217,29 @@ class MacHardwareManager:
         # Loop through the generator returned from `ioiterator_to_list()`
         for i in interface:
 
-            # Obtain CFDictionaryRef of the current PCI device.
+            # Obtain CFDictionaryRef of the current PCI/AppleARM device.
             device = ioreg.corefoundation_to_native(
                 ioreg.IORegistryEntryCreateCFProperties(
                     i, None, ioreg.kCFAllocatorDefault, ioreg.kNilOptions
                 )
             )[1]
+
             try:
-                model = bytes(device.get("model")).decode()
-                model = model[0 : len(model) - 1]
+                # For Apple's M1 iGFX
+                if not default and not 'gpu' in device.get("IONameMatched").lower():
+                    continue
+            except Exception:
+                continue
+
+            try:
+                model = device.get("model", None)
+
+                if not model:
+                    continue
+
+                if default:
+                    model = bytes(model).decode()
+                    model = model[0: len(model) - 1]
             except Exception as e:
                 self.logger.error(
                     "Failed to obtain GPU device model (IOKit)"
@@ -231,11 +250,15 @@ class MacHardwareManager:
 
             try:
                 # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
-                dev = "0x" + (
-                    binascii.b2a_hex(bytes(reversed(device.get("device-id")))).decode()[
-                        4:
-                    ]
-                )
+                if default:
+                    dev = "0x" + (
+                        binascii.b2a_hex(
+                            bytes(reversed(device.get("device-id")))
+                        ).decode()[4:]
+                    )
+                else:
+                    dev = "UNKNOWN"
+
                 # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
                 ven = "0x" + (
                     binascii.b2a_hex(bytes(reversed(device.get("vendor-id")))).decode()[
@@ -243,30 +266,34 @@ class MacHardwareManager:
                     ]
                 )
 
-                path = pci_from_acpi_osx(device.get("acpi-path", ""), self.logger)
-
                 data = {"Device ID": dev, "Vendor": ven}
 
-                pcip = path.get("PCI Path", "")
-                acpi = path.get("ACPI Path", "")
+                if default:
+                    path = pci_from_acpi_osx(
+                        device.get("acpi-path", ""), self.logger)
 
-                if pcip:
-                    data["PCI Path"] = pcip
+                    pcip = path.get("PCI Path", "")
+                    acpi = path.get("ACPI Path", "")
 
-                if acpi:
-                    data["ACPI Path"] = acpi
+                    if pcip:
+                        data["PCI Path"] = pcip
+
+                    if acpi:
+                        data["ACPI Path"] = acpi
             except Exception as e:
                 self.logger.error(
                     "Failed to obtain vendor/device id for GPU device (IOKit)"
                     + f"\n\t^^^^^^^^^{str(e)}",
                     __file__,
                 )
+                dev, ven = "", ""
                 data = {}
 
-            gpucname = gpu(dev, ven)
+            if default:
+                gpucname = gpu(dev, ven)
 
-            if gpucname:
-                data["Codename"] = gpucname
+                if gpucname:
+                    data["Codename"] = gpucname
 
             # In some edge cases, we must
             # verify that the found codename
@@ -319,8 +346,9 @@ class MacHardwareManager:
             ioreg.IOObjectRelease(i)
 
         if self.cpu.get("codename", None):
-            self.info["CPU"][0][self.cpu["model"]]["Codename"] = self.cpu["codename"][0]
-        
+            self.info["CPU"][0][self.cpu["model"]
+                                ]["Codename"] = self.cpu["codename"][0]
+
         if default:
             self.gpu_info(default=False)
 
@@ -361,7 +389,8 @@ class MacHardwareManager:
                     ]
                 )
 
-                path = pci_from_acpi_osx(device.get("acpi-path", ""), self.logger)
+                path = pci_from_acpi_osx(
+                    device.get("acpi-path", ""), self.logger)
 
                 data = {
                     # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
@@ -534,7 +563,8 @@ class MacHardwareManager:
                 # Type of connector (SATA, USB, SCSI, etc.)
                 ct_type = protocol.get("Physical Interconnect").strip()
                 # Whether or not this device is internal or external.
-                location = protocol.get("Physical Interconnect Location").strip()
+                location = protocol.get(
+                    "Physical Interconnect Location").strip()
 
                 if ct_type.lower() == "pci-express":
                     _type = "Non-Volatile Memory Express (NVMe)"
