@@ -195,6 +195,8 @@ The following contains credits to all the people who helped assist in the making
 
 - @[CorpNewt](https://github.com/CorpNewt) — for implementing the logic of scraping the [`pci-ids`](https://pci-ids.ucw.cz) repository site, and allowing us to use their CLI format.
 
+- @[Midi1996](https://github.com/midi1996) — for extensive amounts of assistance in regards to testing the application on different hardware, in the application's various stages.
+
 - @[ScoobyChan](https://github.com/ScoobyChan) — for guidance and helping with the implementation of Linux's flags detection.
 
 - @[Quist](https://github.com/nadiaholmquist) — for extensive amounts of unit testing on various hardware, they helped immensely with fool-proofing OCSysInfo as best as possible, alongside [Joshj23](https://github.com/Joshj23icy)'s immense help with unit testing.
