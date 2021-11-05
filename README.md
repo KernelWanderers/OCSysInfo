@@ -11,11 +11,12 @@ A basic, high-level and efficient CLI for discovering hardware information about
 ```
 ─ CPU
   └── Intel(R) Core(TM) i5-8400 CPU @ 2.80GHz
-      ├── SSE: SSE4.2
-      ├── SSSE3: Supported
       ├── Cores: 6 cores
       ├── Threads: 6 threads
+      ├── SSE: SSE4.2
+      ├── SSSE3: Supported
       └── Codename: Coffee Lake-S
+
 ─ GPU
   ├── Intel UHD Graphics 630
   │   ├── Device ID: 0x3e92
@@ -28,12 +29,14 @@ A basic, high-level and efficient CLI for discovering hardware information about
       ├── PCI Path: PciRoot(0x0)/Pci(0x1,0x0)/Pci(0x0,0x0)
       ├── ACPI Path: \_SB.PCI0.PEG0.PEGP
       └── Codename: Hawaii
+
 ─ Network
   └── RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller
       ├── Device ID: 0x8168
       ├── Vendor: 0x10ec
       ├── PCI Path: PciRoot(0x0)/Pci(0x1c,0x4)/Pci(0x0,0x0)
       └── ACPI Path: \_SB.PCI0.RP05.PXSX
+
 ─ Audio
   ├── Realtek ALC887
   │   ├── Device ID: 0x0887
@@ -46,6 +49,7 @@ A basic, high-level and efficient CLI for discovering hardware information about
   └── Hawaii HDMI Audio [Radeon R9 290/290X / 390/390X]
       ├── Device ID: 0xaac8
       └── Vendor: 0x1002
+
 ─ Input
   ├── TUF GAMING K7 (USB)
   │   ├── Device ID: 0x18aa
@@ -53,6 +57,7 @@ A basic, high-level and efficient CLI for discovering hardware information about
   └── USB OPTICAL MOUSE (USB)
       ├── Device ID: 0x2521
       └── Vendor: 0x93a
+
 ─ Storage
   ├── LITEON CV3-8D128-HP
   │   ├── Type: Solid State Drive (SSD)
@@ -107,7 +112,7 @@ OCSysInfo takes advantage of each platform's native interaction protocol, except
       - CPU BaseFamily and “CombinedModel” – since we manually construct BaseModel and ExternalModel by simply doing the following:
         - ExternalModel: `(n >> 0x4) & 0xf`
         - BaseModel: `n & 0xf`
-      - CPU ExternalFamily is constructed by [getting the return value of the `EAX` register](https://github.com/iabtw/OCSysInfo/blob/main/src/dumps/Windows/win.py#L41-L44), and performing a right bit shift 20 times, and using the logical `AND` operator with the value `0xf`: `(eax >> 20) & 0xf`
+      - CPU ExternalFamily is constructed by [getting the return value of the `EAX` register](https://github.com/iabtw/OCSysInfo/blob/main/src/dumps/Windows/win.py#L44-L47), and performing a right bit shift 20 times, and using the logical `AND` operator with the value `0xf`: `(eax >> 20) & 0xf`
 
     <br />
 
