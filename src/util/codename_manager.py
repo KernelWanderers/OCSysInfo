@@ -1,8 +1,14 @@
-import ark_query
+import util.ark_query as ark_query
+from util.wc_amd_query import parse_codename
 
 
-# WIP
 class CodenameManager:
+    """
+    A WIP manager to obtain the codename value of the current CPU.
+
+    Currently, this is only for Intel CPUs.
+    """
+
     def __init__(self, name, vendor):
         self.name = name
         self.vendor = vendor
@@ -10,23 +16,35 @@ class CodenameManager:
         self.codename_init()
 
     def codename_init(self):
-        if 'intel' in self.vendor.lower():
+        # 'Unified' function, determing which codename function to call.
+
+        if "intel" in self.vendor.lower():
             self.codename_intel()
-        elif 'amd' in self.vendor.lower():
+        elif "amd" in self.vendor.lower():
             self.codename_amd()
-        elif 'apple' in self.vendor.lower():
+        elif "apple" in self.vendor.lower():
             self.codename_apple_arm()
         else:
             return
 
     def codename_intel(self):
         search_term = ark_query.simplified_name(self.name)
-        ark_url = ark_query.get_full_ark_url(ark_query.iark_search(search_term).get("prodUrl"))
-        self.codename = ark_query.get_codename(ark_url)
-        return ark_query.get_codename(ark_url)
+        ark_url = ark_query.get_full_ark_url(
+            ark_query.iark_search(search_term).get("prodUrl")
+        )
+        value = ark_query.get_codename(ark_url).replace("Products formerly ", "")
+
+        self.codename = value
+        return value
 
     def codename_amd(self):
-        raise NotImplementedError
+        data = parse_codename(self.name)
+
+        if data:
+            self.codename = data.get("Codename", None) or data.get(
+                "Microarchitecture", None
+            )
+            return data
 
     def codename_apple_arm(self):
         raise NotImplementedError
