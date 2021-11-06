@@ -211,6 +211,8 @@ The following contains credits to all the people who helped assist in the making
 
 - @[flababah](https://github.com/flababah/) — for https://github.com/flababah/cpuid.py
 
+- @[Nemo Xiong](https://github.com/xiongnemo) — for their implementation of [scraping Intel's ARK page](https://github.com/xiongnemo/arksearch)
+
 - @[renegadevi](https://gitlab.com/renegadevi) — for extensive amounts of help with fixing the source code's faulty logic.
 
 - @[khronokernel](https://github.com/khronokernel) — for extensive amounts of help with fixing the source code's faulty logic, as well as providing extensive amounts of assistance in regards to unit-testing & debugging.
