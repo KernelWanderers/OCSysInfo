@@ -1,12 +1,10 @@
 import binascii
-import json
-import os
 import dumps.macOS.ioreg as ioreg
 import subprocess
 from error.cpu_err import cpu_err
-from util.codename import codename, gpu
+from util.codename import gpu
+from util.codename_manager import CodenameManager
 from util.pci_root import pci_from_acpi_osx
-from root import root
 
 
 class MacHardwareManager:
@@ -56,8 +54,7 @@ class MacHardwareManager:
 
         if ".vendor" in subprocess.check_output(["sysctl", "machdep.cpu"]).decode():
             try:
-                # Manufacturer/Vendor of this CPU;
-                # Used for determining which JSON to use.
+                # Manufacturer/Vendor of this CPU
                 vendor = (
                     "intel"
                     if "intel"
@@ -101,73 +98,6 @@ class MacHardwareManager:
             + " threads",
         }
 
-        if vendor:
-            try:
-                try:
-                    stepping = hex(
-                        int(
-                            subprocess.check_output(["sysctl", "machdep.cpu.stepping"])
-                            .decode()
-                            .split(": ")[1]
-                            .strip()
-                        )
-                    )
-                except Exception:
-                    stepping = None
-
-                extf = hex(
-                    int(
-                        subprocess.check_output(["sysctl", "machdep.cpu.extfamily"])
-                        .decode()
-                        .split(": ")[1]
-                        .strip()
-                    )
-                )
-
-                fam = hex(
-                    int(
-                        subprocess.check_output(["sysctl", "machdep.cpu.family"])
-                        .decode()
-                        .split(": ")[1]
-                        .strip()
-                    )
-                )
-
-                n = int(
-                    subprocess.check_output(["sysctl", "machdep.cpu.model"])
-                    .decode()
-                    .split(": ")[1]
-                    .strip()
-                )
-
-                laptop = (
-                    "book"
-                    in subprocess.check_output(["sysctl", "hw.model"]).decode().lower()
-                )
-
-                # Credits to:
-                # https://github.com/1Revenger1
-                extm = hex((n >> 4) & 0xF)
-                base = hex(n & 0xF)
-
-                _data = json.load(
-                    open(
-                        os.path.join(root, "src", "uarch", "cpu", f"{vendor}.json"), "r"
-                    )
-                )
-
-                cname = codename(
-                    _data, extf, fam, extm, base, stepping=stepping, laptop=laptop
-                )
-
-                if cname:
-                    self.cpu["codename"] = cname
-            except Exception as e:
-                self.logger.warning(
-                    f"Failed to construct extended family – ({model})\n\t^^^^^^^^^{str(e)}",
-                    __file__,
-                )
-
         # This will fail if the CPU is _not_
         # of an x86-like architecture, which
         # traditionally uses the CPUID instruction.
@@ -189,6 +119,11 @@ class MacHardwareManager:
             data["SSSE3"] = (
                 "Supported" if features.lower().find("ssse3") > -1 else "Not Available"
             )
+
+        self.cnm = CodenameManager(model, vendor)
+
+        if self.cnm.codename:
+            data["Codename"] = self.cnm.codename
 
         self.info["CPU"].append({model: data})
 
@@ -290,58 +225,9 @@ class MacHardwareManager:
                 if gpucname:
                     data["Codename"] = gpucname
 
-            # In some edge cases, we must
-            # verify that the found codename
-            # for Intel's CPUs corresponds to its
-            # iGPU µarch.
-            #
-            # Otherwise, if it's not an edge-case,
-            # it will simply use the guessed codename.
-            if ven and dev and "8086" in ven and self.cpu.get("codename", None):
-
-                if type(self.cpu["codename"]) == str:
-                    self.cpu["codename"] = [self.cpu["codename"]]
-
-                if any(
-                    [x.lower() in n.lower() for n in self.cpu["codename"]]
-                    for x in ("kaby Lake", "coffee Lake", "comet Lake")
-                ):
-                    try:
-                        _data = json.load(
-                            open(
-                                os.path.join(
-                                    root, "src", "uarch", "gpu", f"intel_gpu.json"
-                                ),
-                                "r",
-                            )
-                        )
-                        found = False
-
-                        for uarch in _data:
-                            if found:
-                                break
-
-                            for id in uarch.get("IDs", []):
-                                name = uarch.get("Microarch", "")
-
-                                if dev.lower() == id.lower():
-                                    for guessed in self.cpu["codename"]:
-                                        if name.lower() in guessed.lower():
-                                            self.cpu["codename"] = [guessed]
-                                            found = True
-
-                    except Exception as e:
-                        self.logger.warning(
-                            f"Failed to obtain codename for {self.cpu.get('model')}\n\t^^^^^^^^^{str(e)}",
-                            __file__,
-                        )
-
             self.info["GPU"].append({model: data})
 
             ioreg.IOObjectRelease(i)
-
-        if self.cpu.get("codename", None):
-            self.info["CPU"][0][self.cpu["model"]]["Codename"] = self.cpu["codename"][0]
 
         if default:
             self.gpu_info(default=False)

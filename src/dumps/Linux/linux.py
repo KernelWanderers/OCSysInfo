@@ -1,11 +1,11 @@
 import ctypes
 import os
 import re
-import json
 from error.cpu_err import cpu_err
 from root import root
-from util.codename import codename, gpu
+from util.codename import gpu
 from util.pci_root import pci_from_acpi_linux
+from util.codename_manager import CodenameManager
 
 
 class LinuxHardwareManager:
@@ -20,7 +20,6 @@ class LinuxHardwareManager:
         self.info = parent.info
         self.pci = parent.pci
         self.logger = parent.logger
-        self.cpu = {}
 
     def dump(self):
         self.cpu_info()
@@ -56,16 +55,14 @@ class LinuxHardwareManager:
         model = re.search(r"(?<=model name\t\: ).+(?=\n)", cpu)
         flagers = re.search(r"(?<=flags\t\t\: ).+(?=\n)", cpu)
         cores = re.search(r"(?<=cpu cores\t\: ).+(?=\n)", cpu)
-        _model = re.search(r"(?<=model\t\t\: ).+(?=\n)", cpu)
-        fam = re.search(r"(?<=cpu\sfamily	\: ).+(?=\n)", cpu)
-        stepping = re.search(r"(?<=stepping	\:).+(?=\n)", cpu)
+        vendor = None
 
         data = {}
 
         if model:
             model = model.group()
             data = {model: {}}
-            self.cpu["model"] = model
+            vendor = "intel" if "intel" in model.lower() else "amd"
         else:
             self.logger.critical(
                 "Failed to obtain basic CPU information (PROC_FS)", __file__
@@ -107,58 +104,10 @@ class LinuxHardwareManager:
             )
             pass
 
-        if _model and fam:
-            try:
-                fam = hex(int(fam.group()))
-                n = int(_model.group())
+        self.cnm = CodenameManager(model, vendor)
 
-                # Chassis Types:
-                #
-                # Laptop        : 9
-                # Notebook      : 10
-                # Sub Notebook  : 14
-                laptop = open("/sys/class/dmi/id/chassis_type", "r").read() in (
-                    9,
-                    10,
-                    14,
-                )
-
-                if stepping:
-                    stepping = hex(int(stepping.group().strip()))
-                else:
-                    stepping = None
-
-                # Credits to:
-                # https://github.com/1Revenger1
-                extm = hex((n >> 0x4) & 0xF)
-                base = hex(n & 0xF)
-
-                extf = hex(self.extf())
-                vendor = (
-                    "intel"
-                    if "intel"
-                    in re.search(r"(?<=vendor_id	\: ).+(?=\n)", cpu).group().lower()
-                    else "amd"
-                )
-
-                _data = json.load(
-                    open(
-                        os.path.join(root, "src", "uarch", "cpu", f"{vendor}.json"), "r"
-                    )
-                )
-
-                cname = codename(
-                    _data, extf, fam, extm, base, stepping=stepping, laptop=laptop
-                )
-
-                if cname:
-                    self.cpu["codename"] = cname
-            except Exception as e:
-                self.logger.warning(
-                    f"Failed to construct extended family – ({model})\n\t^^^^^^^^^{str(e)}",
-                    __file__,
-                )
-                pass
+        if self.cnm.codename:
+            data["Codename"] = self.cnm.codename
 
         self.info.get("CPU").append(data)
 
@@ -208,56 +157,7 @@ class LinuxHardwareManager:
                 if gpucname:
                     data["Codename"] = gpucname
 
-                # In some edge cases, we must
-                # verify that the found codename
-                # for Intel's CPUs corresponds to its
-                # iGPU µarch.
-                #
-                # Otherwise, if it's not an edge-case,
-                # it will simply use the guessed codename.
-                if ven and dev and "8086" in ven and self.cpu.get("codename", None):
-
-                    if type(self.cpu["codename"]) == str:
-                        self.cpu["codename"] = [self.cpu["codename"]]
-
-                    if any(
-                        [x.lower() in n.lower() for n in self.cpu["codename"]]
-                        for x in ("kaby Lake", "coffee Lake", "comet Lake")
-                    ):
-                        try:
-                            _data = json.load(
-                                open(
-                                    os.path.join(
-                                        root, "src", "uarch", "gpu", f"intel_gpu.json"
-                                    ),
-                                    "r",
-                                )
-                            )
-                            found = False
-
-                            for uarch in _data:
-                                if found:
-                                    break
-
-                                for id in uarch.get("IDs", []):
-                                    name = uarch.get("Microarch", "")
-
-                                    if dev.lower() == id.lower():
-                                        for guessed in self.cpu["codename"]:
-                                            if name.lower() in guessed.lower():
-                                                self.cpu["codename"] = [guessed]
-                                                found = True
-
-                        except Exception as e:
-                            self.logger.warning(
-                                f'Failed to obtain codename for {self.cpu.get("model")}\n\t^^^^^^^^^{str(e)}',
-                                __file__,
-                            )
-
                 self.info.get("GPU").append({model: data})
-
-        if self.cpu.get("codename", None):
-            self.info["CPU"][0][self.cpu["model"]]["Codename"] = self.cpu["codename"][0]
 
     def net_info(self):
         for file in os.listdir("/sys/class/net"):
