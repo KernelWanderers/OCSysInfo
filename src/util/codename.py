@@ -3,47 +3,6 @@ import os
 from root import root
 
 
-def codename(
-    data, extf, family, extm, model, stepping=None, laptop=False, traversed=False
-):
-    """
-    Extracts µarches matching the provided data,
-    and takes care of validating which codename is
-    the most accurate guess.
-    """
-
-    vals = []
-    for arch in data:
-
-        if (
-            extf.lower() == arch.get("ExtFamily", "").lower()
-            and family.lower() == arch.get("BaseFamily", "").lower()
-            and extm.lower() == arch.get("ExtModel", "").lower()
-            and model.lower() == arch.get("BaseModel", "").lower()
-        ):
-
-            valid_stepping = (
-                stepping and stepping.lower() in arch.get("Stepping", "").lower()
-            )
-
-            if stepping and not valid_stepping:
-                continue
-
-            if laptop and not arch.get("Laptop", False):
-                continue
-
-            if not laptop and arch.get("Laptop"):
-                continue
-
-            vals.append(arch.get("Codename"))
-
-    return (
-        vals
-        if vals
-        else (codename(laptop=False, traversed=True) if not traversed else ["Unknown"])
-    )
-
-
 def gpu(dev, ven):
     """
     Extracts µarches matching the provided data,
