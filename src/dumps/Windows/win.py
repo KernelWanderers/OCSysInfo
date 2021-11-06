@@ -39,11 +39,6 @@ class WindowsHardwareManager:
 
         return bool((1 << bit) & regs[reg_idx])
 
-    def extf(self, cpu, leaf, subleaf):
-        eax = cpu(leaf, subleaf)[0]
-
-        return (eax >> 20) & 0xF
-
     def cpu_info(self):
 
         # Credits to https://github.com/flababah

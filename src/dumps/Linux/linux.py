@@ -29,12 +29,6 @@ class LinuxHardwareManager:
         self.audio_info()
         self.input_info()
 
-    def extf(self):
-        libname = os.path.join(root, "c", "bindings", "cpuid", "asm-cpuid.so")
-        c_lib = ctypes.CDLL(libname)
-
-        return (c_lib.EAX() >> 20) & 0xF
-
     def cpu_info(self):
         try:
             cpus = open("/proc/cpuinfo", "r").read()
