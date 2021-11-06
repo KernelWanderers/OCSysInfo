@@ -41,6 +41,7 @@ def format_text(text, formatting):
     final_string += end_formatting
     return final_string
 
+
 version_dict = {
     6: f"Mac OS X 10.2 {color_text('(Jaguar)', 'cyan')}",
     7: f"Mac OS X 10.3 {color_text('(Panther)', 'cyan')}",
