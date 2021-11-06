@@ -187,7 +187,7 @@ The following contains credits to all the people who helped assist in the making
 
 - @[Rusty-bits](https://github.com/rusty-bits) — for inspiring the idea of parsing the PCI IDs from the pci.ids list and layout for implementing a search functionality. _Though sadly, this idea never reached production._
 
-- @[Rvstry](https://github.com/rvstry) — for extensive help in research regarding identifying various devices on Linux platforms.
+- @[Rvstry](https://github.com/rvstry) — for extensive help in research regarding identifying various devices on Linux platforms, & testing the application in its various stages.
 
 - @[Dids](https://github.com/Dids) — for providing the URL to the raw content of the PCI IDs list repository. _Though sadly, this was never used, as we turned more towards scraping [the site](https://pci-ids.ucw.cz)_
 
@@ -201,7 +201,7 @@ The following contains credits to all the people who helped assist in the making
 
 - @[Quist](https://github.com/nadiaholmquist) — for extensive amounts of unit testing on various hardware, they helped immensely with fool-proofing OCSysInfo as best as possible, alongside [Joshj23](https://github.com/Joshj23icy)'s immense help with unit testing.
 
-- @[1Revenger1](https://github.com/1Revenger1) — for implementing input device detection for Linux platforms.
+- @[1Revenger1](https://github.com/1Revenger1) — for implementing input device detection for Linux platforms, as well as immense assistance for identifying input devices properly on Windows & unit testing.
 
 - @[Yuichiro](https://github.com/YuiiiPTChan) — for assistance in testing the application in its various stages.
 
