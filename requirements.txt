@@ -2,6 +2,7 @@
 requests; python_version >= '3.8'
 dicttoxml; python_version >= '3.8'
 distro; python_version >= '3.8'
+xmltodict; python_version >= '3.8'
 
 # macOS
 pyobjc; python_version >= '3.8' and sys_platform == 'darwin'
