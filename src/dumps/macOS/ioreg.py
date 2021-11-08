@@ -19,6 +19,7 @@ functions = [
     ("IORegistryEntryCreateCFProperties", b"IIo^@" + CFAllocatorRef + b"I"),
     ("IORegistryEntryCreateCFProperty", b"@I" + CFStringRef + CFAllocatorRef + b"I"),
     ("IORegistryEntryGetRegistryEntryID", b"IIo^Q"),
+    ("IORegistryEntryFromPath", b"II*"),
     ("IOServiceGetMatchingServices", b"II" + CFDictionaryRef + b"o^I"),
     ("IORegistryEntryIDMatching", CFDictionaryRef + b"Q"),
     ("IOServiceNameMatching", CFDictionaryRef + b"r*"),
@@ -71,6 +72,8 @@ def IORegistryEntryCreateCFProperty(entry, key: str, allocator, options):
 def IORegistryEntryGetRegistryEntryID(entrY, entryID):
     raise NotImplementedError
 
+def IORegistryEntryFromPath(masterPort, path):
+    raise NotImplementedError
 
 # kern_return_t IOServiceGetMatchingServices(mach_port_t masterPort, CFDictionaryRef matching CF_RELEASES_ARGUMENT, io_iterator_t * existing);
 def IOServiceGetMatchingServices(masterPort, matching, existing):
