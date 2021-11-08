@@ -29,6 +29,7 @@ class MacHardwareManager:
     def dump(self):
         self.cpu_info()
         self.gpu_info()
+        self.mem_info()
         self.net_info()
         self.audio_info()
         self.storage_info()
@@ -231,6 +232,89 @@ class MacHardwareManager:
 
         if default:
             self.gpu_info(default=False)
+
+    def mem_info(self):
+
+        # Special thanks to [Flagers](https://github.com/flagersgit) for this.
+        #
+        # Source: https://github.com/iabtw/OCSysInfo/pull/10
+        interface = ioreg.corefoundation_to_native(
+            ioreg.IORegistryEntryCreateCFProperties(
+                ioreg.IORegistryEntryFromPath(
+                    ioreg.kIOMasterPortDefault, b"IODeviceTree:/memory"
+                ),
+                None,
+                ioreg.kCFAllocatorDefault,
+                ioreg.kNilOptions,
+            )[1]
+        )
+
+        modules = []
+        part_no = []
+        sizes = []
+        length = None
+
+        for prop in interface:
+            val = interface[prop]
+            if type(val) == bytes:
+                if "reg" in prop.lower():
+                    for i in range(length):
+
+                        # Converts non-0 values from the 'reg' property
+                        # into readable integer values representing the memory capacity.
+                        sizes.append(
+                            [
+                                round(n * 0x010000 / 0x10)
+                                for n in val.replace(b"\x00", b"")
+                            ][i]
+                        )
+                else:
+                    val = [
+                        x.decode()
+                        for x in val.split(b"\x00")
+                        if type(x) == bytes and x.decode().strip()
+                    ]
+
+            if "part-number" in prop:
+                length = len(val)
+
+                for i in range(length):
+                    modules.append({f"{val[i]} (Part-Number)": {}})
+                    part_no.append(f"{val[i]} (Part-Number)")
+
+            else:
+                for i in range(length):
+                    key = ""
+                    value = None
+
+                    if "dimm-types" in prop.lower():
+                        key = "Type"
+                        value = val[i]
+                    elif "slot-names" in prop.lower():
+                        key = "Slot"
+                        try:
+                            bank, channel = val[i].split("/")
+
+                            value = {"Bank": bank, "Channel": channel}
+                        except Exception as e:
+                            self.logger.error(
+                                f"Failed to obtain BANK/Channel values for RAM module! (IOKit)\n\t^^^^^^^^^{str(e)}",
+                                __file__,
+                            )
+                    elif "dimm-speeds" in prop.lower():
+                        key = "Frequency (MHz)"
+                        value = val[i]
+                    elif "dimm-manufacturer" in prop.lower():
+                        key = "Manufacturer"
+                        value = val[i]
+                    elif "reg" in prop.lower():
+                        key = "Capacity"
+                        value = f"{sizes[i]}MB"
+
+                    if key and value:
+                        modules[i][part_no[i]][key] = value
+
+        self.info["Memory"] = modules
 
     def net_info(self):
 
