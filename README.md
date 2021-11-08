@@ -222,6 +222,8 @@ The following contains credits to all the people who helped assist in the making
 
 - @[renegadevi](https://gitlab.com/renegadevi) — for extensive amounts of help with fixing the source code's faulty logic.
 
+- @[mendelsshop](https://github.com/mendelsshop) — for assistance in testing the application in its various stages, and continuous feedback on new updates/features.
+
 - @[khronokernel](https://github.com/khronokernel) — for extensive amounts of help with fixing the source code's faulty logic, as well as providing extensive amounts of assistance in regards to unit-testing & debugging.
 
 - @[Fewtarius](https://github.com/fewtarius) — for assistance in testing the application in its various stages.
