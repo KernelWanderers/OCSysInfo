@@ -109,11 +109,6 @@ OCSysInfo takes advantage of each platform's native interaction protocol, except
       - `Name`
       - `NumberOfCores`
       - `NumberOfLogicalProcessors`
-      - CPU BaseFamily and “CombinedModel” – since we manually construct BaseModel and ExternalModel by simply doing the following:
-        - ExternalModel: `(n >> 0x4) & 0xf`
-        - BaseModel: `n & 0xf`
-      - CPU ExternalFamily is constructed by [getting the return value of the `EAX` register](https://github.com/iabtw/OCSysInfo/blob/main/src/dumps/Windows/win.py#L44-L47), and performing a right bit shift 20 times, and using the logical `AND` operator with the value `0xf`: `(eax >> 20) & 0xf`
-
     <br />
 
     - `Win32_VideoController` — information about the current system's **GPU devices** in use. The only properties we seek out are `Name` (the GPU's friendly name) and `PNPDeviceID`, which is basically its PCI path; it includes the device id and vendor id, which we extract.
@@ -140,10 +135,6 @@ OCSysInfo takes advantage of each platform's native interaction protocol, except
     - Thread count
     - Maximum supported SSE version
     - SSSE3 support
-    - CPU BaseFamily
-    - CPU ExtendedFamily
-    - CPU BaseModel
-    - CPU ExtendedModel
 
 - `IOKit`
 
@@ -154,6 +145,22 @@ OCSysInfo takes advantage of each platform's native interaction protocol, except
   - With `IOPCIDevice`, we're looking for PCI devices which have a specific bit mask, and we obtain the model (if exposed), device ID and vendor ID through there.
 
   - With `IOHDACodecDevice`, we simply seek out built-in audio controllers that have an HDA codec present. If nothing, that suffices our criteria, is returned, we simply look into `0x04` (bit for PCI multimedia controllers.)
+
+  - With `IODeviceTree`, we're looking for Memory (RAM) modules, which is surprisingly easily obtainable. More-so, we extract the data in the following manner:
+    - Instantiate a list which will hold an `N` amount of dictionaries.
+    - Afterwards, loop over each property of the data returned, and convert the values into types we can handle internally (i.e. bytes -> str), and look for the following:
+      - `dimm-part-number` — holds a list of each module's part number (yes, each part number is enumerated uniquely for each memory module)
+
+      - `dimm-types` — holds a list of each module's DIMM type (DDR3, DDR4, etc.)
+
+      - `slot-names` — holds a list of each module's `BANK` and `Channel` location, as well as the index of that specific channel.
+
+      - `dimm-speeds` — holds a list of each module's current frequency (as far as we can tell, there's no way of determining the base clock frequency.)
+
+      - `reg` — holds a byte sequence, from which we determine the capacity of each memory module.
+        - Example: ``01 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00`` -> `[1, 1, 1, 1]`
+
+        - We then multiply each value from the list with `0x010000` (`65536` in decimal), and divide the result by `0x10` (`16` in decimal) to calculate the capacity. Here, in our aforementioned example, `1 * 0x010000 / 0x10` would be equal to `4096` (`0x1000` in hexadecimal), which is, of course 4096MB.
 
 ### Linux
 
