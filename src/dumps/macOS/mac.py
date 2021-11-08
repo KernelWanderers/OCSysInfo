@@ -19,6 +19,7 @@ class MacHardwareManager:
         self.info = parent.info
         self.pci = parent.pci
         self.logger = parent.logger
+        self.vendor = None
         self.cpu = {}
 
         self.STORAGE = {
@@ -66,6 +67,8 @@ class MacHardwareManager:
                     .lower()
                     else "amd"
                 )
+
+                self.vendor = vendor
 
                 # Full list of features for this CPU.
                 features = (
@@ -230,7 +233,7 @@ class MacHardwareManager:
 
             ioreg.IOObjectRelease(i)
 
-        if default:
+        if default and not self.vendor:
             self.gpu_info(default=False)
 
     def mem_info(self):
