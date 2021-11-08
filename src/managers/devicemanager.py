@@ -10,6 +10,7 @@ class DeviceManager:
             "CPU": [],
             "Motherboard": {},
             "GPU": [],
+            "Memory": [],
             "Network": [],
             "Audio": [],
             "Input": [],
