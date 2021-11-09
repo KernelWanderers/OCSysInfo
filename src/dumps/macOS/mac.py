@@ -332,6 +332,10 @@ class MacHardwareManager:
                         try:
                             modules[i][part_no[i]][key] = value
                         except Exception:
+                            self.logger.warning(
+                                "Couldn't properly determine information for RAM modules (IOKit/MemInfo)",
+                                __file__,
+                            )
                             modules = []
                             break
 
