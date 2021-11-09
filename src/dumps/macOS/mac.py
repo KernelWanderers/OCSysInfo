@@ -329,7 +329,11 @@ class MacHardwareManager:
                         value = f"{sizes[i]}MB"
 
                     if key and value:
-                        modules[i][part_no[i]][key] = value
+                        try:
+                            modules[i][part_no[i]][key] = value
+                        except Exception:
+                            modules = []
+                            break
 
         self.info["Memory"] = modules
 
