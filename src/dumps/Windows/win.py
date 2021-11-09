@@ -6,7 +6,7 @@ from util.codename import gpu as _gpu
 from util.pci_root import pci_from_acpi_win
 from error.cpu_err import cpu_err
 from operator import itemgetter
-from .win_enum import BUS_TYPE, MEDIA_TYPE, POINT_DEV_INTERFACE
+from .win_enum import BUS_TYPE, MEDIA_TYPE, MEMORY_TYPE
 
 
 class WindowsHardwareManager:
@@ -27,6 +27,7 @@ class WindowsHardwareManager:
     def dump(self):
         self.cpu_info()
         self.gpu_info()
+        self.mem_info()
         self.net_info()
         self.audio_info()
         self.mobo_info()
@@ -169,6 +170,45 @@ class WindowsHardwareManager:
                     gpu = "Unknown GPU Device"
 
                 self.info["GPU"].append({gpu: data})
+
+    def mem_info(self):
+        try:
+            RAM = self.c.instances("Win32_PhysicalMemory")
+        except Exception as e:
+            self.logger.critical(
+                f"Failed to obtain list of RAM modules (WMI)\n\t^^^^^^^^^{str(e)}",
+                __file__
+            )
+            return
+        else:
+            for module in RAM:
+                try:
+                    bank = module.wmi_property("BankLabel").value
+                    capacity = module.wmi_property("Capacity").value
+                    channel = module.wmi_property("DeviceLocator").value
+                    manufacturer = module.wmi_property("Manufacturer").value
+                    type = module.wmi_property("MemoryType").value
+                    spid = module.wmi_property("ConfiguredClockSpeed").value
+                    part_no = module.wmi_property("PartNumber").value.strip()
+                except Exception as e:
+                    self.logger.critical(
+                        f"Failed to obtain information about RAM module (WMI)\n\t^^^^^^^^^{str(e)}",
+                        __file__
+                    )
+                    continue
+
+                self.info["Memory"].append({
+                    f"{part_no} (Part-Number)": {
+                        "Type": MEMORY_TYPE.get(type) or "Unknown",
+                        "Slot": {
+                            "Bank": bank,
+                            "Channel": channel
+                        },
+                        "Frequency (MHz)": f"{spid} MHz",
+                        "Manufacturer": manufacturer,
+                        "Capacity": f"{round(int(capacity) / 0x100000)}MB"
+                    }
+                })
 
     def net_info(self):
         try:
