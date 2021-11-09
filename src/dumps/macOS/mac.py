@@ -262,21 +262,35 @@ class MacHardwareManager:
             if type(val) == bytes:
                 if "reg" in prop.lower():
                     for i in range(length):
-
-                        # Converts non-0 values from the 'reg' property
-                        # into readable integer values representing the memory capacity.
-                        sizes.append(
-                            [
-                                round(n * 0x010000 / 0x10)
-                                for n in val.replace(b"\x00", b"")
-                            ][i]
-                        )
+                        try:
+                            # Converts non-0 values from the 'reg' property
+                            # into readable integer values representing the memory capacity.
+                            sizes.append(
+                                [
+                                    round(n * 0x010000 / 0x10)
+                                    for n in val.replace(b"\x00", b"")
+                                ][i]
+                            )
+                        except Exception as e:
+                            self.logger.error(
+                                f"Failed to convert value to readable size (IOKit/MemInfo)\n\t^^^^^^^^^{str(e)}",
+                                __file__,
+                            )
+                            modules = []
+                            break
                 else:
-                    val = [
-                        x.decode()
-                        for x in val.split(b"\x00")
-                        if type(x) == bytes and x.decode().strip()
-                    ]
+                    try:
+                        val = [
+                            x.decode()
+                            for x in val.split(b"\x00")
+                            if type(x) == bytes and x.decode().strip()
+                        ]
+                    except Exception as e:
+                        self.logger.warn(
+                            f"Failed to decode bytes for RAM module (IOKit/MemInfo)\n\t^^^^^^^^^{str(e)}",
+                            __file__,
+                        )
+                        continue
 
             if "part-number" in prop:
                 length = len(val)
@@ -301,7 +315,7 @@ class MacHardwareManager:
                             value = {"Bank": bank, "Channel": channel}
                         except Exception as e:
                             self.logger.error(
-                                f"Failed to obtain BANK/Channel values for RAM module! (IOKit)\n\t^^^^^^^^^{str(e)}",
+                                f"Failed to obtain BANK/Channel values for RAM module! (IOKit/MemInfo)\n\t^^^^^^^^^{str(e)}",
                                 __file__,
                             )
                     elif "dimm-speeds" in prop.lower():
