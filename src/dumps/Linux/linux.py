@@ -402,7 +402,7 @@ class LinuxHardwareManager:
                                 }
                             }
                         )
-                        
+
     def block_info(self):
         # Block devices are found under /sys/block/
         # For each device, we check its
@@ -412,43 +412,49 @@ class LinuxHardwareManager:
         for folder in os.listdir("/sys/block"):
             path = f"/sys/block/{folder}" # folder of the block device
 
-            if (not "nvme" in folder) and (not "sd" in folder): # TODO: mmcblk detection e.g. eMMC storage
+            # TODO: mmcblk detection e.g. eMMC storage
+            if (not "nvme" in folder) and (not "sd" in folder):
                 continue
-            
-            else:
 
-                # Check properties of the block device
+            # Check properties of the block device
+            try:
+                model = open(f"{path}/device/model", "r").read().strip()
+                rotational = open(f"{path}/queue/rotational", "r").read().strip()
+                removable = open(f"{path}/removable", "r").read().strip()
 
-                try:
-                    #vendor = open(f"{path}/device/device/vendor", "r").read().strip()
-                    model = open(f"{path}/device/model", "r").read().strip()
-                    rotational = open(f"{path}/queue/rotational", "r").read().strip()
-                    #device = open(f"{path}/device/device/device", "r").read().strip()
-                    removable = open(f"{path}/removable", "r").read().strip()
+                # FIXME: USB block devices all report as HDDs?
+                type = "Solid State Drive (SSD)" if rotational == "0" else "Hard Disk Drive (HDD)"
+                location = "Internal" if removable == "0" else "External"
 
-                    type = "Solid State Drive (SSD)" if rotational == "0" else "Hard Disk Drive (HDD)"
-                    location = "Internal" if removable == "0" else "External"
+                if ("nvme" in folder):
+                    connector = "PCIe"
+                        
+                    # Uses PCI vendor,device ids to get a vendor for the NVMe block device
+                    dev = open(f"{path}/device/device/device", "r").read().strip()
+                    ven = open(f"{path}/device/device/vendor", "r").read().strip()
+                    vendor = self.pci.get_item(dev[2:], ven[2:]).get("vendor")
 
-                    if ("nvme" in folder):
-                        connector = "PCIe"
-                    elif ("sd" in folder):
-                        connector = "SCSI"
-                    else:
-                        connector = ":("
+                elif ("sd" in folder):
+                    # TODO: Choose correct connector type for block devices that use the SCSI subsystem
+                    connector = "SCSI"
+                    vendor = open(f"{path}/device/vendor", "r").read().strip()
+                        
+                else:
+                    connector = "Unknown"
 
-                except Exception as e:
-                    self.logger.error(
-                        f"Failed to obtain block device info (SYS_FS/BLOCK) – Non-critical, ignoring",
-                        __file__,
-                    )
-                    return
-
-                self.info["Storage"].append(
-                    {
-                        model: {
-                            "Type": type,
-                            "Connector": connector,
-                            "Location": location,
-                        }
-                    }
+            except Exception as e:
+                self.logger.error(
+                    f"Failed to obtain block device info (SYS_FS/BLOCK) – Non-critical, ignoring",
+                    __file__,
                 )
+                return
+
+            self.info["Storage"].append(
+                {
+                    vendor + " " + model: {
+                        "Type": type,
+                        "Connector": connector,
+                        "Location": location,
+                    }
+                }
+            )
