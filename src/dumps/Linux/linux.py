@@ -28,6 +28,7 @@ class LinuxHardwareManager:
         self.net_info()
         self.audio_info()
         self.input_info()
+        self.block_info()
 
     def cpu_info(self):
         try:
@@ -401,3 +402,71 @@ class LinuxHardwareManager:
                                 }
                             }
                         )
+    def block_info(self):
+        # Block devices are found under /sys/block/
+        # For each device, we check its
+        # `model`, `rotational`, device file name, and `removable`
+        # to report its Model, Type, Connector and Location
+
+        for folder in os.listdir("/sys/block"):
+            path = f"/sys/block/{folder}" # folder of the block device
+
+            if (not "nvme" in folder) and (not "sd" in folder): # TODO: mmcblk detection e.g. eMMC storage
+                continue
+            
+            else:
+
+                # Check properties of the block device
+
+                try:
+                    model = open(f"{path}/device/model", "r").read().strip()
+                    #vendor = open(f"{path}/device/device/vendor", "r").read().strip()
+                    #device = open(f"{path}/device/device/device", "r").read().strip()
+                    removable = open(f"{path}/removable", "r").read().strip()
+                    rotational = open(f"{path}/queue/rotational", "r").read().strip()
+
+                    if removable == "0":
+                        location = "Internal"
+                    elif removable == "1":
+                        location = "External"
+                    else:
+                        self.logger.warning(
+                            "Failed to determine block device removability",
+                            __file__,
+                        )
+                    
+                    if rotational == "0":
+                        type = "Solid State Drive (SSD)"
+                    elif rotational == "1":
+                        type = "Hard Disk Drive (HDD)"
+                    else:
+                        self.logger.warning(
+                            "Failed to determine block device type (SSD/HDD)",
+                            __file__,
+                        )
+
+                    if ("nvme" in folder):
+                        connector = "NVMe"
+                    elif ("sd" in folder):
+                        connector = "SCSI"
+                    else:
+                        connector = ":("
+
+
+                except Exception as e:
+                    self.logger.error(
+                        f"Failed to obtain vendor/device/model for block device\n\t^^^^^^^^^{str(e)}",
+                        __file__,
+                    )
+                    return
+
+
+                self.info["Storage"].append(
+                    {
+                        model: {
+                            "Type": type,
+                            "Connector": connector,
+                            "Location": location,
+                        }
+                    }
+                )
