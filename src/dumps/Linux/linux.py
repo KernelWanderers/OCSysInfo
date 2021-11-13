@@ -402,6 +402,7 @@ class LinuxHardwareManager:
                                 }
                             }
                         )
+                        
     def block_info(self):
         # Block devices are found under /sys/block/
         # For each device, we check its
@@ -419,31 +420,14 @@ class LinuxHardwareManager:
                 # Check properties of the block device
 
                 try:
-                    model = open(f"{path}/device/model", "r").read().strip()
                     #vendor = open(f"{path}/device/device/vendor", "r").read().strip()
+                    model = open(f"{path}/device/model", "r").read().strip()
+                    rotational = open(f"{path}/queue/rotational", "r").read().strip()
                     #device = open(f"{path}/device/device/device", "r").read().strip()
                     removable = open(f"{path}/removable", "r").read().strip()
-                    rotational = open(f"{path}/queue/rotational", "r").read().strip()
 
-                    if removable == "0":
-                        location = "Internal"
-                    elif removable == "1":
-                        location = "External"
-                    else:
-                        self.logger.warning(
-                            "Failed to determine block device removability",
-                            __file__,
-                        )
-                    
-                    if rotational == "0":
-                        type = "Solid State Drive (SSD)"
-                    elif rotational == "1":
-                        type = "Hard Disk Drive (HDD)"
-                    else:
-                        self.logger.warning(
-                            "Failed to determine block device type (SSD/HDD)",
-                            __file__,
-                        )
+                    type = "Solid State Drive (SSD)" if rotational == "0" else "Hard Disk Drive (HDD)"
+                    location = "Internal" if removable == "0" else "External"
 
                     if ("nvme" in folder):
                         connector = "PCIe"
@@ -452,14 +436,12 @@ class LinuxHardwareManager:
                     else:
                         connector = ":("
 
-
                 except Exception as e:
                     self.logger.error(
-                        f"Failed to obtain vendor/device/model for block device\n\t^^^^^^^^^{str(e)}",
+                        f"Failed to obtain block device info (SYS_FS/BLOCK) – Non-critical, ignoring",
                         __file__,
                     )
                     return
-
 
                 self.info["Storage"].append(
                     {
