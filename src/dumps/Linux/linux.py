@@ -446,7 +446,7 @@ class LinuxHardwareManager:
                         )
 
                     if ("nvme" in folder):
-                        connector = "NVMe"
+                        connector = "PCIe"
                     elif ("sd" in folder):
                         connector = "SCSI"
                     else:
