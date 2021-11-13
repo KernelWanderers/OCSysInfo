@@ -423,7 +423,7 @@ class LinuxHardwareManager:
                 removable = open(f"{path}/removable", "r").read().strip()
 
                 # FIXME: USB block devices all report as HDDs?
-                type = "Solid State Drive (SSD)" if rotational == "0" else "Hard Disk Drive (HDD)"
+                drive_type = "Solid State Drive (SSD)" if rotational == "0" else "Hard Disk Drive (HDD)"
                 location = "Internal" if removable == "0" else "External"
 
                 if ("nvme" in folder):
@@ -432,7 +432,7 @@ class LinuxHardwareManager:
                     # Uses PCI vendor,device ids to get a vendor for the NVMe block device
                     dev = open(f"{path}/device/device/device", "r").read().strip()
                     ven = open(f"{path}/device/device/vendor", "r").read().strip()
-                    vendor = self.pci.get_item(dev[2:], ven[2:]).get("vendor")
+                    vendor = self.pci.get_item(dev[2:], ven[2:]).get("vendor", "")
 
                 elif ("sd" in folder):
                     # TODO: Choose correct connector type for block devices that use the SCSI subsystem
@@ -451,8 +451,8 @@ class LinuxHardwareManager:
 
             self.info["Storage"].append(
                 {
-                    vendor + " " + model: {
-                        "Type": type,
+                    f"{vendor} {model}": {
+                        "Type": drive_type,
                         "Connector": connector,
                         "Location": location,
                     }
