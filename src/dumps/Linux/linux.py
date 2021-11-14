@@ -103,7 +103,7 @@ class LinuxHardwareManager:
         self.cnm = CodenameManager(model, vendor)
 
         if self.cnm.codename:
-            data["Codename"] = self.cnm.codename
+            data[model]["Codename"] = self.cnm.codename
 
         self.info.get("CPU").append(data)
 
