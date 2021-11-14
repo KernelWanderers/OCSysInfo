@@ -53,7 +53,7 @@ MEMORY_TYPE = {
     22: "DDR2 FB-DIMM",
     24: "DDR3",
     25: "FBD2",
-    26: "DDR4"
+    26: "DDR4",
 }
 
 POINT_DEV_INTERFACE = {

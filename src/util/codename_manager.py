@@ -11,7 +11,7 @@ class CodenameManager:
 
     def __init__(self, name, vendor):
         self.name = name
-        self.vendor = vendor or ''
+        self.vendor = vendor or ""
         self.codename = None
         self.codename_init()
 

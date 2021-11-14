@@ -177,7 +177,7 @@ class WindowsHardwareManager:
         except Exception as e:
             self.logger.critical(
                 f"Failed to obtain list of RAM modules (WMI)\n\t^^^^^^^^^{str(e)}",
-                __file__
+                __file__,
             )
             return
         else:
@@ -193,22 +193,21 @@ class WindowsHardwareManager:
                 except Exception as e:
                     self.logger.critical(
                         f"Failed to obtain information about RAM module (WMI)\n\t^^^^^^^^^{str(e)}",
-                        __file__
+                        __file__,
                     )
                     continue
 
-                self.info["Memory"].append({
-                    f"{part_no} (Part-Number)": {
-                        "Type": MEMORY_TYPE.get(type) or "Unknown",
-                        "Slot": {
-                            "Bank": bank,
-                            "Channel": channel
-                        },
-                        "Frequency (MHz)": f"{spid} MHz",
-                        "Manufacturer": manufacturer,
-                        "Capacity": f"{round(int(capacity) / 0x100000)}MB"
+                self.info["Memory"].append(
+                    {
+                        f"{part_no} (Part-Number)": {
+                            "Type": MEMORY_TYPE.get(type) or "Unknown",
+                            "Slot": {"Bank": bank, "Channel": channel},
+                            "Frequency (MHz)": f"{spid} MHz",
+                            "Manufacturer": manufacturer,
+                            "Capacity": f"{round(int(capacity) / 0x100000)}MB",
+                        }
                     }
-                })
+                )
 
     def net_info(self):
         try:
