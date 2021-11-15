@@ -29,8 +29,13 @@ class CodenameManager:
 
     def codename_intel(self):
         search_term = ark_query.simplified_name(self.name)
+        found_term = ark_query.iark_search(search_term)
+
+        if not found_term:
+            return None
+
         ark_url = ark_query.get_full_ark_url(
-            ark_query.iark_search(search_term).get("prodUrl")
+            found_term.get("prodUrl")
         )
         value = ark_query.get_codename(ark_url).replace("Products formerly ", "")
 
