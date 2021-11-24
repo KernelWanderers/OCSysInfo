@@ -6,10 +6,9 @@ if __name__ == "__main__":
     from info import color_text
 
     if sys.version_info < (3, 8, 0):
-        print(
-            "OCSysInfo requires Python 3.8, while Python "
-            + str(sys.version.partition(" ")[0] + " was detected. Terminating. ")
-        )
+        print(color_text("OCSysInfo requires Python 3.8, while Python " + str(
+            sys.version.partition(" ")[0]) + " was detected. Terminating... ", "red")
+              )
         sys.exit(1)
 
     # Check if there are missing dependencies
@@ -28,6 +27,7 @@ if __name__ == "__main__":
             exit(0)
 
     import requests
+
     # requests is being importing here because it will error out
     # if there are missing dependencies in the start of the program
 
@@ -41,6 +41,7 @@ if __name__ == "__main__":
     else:
         try:
             logger = Logger()
+            print("Launching OCSysInfo...", end="\r")
             logger.info("Launching OCSysInfo...", __file__)
             try:
                 dump = DeviceManager(logger)
@@ -55,6 +56,9 @@ if __name__ == "__main__":
                     exit(0)
                 else:
                     raise e
+            finally:
+                print(" "*25, end="\r")
+                # clearing out the "Launching OCSysInfo..." line
 
             logger.info("Successfully launched OCSysInfo.", __file__)
         except KeyboardInterrupt:
