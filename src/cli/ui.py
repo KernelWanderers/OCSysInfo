@@ -5,7 +5,7 @@ import os
 import plistlib
 import subprocess
 import sys
-from info import name, version, os_ver, arch, color_text, format_text
+from info import name, version, os_ver, arch, color_text, format_text, surprise
 from managers.tree import tree
 from root import root
 
@@ -34,6 +34,25 @@ def hack_disclaimer():
         )
 
 
+def title():
+    spaces = " " * int((53 - len(name)) / 2)
+
+    print(color_text(" " * 2 + "#" * 55, "cyan"))
+    print(color_text(" #" + spaces + name + spaces + "#", "cyan"))
+    print(color_text("#" * 55 + "\n" * 2, "cyan"))
+
+
+def clear():
+    if sys.platform == "win32":
+        os.system("cls")
+    elif sys.platform == "darwin":
+        # Special thanks to [A.J Uppal](https://stackoverflow.com/users/3113477/a-j-uppal) for this!
+        # Original comment: https://stackoverflow.com/a/29887659/13120761
+        print("\033c", end=None)
+    elif sys.platform == "linux":
+        os.system("clear")
+
+
 class UI:
     """
     Instance responsible for properly formatting,
@@ -53,26 +72,33 @@ class UI:
     def handle_cmd(self, options=[]):
         cmd = input("\n\nPlease select an option: ")
         valid = False
-
+        if cmd.lower() == "yee":
+            clear()
+            print(surprise)
+            self.logger.info("Easter-egg discovered", __file__)
+            valid = True
+            self.enter()
+            clear()
+            self.create_ui()
         for option in options:
             if any(type(c) == str and cmd.upper() == c.upper() for c in option):
-                self.clear()
-                self.title()
+                clear()
+                title()
                 option[2]()
 
                 print("Successfully executed.\n")
                 self.enter()
 
-                self.clear()
+                clear()
                 self.create_ui()
                 valid = True
 
         if not valid:
-            self.clear()
+            clear()
             print("Invalid option!\n")
             self.enter()
 
-            self.clear()
+            clear()
             self.create_ui()
 
     def discover(self):
@@ -176,7 +202,7 @@ class UI:
             )
 
     def quit(self):
-        self.clear()
+        clear()
         self.logger.info("Successfully exited.\n\n")
         exit(0)
 
@@ -202,12 +228,11 @@ class UI:
         self.logger.info("Creating UI...", __file__)
 
         try:
-            self.clear()
-            self.title()
+            clear()
+            title()
 
             if sys.platform.lower() == "darwin":
                 hack = hack_disclaimer()
-
                 if hack:
                     print(f"{hack}\n")
 
@@ -230,52 +255,8 @@ class UI:
                 __file__,
             )
 
-    def clear(self):
-        if sys.platform == "win32":
-            os.system("cls")
-        elif sys.platform == "darwin":
-            # Special thanks to [A.J Uppal](https://stackoverflow.com/users/3113477/a-j-uppal)
-            # for this!
-            #
-            # Original comment: https://stackoverflow.com/a/29887659/13120761
-            print("\033c", end=None)
-        elif sys.platform == "linux":
-            os.system("clear")
-
     def enter(self):
         # “Hacky” way of detecting when
         # the Enter key is pressed down.
-        if input(color_text("Press [enter] to return... ", "yellow")) != None:
+        if input(color_text("Press [enter] to return... ", "yellow")) is not None:
             self.create_ui()
-
-    def title(self):
-        spaces = " " * int((53 - len(name)) / 2)
-
-        print(color_text(" " * 2 + "#" * 55, "cyan"))
-        print(color_text(" #" + spaces + name + spaces + "#", "cyan"))
-        print(color_text("#" * 55 + "\n" * 2, "cyan"))
-
-    def hack_disclaimer(self):
-        kern_ver = int(os.uname().release.split(".")[0])
-
-        if kern_ver > 19:
-            kext_loaded = subprocess.run(
-                ["kmutil", "showloaded", "--list-only", "--variant-suffix", "release"],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-            )
-        else:
-            kext_loaded = subprocess.run(
-                ["kextstat", "-l"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-            )
-
-        if [
-            x in kext_loaded.stdout.decode().lower() for x in ("fakesmc", "virtualsmc")
-        ]:
-            self.logger.info("Detected hackintosh!", __file__)
-            return color_text(
-                "DISCLAIMER:\n"
-                "THIS IS BEING RUN ON A HACKINTOSH.\n"
-                "INFORMATION EXTRACTED MIGHT NOT BE COMPLETELY ACCURATE.",
-                "red",
-            )
