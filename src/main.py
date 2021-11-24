@@ -6,10 +6,9 @@ if __name__ == "__main__":
     from info import color_text
 
     if sys.version_info < (3, 8, 0):
-        print(
-            "OCSysInfo requires Python 3.8, while Python "
-            + str(sys.version.partition(" ")[0] + " was detected. Terminating. ")
-        )
+        print(color_text("OCSysInfo requires Python 3.8, while Python " + str(
+            sys.version.partition(" ")[0]) + " was detected. Terminating... ", "red")
+              )
         sys.exit(1)
 
     # Check if there are missing dependencies
@@ -28,6 +27,7 @@ if __name__ == "__main__":
             exit(0)
 
     import requests
+
     # requests is being importing here because it will error out
     # if there are missing dependencies in the start of the program
 
@@ -41,20 +41,29 @@ if __name__ == "__main__":
     else:
         try:
             logger = Logger()
+            print("Launching OCSysInfo...", end="\r")
             logger.info("Launching OCSysInfo...", __file__)
             try:
                 dump = DeviceManager(logger)
                 ui = UI(dump, logger)
                 flag_parser = FlagParser(ui)
             except Exception as e:
-
                 if isinstance(e, requests.ConnectionError):
                     print(color_text("This program needs an internet connection to run. "
                                      "Please connect to the internet and restart this program.", "red"))
-                    logger.info("No internet connection found. Exiting OCSysInfo", __file__)
+                    logger.critical("No internet connection found. Exiting OCSysInfo", __file__)
+                    exit(0)
+                if isinstance(e, PermissionError):
+                    print(color_text("Could not access the required data. "
+                                     "Try running this program using elevated privileges.", "red"))
+                    logger.critical("Could not access the required data. Exiting OCSysInfo\n\t"
+                                    f"^^^^^^^^{str(e)}", __file__)
                     exit(0)
                 else:
                     raise e
+            finally:
+                print(" " * 25, end="\r")
+                # clearing out the "Launching OCSysInfo..." line
 
             logger.info("Successfully launched OCSysInfo.", __file__)
         except KeyboardInterrupt:
