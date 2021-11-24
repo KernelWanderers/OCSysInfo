@@ -51,18 +51,18 @@ if __name__ == "__main__":
                 if isinstance(e, requests.ConnectionError):
                     print(color_text("This program needs an internet connection to run. "
                                      "Please connect to the internet and restart this program.", "red"))
-                    logger.info("No internet connection found. Exiting OCSysInfo", __file__)
+                    logger.critical("No internet connection found. Exiting OCSysInfo", __file__)
                     exit(0)
                 if isinstance(e, PermissionError):
                     print(color_text("Could not access the required data. "
                                      "Try running this program using elevated privileges.", "red"))
-                    logger.info("Could not access the required data. Exiting OCSysInfo\n\t"
-                                f"^^^^^^^^{str(e)}", __file__)
+                    logger.critical("Could not access the required data. Exiting OCSysInfo\n\t"
+                                    f"^^^^^^^^{str(e)}", __file__)
                     exit(0)
                 else:
                     raise e
             finally:
-                print(" "*25, end="\r")
+                print(" " * 25, end="\r")
                 # clearing out the "Launching OCSysInfo..." line
 
             logger.info("Successfully launched OCSysInfo.", __file__)
