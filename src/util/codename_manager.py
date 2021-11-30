@@ -1,5 +1,5 @@
-import util.ark_query as ark_query
-from util.wc_amd_query import parse_codename
+import src.util.ark_query as ark_query
+from src.util.wc_amd_query import parse_codename
 
 
 class CodenameManager:

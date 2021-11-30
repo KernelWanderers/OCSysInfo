@@ -6,6 +6,7 @@ the UI functions.
 
 import platform
 import distro
+import os
 
 name = "OCSysInfo"
 version = "0.0.1-alpha"
@@ -109,3 +110,6 @@ surprise = f"""{cyan}
 ⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀⠀⠀⠈⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⣿⣿
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿{end_formatting}
 """
+
+dir_delim = "\\" if platform.system().lower() == "windows" else "/"
+root_dir = dir_delim.join((os.path.dirname(os.path.realpath(__file__))).split(dir_delim)[:-1])

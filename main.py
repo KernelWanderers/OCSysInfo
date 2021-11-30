@@ -2,9 +2,8 @@
 
 if __name__ == "__main__":
     import sys
-    from util.missing_dep import Requirements, REQUIRED
-    from info import color_text
-
+    from src.util.missing_dep import Requirements, REQUIRED
+    from src.info import color_text
     if sys.version_info < (3, 8, 0):
         print(color_text("OCSysInfo requires Python 3.8, while Python " + str(
             sys.version.partition(" ")[0]) + " was detected. Terminating... ", "red")
@@ -32,10 +31,10 @@ if __name__ == "__main__":
     # if there are missing dependencies in the start of the program
 
     try:
-        from error.logger import Logger
-        from cli.ui import UI
-        from cli.flags import FlagParser
-        from managers.devicemanager import DeviceManager
+        from src.error.logger import Logger
+        from src.cli.ui import UI
+        from src.cli.flags import FlagParser
+        from src.managers.devicemanager import DeviceManager
     except Exception as e:
         raise e
     else:

@@ -1,6 +1,6 @@
 import json
 import os
-from root import root
+from src.info import root_dir as root
 
 
 def gpu(dev, ven):
