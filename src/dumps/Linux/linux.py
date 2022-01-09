@@ -1,10 +1,10 @@
 import os
 import re
 import subprocess
-from error.cpu_err import cpu_err
-from util.codename import gpu
-from util.pci_root import pci_from_acpi_linux
-from util.codename_manager import CodenameManager
+from src.error.cpu_err import cpu_err
+from src.util.codename import gpu
+from src.util.pci_root import pci_from_acpi_linux
+from src.util.codename_manager import CodenameManager
 from .dmi_decode import get_string_entry, MEMORY_TYPE
 
 

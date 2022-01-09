@@ -1,10 +1,10 @@
 import re
-from util.codename_manager import CodenameManager
+from src.util.codename_manager import CodenameManager
 import wmi
 from .cpuid import CPUID
-from util.codename import gpu as _gpu
-from util.pci_root import pci_from_acpi_win
-from error.cpu_err import cpu_err
+from src.util.codename import gpu as _gpu
+from src.util.pci_root import pci_from_acpi_win
+from src.error.cpu_err import cpu_err
 from operator import itemgetter
 from .win_enum import BUS_TYPE, MEDIA_TYPE, MEMORY_TYPE
 

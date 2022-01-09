@@ -1,5 +1,5 @@
 import re
-from info import color_text
+from src.info import color_text
 
 
 def tree(name, data, nest=1, parent="", looped={}, value="", color=True):

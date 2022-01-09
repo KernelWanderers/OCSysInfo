@@ -1,10 +1,10 @@
 import binascii
-import dumps.macOS.ioreg as ioreg
+import src.dumps.macOS.ioreg as ioreg
 import subprocess
-from error.cpu_err import cpu_err
-from util.codename import gpu
-from util.codename_manager import CodenameManager
-from util.pci_root import pci_from_acpi_osx
+from src.error.cpu_err import cpu_err
+from src.util.codename import gpu
+from src.util.codename_manager import CodenameManager
+from src.util.pci_root import pci_from_acpi_osx
 
 
 class MacHardwareManager:

@@ -5,9 +5,9 @@ import os
 import plistlib
 import subprocess
 import sys
-from info import name, version, os_ver, arch, color_text, format_text, surprise
-from managers.tree import tree
-from root import root
+from src.info import name, version, os_ver, arch, color_text, format_text, surprise
+from src.info import root_dir as root
+from src.managers.tree import tree
 
 
 def hack_disclaimer():

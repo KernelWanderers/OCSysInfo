@@ -1,7 +1,7 @@
 import os
 import sys
-from root import root
-from info import color_text
+from src.info import root_dir as root
+from src.info import color_text
 
 
 class FlagParser:
