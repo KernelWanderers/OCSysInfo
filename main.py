@@ -4,6 +4,7 @@ if __name__ == "__main__":
     import sys
     from src.util.missing_dep import Requirements, REQUIRED
     from src.info import color_text
+    from src.cli.ui import clear as clear_screen
     if sys.version_info < (3, 8, 0):
         print(color_text("OCSysInfo requires Python 3.8, while Python " + str(
             sys.version.partition(" ")[0]) + " was detected. Terminating... ", "red")
@@ -40,12 +41,17 @@ if __name__ == "__main__":
     else:
         try:
             logger = Logger()
-            print("Launching OCSysInfo...", end="\r")
+            print("Launching OCSysInfo...")
             logger.info("Launching OCSysInfo...", __file__)
             try:
+                print("Analyzing hardware... (this might take a while, don't panic)")
                 dump = DeviceManager(logger)
+                print("Initializing UI...")
                 ui = UI(dump, logger)
+                print("Initializing FlagParser...")
                 flag_parser = FlagParser(ui)
+                print("Done! Launching UI...")
+                clear_screen()
             except Exception as e:
                 if isinstance(e, requests.ConnectionError):
                     print(color_text("This program needs an internet connection to run. "
