@@ -187,7 +187,7 @@ class WindowsHardwareManager:
                     capacity = module.wmi_property("Capacity").value
                     channel = module.wmi_property("DeviceLocator").value
                     manufacturer = module.wmi_property("Manufacturer").value
-                    type = module.wmi_property("MemoryType").value
+                    type = module.wmi_property("SMBIOSMemoryType").value
                     spid = module.wmi_property("ConfiguredClockSpeed").value
                     part_no = module.wmi_property("PartNumber").value.strip()
                 except Exception as e:
