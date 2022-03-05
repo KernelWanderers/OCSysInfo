@@ -4,9 +4,8 @@ if __name__ == "__main__":
     import sys
     from src.util.missing_dep import Requirements, REQUIRED
     if sys.version_info < (3, 8, 0):
-        print(color_text("OCSysInfo requires Python 3.8, while Python " + str(
-            sys.version.partition(" ")[0]) + " was detected. Terminating... ", "red")
-              )
+        print("OCSysInfo requires Python 3.8, while Python " + str(
+            sys.version.partition(" ")[0]) + " was detected. Terminating... ")
         sys.exit(1)
 
     # Check if there are missing dependencies
