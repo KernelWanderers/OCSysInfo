@@ -1,4 +1,4 @@
-[
+amd = [
   {
     "Codename": "Tahiti",
     "IDs": [
