@@ -1,4 +1,4 @@
-[
+nvidia = [
   {
     "Codename": "Curie",
     "IDs": [

@@ -84,7 +84,7 @@ class MacHardwareManager:
                 vendor = None
                 features = None
         else:
-            vendor = None
+            self.vendor = "apple"
             features = None
 
         data = {
@@ -238,6 +238,8 @@ class MacHardwareManager:
 
     def mem_info(self):
 
+        if self.vendor == "apple": return
+
         # Special thanks to [Flagers](https://github.com/flagersgit) for this.
         #
         # Source: https://github.com/iabtw/OCSysInfo/pull/10
@@ -260,7 +262,7 @@ class MacHardwareManager:
         for prop in interface:
             val = interface[prop]
             if type(val) == bytes:
-                if "reg" in prop.lower():
+                if "reg" in prop.lower() and length:
                     for i in range(length):
                         try:
                             # Converts non-0 values from the 'reg' property
@@ -300,6 +302,9 @@ class MacHardwareManager:
                     part_no.append(f"{val[i]} (Part-Number)")
 
             else:
+                if not length:
+                    return
+
                 for i in range(length):
                     key = ""
                     value = None

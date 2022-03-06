@@ -1,5 +1,3 @@
-import json
-import os
 from src.info import root_dir as root
 
 
@@ -13,27 +11,26 @@ def gpu(dev, ven):
         return
 
     elif "1002" in ven:
-        vendor = "amd_gpu"
+        from src.uarch.gpu.amd_gpu import amd
+        items = amd
     elif "10de" in ven:
-        vendor = "nvidia_gpu"
+        from src.uarch.gpu.nvidia_gpu import nvidia
+        items = nvidia
     else:
         return
 
     found = ""
 
-    with open(os.path.join(root, "src", "uarch", "gpu", f"{vendor}.json"), "r") as file:
-        data = json.loads(file.read())
+    for uarch in items:
+        if found:
+            break
 
-        for uarch in data:
-            if found:
+        for id in uarch.get("IDs", []):
+            if (
+                id.get("Vendor", "").lower() == ven.lower()
+                and id.get("Device", "").lower() == dev.lower()
+            ):
+                found = uarch.get("Codename")
                 break
-
-            for id in uarch.get("IDs", []):
-                if (
-                    id.get("Vendor", "").lower() == ven.lower()
-                    and id.get("Device", "").lower() == dev.lower()
-                ):
-                    found = uarch.get("Codename")
-                    break
 
     return found

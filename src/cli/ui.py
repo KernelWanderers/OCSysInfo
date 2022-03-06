@@ -6,6 +6,7 @@ import plistlib
 import subprocess
 import sys
 from src.info import name, version, arch, color_text, format_text, surprise
+import re
 from src.info import root_dir as root
 from src.util.os_version import os_ver
 from src.managers.tree import tree
@@ -69,6 +70,7 @@ class UI:
             if self.dm.info[k] and (v[0] != {} if isinstance(v, list) else v != {})
         }
         self.logger = logger
+        self.dump_dir = root
 
     def handle_cmd(self, options=[]):
         cmd = input("\n\nPlease select an option: ")
@@ -85,9 +87,9 @@ class UI:
             if any(type(c) == str and cmd.upper() == c.upper() for c in option):
                 clear()
                 title()
-                option[2]()
+                data = option[2]()
 
-                print("Successfully executed.\n")
+                print(data if data else "Successfully executed.\n")
                 self.enter()
 
                 clear()
@@ -100,6 +102,33 @@ class UI:
             self.enter()
 
             clear()
+            self.create_ui()
+
+    def change_dump_dir(self):
+        # Sanitise the UI
+        clear()
+        title()
+
+        dump_dir = input("Please enter the directory (or 'Q' to exit.): ").strip().replace(
+            '"', '').replace("'", "")
+
+        if not len(dump_dir):
+            clear()
+            title()
+            if input(color_text("Please specify a directory! Press [enter] to retry... ", "yellow")) is not None:
+                self.change_dump_dir()
+
+        elif dump_dir.lower() == "q":
+            self.create_ui()
+
+        elif not os.path.isdir(dump_dir):
+            clear()
+            title()
+            if input(color_text("Invalid directory! Press [enter] to retry... ", "yellow")) is not None:
+                self.change_dump_dir()
+
+        else:
+            self.dump_dir = dump_dir
             self.create_ui()
 
     def discover(self):
@@ -130,6 +159,7 @@ class UI:
             (color_text("J. ", "yellow"), "Dump as JSON"),
             (color_text("X. ", "yellow"), "Dump as XML"),
             (color_text("P. ", "yellow"), "Dump as Plist"),
+            (color_text("C. ", "yellow"), "Change dump directory"),
             (color_text("Q. ", "yellow"), "Quit"),
         ]
 
@@ -139,6 +169,7 @@ class UI:
             ("J", "J.", self.dump_json),
             ("X", "X.", self.dump_xml),
             ("P", "P.", self.dump_plist),
+            ("C", "C.", self.change_dump_dir),
             ("Q", "Q.", self.quit),
         ]
 
@@ -149,10 +180,12 @@ class UI:
 
         self.handle_cmd(cmd_options)
 
-    def dump_txt(self, path=root):
+    def dump_txt(self):
+        data = None
+
         try:
             with open(
-                os.path.join(path, "info_dump.txt"), "w", encoding="utf-8"
+                os.path.join(self.dump_dir, "info_dump.txt"), "w", encoding="utf-8"
             ) as file:
                 for key in self.dm.info:
                     file.write(tree(key, self.dm.info[key], color=False))
@@ -160,47 +193,73 @@ class UI:
 
                 file.close()
                 self.logger.info(
-                    'Successfully dumped info to "info_dump.txt"', __file__
+                    f'Successfully dumped "info_dump.txt" into "{self.dump_dir}"', __file__
                 )
-        except Exception as e:
-            self.logger.error(f"Failed to dump to TXT!\n\t^^^^^^^^^{str(e)}", __file__)
 
-    def dump_json(self, path=root):
+                data = f'Successfully dumped "info_dump.txt" into "{self.dump_dir}"\n'
+        except Exception as e:
+            self.logger.error(
+                f"Failed to dump to TXT!\n\t^^^^^^^^^{str(e)}", __file__)
+
+        return data
+
+    def dump_json(self):
+        data = None
+
         try:
-            with open(os.path.join(path, "info_dump.json"), "w") as _json:
-                _json.write(json.dumps(self.dm.info, indent=4, sort_keys=False))
+            with open(os.path.join(self.dump_dir, "info_dump.json"), "w") as _json:
+                _json.write(json.dumps(
+                    self.dm.info, indent=4, sort_keys=False))
                 _json.close()
                 self.logger.info(
-                    'Successfully dumped info to "info_dump.json"', __file__
+                    f'Successfully dumped "info_dump.json" into "{self.dump_dir}"', __file__
                 )
-        except Exception as e:
-            self.logger.error(f"Failed to dump to JSON!\n\t^^^^^^^^^{str(e)}", __file__)
 
-    def dump_xml(self, path=root):
+                data = f'Successfully dumped "info_dump.json" into "{self.dump_dir}"\n'
+        except Exception as e:
+            self.logger.error(
+                f"Failed to dump to JSON!\n\t^^^^^^^^^{str(e)}", __file__)
+
+        return data
+
+    def dump_xml(self):
+        data = None
+
         try:
-            with open(os.path.join(path, "info_dump.xml"), "wb") as xml:
+            with open(os.path.join(self.dump_dir, "info_dump.xml"), "wb") as xml:
                 # Disables debug prints from `dicttoxml`
                 dicttoxml.LOG.setLevel(logging.ERROR)
                 xml.write(dicttoxml.dicttoxml(self.dm.info, root=True))
                 xml.close()
                 self.logger.info(
-                    'Successfully dumped info to "info_dump.xml"', __file__
+                    f'Successfully dumped "info_dump.xml" into "{self.dump_dir}"', __file__
                 )
+                
+                data = f'Successfully dumped "info_dump.xml" into "{self.dump_dir}"\n'
         except Exception as e:
-            self.logger.error(f"Failed to dump to XML!\n\t^^^^^^^^^{str(e)}", __file__)
+            self.logger.error(
+                f"Failed to dump to XML!\n\t^^^^^^^^^{str(e)}", __file__)
 
-    def dump_plist(self, path=root):
+        return data
+
+    def dump_plist(self):
+        data = None
+
         try:
-            with open(os.path.join(path, "info_dump.plist"), "wb") as plist:
+            with open(os.path.join(self.dump_dir, "info_dump.plist"), "wb") as plist:
                 plistlib.dump(self.dm.info, plist, sort_keys=False)
                 plist.close()
                 self.logger.info(
-                    'Successfully dumped info to "info_dump.plist"', __file__
+                    f'Successfully dumped info "info_dump.plist" into "{self.dump_dir}"', __file__
                 )
+
+                data = f'Successfully dumped info "info_dump.plist" into "{self.dump_dir}"\n'
         except Exception as e:
             self.logger.error(
                 f"Failed to dump to Plist!\n\t^^^^^^^^^{str(e)}", __file__
             )
+
+        return data
 
     def quit(self):
         clear()
@@ -214,6 +273,7 @@ class UI:
             (color_text("J. ", "yellow"), "Dump as JSON"),
             (color_text("X. ", "yellow"), "Dump as XML"),
             (color_text("P. ", "yellow"), "Dump as Plist"),
+            (color_text("C. ", "yellow"), "Change dump directory"),
             ("\n\n", color_text("Q. ", "yellow"), "Quit"),
         ]
 
@@ -223,6 +283,7 @@ class UI:
             ("J", "J.", self.dump_json),
             ("X", "X.", self.dump_xml),
             ("P", "P.", self.dump_plist),
+            ("C", "C.", self.change_dump_dir),
             ("Q", "Q.", self.quit),
         ]
 
@@ -241,6 +302,7 @@ class UI:
             print(f"Version      :  {color_text(version, 'green')}")
             print(f"Platform     :  {color_text(os_ver, 'green')}")
             print(f"Architecture :  {color_text(arch, 'green')}")
+            print(f"Current dump :  {color_text(self.dump_dir, 'cyan')}")
 
             print("\n")
 
