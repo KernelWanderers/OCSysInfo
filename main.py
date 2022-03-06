@@ -3,12 +3,9 @@
 if __name__ == "__main__":
     import sys
     from src.util.missing_dep import Requirements, REQUIRED
-    from src.info import color_text
-    from src.cli.ui import clear as clear_screen
     if sys.version_info < (3, 8, 0):
-        print(color_text("OCSysInfo requires Python 3.8, while Python " + str(
-            sys.version.partition(" ")[0]) + " was detected. Terminating... ", "red")
-              )
+        print("OCSysInfo requires Python 3.8, while Python " + str(
+            sys.version.partition(" ")[0]) + " was detected. Terminating... ")
         sys.exit(1)
 
     # Check if there are missing dependencies
@@ -27,8 +24,9 @@ if __name__ == "__main__":
             exit(0)
 
     import requests
-
-    # requests is being importing here because it will error out
+    from src.info import color_text
+    from src.cli.ui import clear as clear_screen
+    # requests clear_screen, and color_text are being importing here because the program will error out
     # if there are missing dependencies in the start of the program
 
     try:

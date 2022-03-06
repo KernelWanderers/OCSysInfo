@@ -5,9 +5,10 @@ import os
 import plistlib
 import subprocess
 import sys
+from src.info import name, version, arch, color_text, format_text, surprise
 import re
-from src.info import name, version, os_ver, arch, color_text, format_text, surprise
 from src.info import root_dir as root
+from src.util.os_version import os_ver
 from src.managers.tree import tree
 
 
