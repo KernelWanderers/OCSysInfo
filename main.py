@@ -23,11 +23,12 @@ if __name__ == "__main__":
         except KeyboardInterrupt:
             exit(0)
 
+    # requests, clear_screen and color_text are being imported here due to
+    # the program throwing an error if there are missing dependencies
+    # at the initial start-up phase of the program.
     import requests
     from src.info import color_text
     from src.cli.ui import clear as clear_screen
-    # requests clear_screen, and color_text are being importing here because the program will error out
-    # if there are missing dependencies in the start of the program
 
     try:
         from src.error.logger import Logger
