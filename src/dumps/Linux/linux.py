@@ -182,158 +182,158 @@ class LinuxHardwareManager:
         response = input(
             "You can feel free to respond with 'N' if you don't wish to proceed with this! Or 'Y' if you do: "
         )
-
-        if "y" in response.lower():
-
-            # DMI table dump of memory slot entries.
-            #
-            # Type 17 indicates a memory slot device.
-            parent_dir = [
-                p
-                for p in os.scandir("/sys/firmware/dmi/entries")
-                if "17-" in p.path.split("/")[-1]
-            ]
-
-            for child_dir in parent_dir:
-
-                # The contents of the binary file.
-                value = subprocess.check_output(
-                    [
-                        "sudo",
-                        "cat",
-                        f"{child_dir.path}/raw",
-                    ]
-                )
-                data = {}
-                part_no = ""
-
-                if "dimm" in value.upper().decode("latin-1").strip().lower():
-                    length_field = value[0x1]
-                    strings = value[length_field : len(value)].split(b"\0")
-
-                    try:
-                        """
-                        ---------------------
-                        |    Part Number    |
-                        ---------------------
-                        
-                        Obtains the value at offset 1Ah, which indicates at which index, pre-sanitisation,
-                        in the `strings` list the real string value is stored.
-                        
-                        Which is: `strings[value[0x1A] - 1]`, after obtaining it, it decodes it to `ascii`.
-                        
-                        Special thanks to [Quist](https://github.com/nadiaholmquist) for this.
-                        """
-                        part_no = get_string_entry(strings, value[0x1A]).strip() + " (Part Number)"
-                        data[part_no] = {}
-                    except Exception as e:
-                        self.logger.warning(
-                            f"Unable to determine part number for memory (RAM) module (SYS_FS/DMI)\n\t^^^^^^^^^{str(e)}",
-                            __file__,
-                        )
-                        continue
-                    
-                    try:
-                        # The type value is stored at offset 12h
-                        type = MEMORY_TYPE[value[0x12]]
-                        
-                        data[part_no]["Type"] = type
-                    except Exception as e:
-                        self.logger.warning(
-                            f"Unable to determine type of memory (RAM) module (SYS_FS/DMI)\n\t^^^^^^^^{str(e)}",
-                            __file__,
-                        )
-                        data[part_no]["Type"] = "UNKNOWN"
-
-                    try:
-                        # Explanation same as for Part Number.
-                        channel = get_string_entry(strings, value[0x10])
-                        bank = get_string_entry(strings, value[0x11])
-
-                        data[part_no]["Slot"] = {"Channel": channel, "Bank": bank}
-                    except Exception as e:
-                        self.logger.warning(
-                            f"Unable to determine slot location for memory (RAM) module (SYS_FS/DMI)\n\t^^^^^^^^^{str(e)}",
-                            __file__,
-                        )
-                        continue
-
-                    try:
-                        # Explanation same as for Part Number.
-                        manufacturer = get_string_entry(strings, value[0x17])
-
-                        data[part_no]["Manufacturer"] = manufacturer
-                    except Exception as e:
-                        self.logger.warning(
-                            f"Unable to determine manufacturer for memory (RAM) module (SYS_FS/DMI)\n\t^^^^^^^^^^^^{str(e)}",
-                            __file__,
-                        )
-                        continue
-
-                    try:
-                        """
-                        ---------------------
-                        |      CAPACITY     |
-                        ---------------------
-
-                        Looks at the 2 bytes at offset 0Ch to hopefully determine its size;
-                        in case the of these 2 bytes is equal to 0x7FFF, it looks at the 4 bytes
-                        at offset 1Ch.
-
-                        In the case that the value at offset 0Ch is equal to 0xFFFF,
-                        it would mean that the size is unknown.
-                        """
-
-                        """
-                        2 bytes, at offset 0Ch
-                        
-                        We convert it into an integer from the bytes values, specifying
-                        that it is in LE (little endian) format.
-                        
-                        Meaning, it will properly accommodate the values to represent its BE (big endian)
-                        value in the end.
-                        
-                        For example,
-                            (  Little  )  (   Big   )
-                            '\x00\x10' -> '\x10\x00'
-                            
-                        Finally, '\x10\x00' will yield `4096` in decimal (0x1000 in hexadecimal);
-                        which is correct. This was done on a system with 4x4GB memory modules.
-                        
-                        Aka, 4x4096MB modules, in this case--since the 15th bit value is `0`, 
-                        meaning it's represented in MB, and not KB.
-                        """
-                        size = int.from_bytes(value[0x0C:0x0E], "little")
-
-                        if size == 0xFFFF:
-                            data["Capacity"] = "UNKNOWN SIZE"
-
-                        # In cases where the individual memory module's
-                        # capacity is `n >= (32GB-1MB)`, the value at 0Ch
-                        # will be `0x7FFF`; meaning we should look at 1Ch instead.
-                        elif size == 0x7FFF:
-                            # 4 bytes, at offset 1Ch
-                            size = int(
-                                "".join(reversed(value.hex()[0x1C : 0x1C + 0x4])), 16
-                            )
-
-                        # Whether or not the value is represented in KB or MB
-                        #
-                        # 0 - MB
-                        # 1 - KB
-                        rep = "MB" if (size >> 15) & 1 == 0 else "KB"
-
-                        data[part_no]["Capacity"] = f"{size}{rep}"
-                    except Exception as e:
-                        self.logger.warning(
-                            f"Unable to determine size for memory (RAM) module (SYS_FS/DMI)\n\t^^^^^^^^^{str(e)}",
-                            __file__,
-                        )
-                        continue
-
-                self.info["Memory"].append(data)
-        else:
+        
+        if "n" in response.lower():
             print("Cancelled, bailing memory detection...")
+            return
+
+        # DMI table dump of memory slot entries.
+        #
+        # Type 17 indicates a memory slot device.
+        parent_dir = [
+            p
+            for p in os.scandir("/sys/firmware/dmi/entries")
+            if "17-" in p.path.split("/")[-1]
+        ]
+
+        for child_dir in parent_dir:
+
+            # The contents of the binary file.
+            value = subprocess.check_output(
+                [
+                    "sudo",
+                    "cat",
+                    f"{child_dir.path}/raw",
+                ]
+            )
+            data = {}
+            part_no = ""
+
+            if "dimm" in value.upper().decode("latin-1").strip().lower():
+                length_field = value[0x1]
+                strings = value[length_field : len(value)].split(b"\0")
+
+                try:
+                    """
+                    ---------------------
+                    |    Part Number    |
+                    ---------------------
+                    
+                    Obtains the value at offset 1Ah, which indicates at which index, pre-sanitisation,
+                    in the `strings` list the real string value is stored.
+                    
+                    Which is: `strings[value[0x1A] - 1]`, after obtaining it, it decodes it to `ascii`.
+                    
+                    Special thanks to [Quist](https://github.com/nadiaholmquist) for this.
+                    """
+                    part_no = get_string_entry(strings, value[0x1A]).strip() + " (Part Number)"
+                    data[part_no] = {}
+                except Exception as e:
+                    self.logger.warning(
+                        f"Unable to determine part number for memory (RAM) module (SYS_FS/DMI)\n\t^^^^^^^^^{str(e)}",
+                        __file__,
+                    )
+                    continue
+                
+                try:
+                    # The type value is stored at offset 12h
+                    type = MEMORY_TYPE[value[0x12]]
+                    
+                    data[part_no]["Type"] = type
+                except Exception as e:
+                    self.logger.warning(
+                        f"Unable to determine type of memory (RAM) module (SYS_FS/DMI)\n\t^^^^^^^^{str(e)}",
+                        __file__,
+                    )
+                    data[part_no]["Type"] = "UNKNOWN"
+
+                try:
+                    # Explanation same as for Part Number.
+                    channel = get_string_entry(strings, value[0x10])
+                    bank = get_string_entry(strings, value[0x11])
+
+                    data[part_no]["Slot"] = {"Channel": channel, "Bank": bank}
+                except Exception as e:
+                    self.logger.warning(
+                        f"Unable to determine slot location for memory (RAM) module (SYS_FS/DMI)\n\t^^^^^^^^^{str(e)}",
+                        __file__,
+                    )
+                    continue
+
+                try:
+                    # Explanation same as for Part Number.
+                    manufacturer = get_string_entry(strings, value[0x17])
+
+                    data[part_no]["Manufacturer"] = manufacturer
+                except Exception as e:
+                    self.logger.warning(
+                        f"Unable to determine manufacturer for memory (RAM) module (SYS_FS/DMI)\n\t^^^^^^^^^^^^{str(e)}",
+                        __file__,
+                    )
+                    continue
+
+                try:
+                    """
+                    ---------------------
+                    |      CAPACITY     |
+                    ---------------------
+
+                    Looks at the 2 bytes at offset 0Ch to hopefully determine its size;
+                    in case the of these 2 bytes is equal to 0x7FFF, it looks at the 4 bytes
+                    at offset 1Ch.
+
+                    In the case that the value at offset 0Ch is equal to 0xFFFF,
+                    it would mean that the size is unknown.
+                    """
+
+                    """
+                    2 bytes, at offset 0Ch
+                    
+                    We convert it into an integer from the bytes values, specifying
+                    that it is in LE (little endian) format.
+                    
+                    Meaning, it will properly accommodate the values to represent its BE (big endian)
+                    value in the end.
+                    
+                    For example,
+                        (  Little  )  (   Big   )
+                        '\x00\x10' -> '\x10\x00'
+                        
+                    Finally, '\x10\x00' will yield `4096` in decimal (0x1000 in hexadecimal);
+                    which is correct. This was done on a system with 4x4GB memory modules.
+                    
+                    Aka, 4x4096MB modules, in this case--since the 15th bit value is `0`, 
+                    meaning it's represented in MB, and not KB.
+                    """
+                    size = int.from_bytes(value[0x0C:0x0E], "little")
+
+                    if size == 0xFFFF:
+                        data["Capacity"] = "UNKNOWN SIZE"
+
+                    # In cases where the individual memory module's
+                    # capacity is `n >= (32GB-1MB)`, the value at 0Ch
+                    # will be `0x7FFF`; meaning we should look at 1Ch instead.
+                    elif size == 0x7FFF:
+                        # 4 bytes, at offset 1Ch
+                        size = int(
+                            "".join(reversed(value.hex()[0x1C : 0x1C + 0x4])), 16
+                        )
+
+                    # Whether or not the value is represented in KB or MB
+                    #
+                    # 0 - MB
+                    # 1 - KB
+                    rep = "MB" if (size >> 15) & 1 == 0 else "KB"
+
+                    data[part_no]["Capacity"] = f"{size}{rep}"
+                except Exception as e:
+                    self.logger.warning(
+                        f"Unable to determine size for memory (RAM) module (SYS_FS/DMI)\n\t^^^^^^^^^{str(e)}",
+                        __file__,
+                    )
+                    continue
+
+            self.info["Memory"].append(data)
 
     def net_info(self):
         for file in os.listdir("/sys/class/net"):
