@@ -6,7 +6,6 @@ import plistlib
 import subprocess
 import sys
 from src.info import name, version, arch, color_text, format_text, surprise
-import re
 from src.info import root_dir as root
 from src.util.os_version import os_ver
 from src.managers.tree import tree
@@ -50,7 +49,11 @@ def clear():
     elif sys.platform == "darwin":
         # Special thanks to [A.J Uppal](https://stackoverflow.com/users/3113477/a-j-uppal) for this!
         # Original comment: https://stackoverflow.com/a/29887659/13120761
-        print("\033c", end=None)
+
+        # But, with more cursed bullshit!
+        print("\033c", end="")
+        print("\033[3J", end="")
+        print("\033c", end="")
     elif sys.platform == "linux":
         os.system("clear")
 
