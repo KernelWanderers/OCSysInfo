@@ -6,12 +6,12 @@ the UI functions.
 
 import platform
 import os
+import sys
 
 name = "OCSysInfo"
 version = "0.0.1-alpha"
 os_ver = ""
 arch = platform.machine()
-_platform = platform.system().lower()
 
 # Colours!
 pink = "\033[95m"
@@ -40,7 +40,6 @@ def format_text(text, formatting):
     final_string += end_formatting
     return final_string
 
-
 surprise = f"""{cyan}
  __     __            ______                    _    _____ _   
  \ \   / /           |  ____|                  | |  |_   _| |  
@@ -67,4 +66,12 @@ surprise = f"""{cyan}
 """
 
 dir_delim = "\\" if platform.system().lower() == "windows" else "/"
-root_dir = dir_delim.join((os.path.dirname(os.path.realpath(__file__))).split(dir_delim)[:-1])
+
+if getattr(sys, 'frozen', False):
+    root_dir = os.path.dirname(sys.executable)
+    os.chdir(root_dir)
+else:
+    root_dir = os.path.dirname(os.path.abspath(__file__))
+
+if "src" in root_dir.split(dir_delim):
+    root_dir = dir_delim.join(root_dir.split(dir_delim)[:-1])
