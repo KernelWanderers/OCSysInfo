@@ -1,6 +1,7 @@
 import os
 import re
 import subprocess
+from sys import exit
 from src.error.cpu_err import cpu_err
 from src.util.codename import gpu
 from src.util.pci_root import pci_from_acpi_linux

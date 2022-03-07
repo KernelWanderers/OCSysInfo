@@ -6,6 +6,7 @@ if __name__ == "__main__":
     # the program throwing an error if there are missing dependencies
     # at the initial start-up phase of the program.
     import requests
+    from sys import exit
     from src.info import color_text
     from src.cli.ui import clear as clear_screen
 

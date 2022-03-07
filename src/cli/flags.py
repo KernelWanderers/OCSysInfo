@@ -1,5 +1,6 @@
 import os
 import sys
+from sys import exit
 from src.info import root_dir as root
 from src.info import color_text
 
