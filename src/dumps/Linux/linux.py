@@ -171,6 +171,9 @@ class LinuxHardwareManager:
     #
     # It wouldn't even exist without them.
     def mem_info(self):
+        if not os.path.isdir("/sys/firmware/dmi/entries"):
+            return
+            
         print(
             "\nWe apologise for the inconvenience, but we really need you to run this specific call as sudo."
         )
