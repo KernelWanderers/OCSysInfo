@@ -1,6 +1,8 @@
 name: Compile and publish binaries
 on:
   push:
+    branches:
+      - 'release-source'
   pull_request:
   workflow_dispatch:
   release:
