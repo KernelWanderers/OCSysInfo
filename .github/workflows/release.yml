@@ -33,10 +33,10 @@ jobs:
         with:
           name: Artifacts OSX
           path: dist/ocsysinfo_osx_*
-          
+
       - name: Upload to Release
         if: github.event_name == 'release'
-        uses: venstaro/upload-release-action@e74ff71f7d8a4c4745b560a485cc5fdb9b5b999d
+        uses: svenstaro/upload-release-action@e74ff71f7d8a4c4745b560a485cc5fdb9b5b999d
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: dist/ocsysinfo_osx_*
@@ -85,7 +85,7 @@ jobs:
       - uses: actions/checkout@v2
       
       - name: Use ARM64 environment of Ubuntu
-        uses: uraimo/run-on-arch-action@v2
+        uses: uraimo/run-on-arch-action@v2.1.1
         with:
           arch: aarch64
           distro: ubuntu_latest
