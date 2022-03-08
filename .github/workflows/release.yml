@@ -7,11 +7,6 @@ on:
     types: [published]
 jobs:
   macOS:
-    strategy:
-      matrix:
-        arch:
-          - x86_64
-          - arm64
     name: Build OSX binaries
     runs-on: macos-latest
     steps:
@@ -26,13 +21,13 @@ jobs:
         run: pip3 install pyinstaller
 
       - name: Build binaries for OSX
-        run: pyinstaller main.py --onefile --name ocsysinfo_osx_${{ matrix.arch }} --paths=./src --target-architecture ${{ matrix.arch }}
+        run: pyinstaller main.py --onefile --name ocsysinfo_osx_x86_64 --paths=./src --target-architecture x86_64
 
       - name: Upload to Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: Artifacts OSX
-          path: dist/ocsysinfo_osx_*
+          path: dist/ocsysinfo_osx_x86_64
 
       - name: Upload to Release
         if: github.event_name == 'release'
