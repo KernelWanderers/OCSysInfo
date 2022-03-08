@@ -80,36 +80,37 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: uraimo/run-on-arch-action@v2
-        if: ${{ matrix.arch }} == 'arm64'
+      
+      - name: Use ARM64 environment of Ubuntu
+        uses: uraimo/run-on-arch-action@v2
         with:
           arch: aarch64
           distro: ubuntu_latest
 
-          - name: Install python3 and pip3
-            run: sudo apt-get install python3 python3-pip
+      - name: Install python3 and pip3
+        run: sudo apt-get install python3 python3-pip
 
-          - name: Set up pyinstaller and install dependencies
-            run: pip3 install -r requirements.txt
-            run: pip3 install pyinstaller
+      - name: Set up pyinstaller and install dependencies
+        run: pip3 install -r requirements.txt
+        run: pip3 install pyinstaller
 
-          - name: Build binaries for Linux, ARM64 architecture
-            run: pyinstaller main.py --onefile --name ocsysinfo_linux_arm64 --paths=./src
-          
-          - name: Upload to Artifacts
-            uses: actions/upload-artifact@v2
-            with:
-              name: Artifacts Linux ARM64
-              path: dist/ocsysinfo_linux_arm64
-            
-          - name: Upload to Release
-            if: github.event_name == 'release'
-            uses: svenstaro/upload-release-action@e74ff71f7d8a4c4745b560a485cc5fdb9b5b999d
-            with:
-              repo_token: ${{ secrets.GITHUB_TOKEN }}
-              file: dist/ocsysinfo_linux_arm64
-              tag: ${{ github.ref }}
-              file_glob: true
+      - name: Build binaries for Linux, ARM64 architecture
+        run: pyinstaller main.py --onefile --name ocsysinfo_linux_arm64 --paths=./src
+      
+      - name: Upload to Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Artifacts Linux ARM64
+          path: dist/ocsysinfo_linux_arm64
+        
+      - name: Upload to Release
+        if: github.event_name == 'release'
+        uses: svenstaro/upload-release-action@e74ff71f7d8a4c4745b560a485cc5fdb9b5b999d
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist/ocsysinfo_linux_arm64
+          tag: ${{ github.ref }}
+          file_glob: true
 
   linux_x64:
     name: Build Linux x86_64 binaries
