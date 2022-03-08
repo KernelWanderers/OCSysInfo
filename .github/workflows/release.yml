@@ -62,7 +62,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Artifacts Windows
-          path: dist/ocsysinfo_win
+          path: dist/ocsysinfo_win*
 
       - name: Upload to Release
         if: github.event_name == 'release'
@@ -84,6 +84,7 @@ jobs:
         with:
           arch: aarch64
           distro: ubuntu20.04
+          run: sudo apt-get install python3 python3-pip
 
       - name: Install python3 and pip3
         run: sudo apt-get install python3 python3-pip
@@ -134,7 +135,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Artifacts Linux ARM64
-          path: dist/ocsysinfo_linux_arm64
+          path: dist/ocsysinfo_linux_x86_64
         
       - name: Upload to Release
         if: github.event_name == 'release'
