@@ -1,6 +1,8 @@
 name: Compile and publish binaries
 on:
   push:
+  pull_request:
+  workflow_dispatch:
   release:
     types: [published]
 jobs:
