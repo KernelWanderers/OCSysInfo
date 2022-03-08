@@ -75,7 +75,7 @@ jobs:
 
   linux_arm64:
     name: Build Linux ARM64 binaries
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       
@@ -84,19 +84,12 @@ jobs:
         with:
           arch: aarch64
           distro: ubuntu20.04
-          run: sudo apt-get install python3 python3-pip
-
-      - name: Install python3 and pip3
-        run: sudo apt-get install python3 python3-pip
-
-      - name: Install dependencies
-        run: pip3 install -r requirements.txt
-      
-      - name: Install pyinstaller
-        run: pip3 install pyinstaller
-
-      - name: Build binaries for Linux, ARM64 architecture
-        run: pyinstaller main.py --onefile --name ocsysinfo_linux_arm64 --paths=./src
+          githubToken: ${{ github.token }}
+          run: |
+            sudo apt-get install python3 python3-pip
+            pip3 install -r requirements.txt
+            pip3 install pyinstaller
+            pyinstaller main.py --onefile --name ocsysinfo_linux_arm64 --paths=./src --target-architecture arm64
       
       - name: Upload to Artifacts
         uses: actions/upload-artifact@v2
