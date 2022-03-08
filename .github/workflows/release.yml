@@ -32,9 +32,8 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Artifacts OSX
-          path:
-            - dist/ocsysinfo_osx_x86_64
-            - dist/ocsysinfo_osx_arm64
+          path: dist/ocsysinfo_osx_*
+          
       - name: Upload to Release
         if: github.event_name == 'release'
         uses: venstaro/upload-release-action@e74ff71f7d8a4c4745b560a485cc5fdb9b5b999d
