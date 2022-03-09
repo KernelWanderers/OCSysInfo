@@ -234,7 +234,7 @@ class UI:
                 self.logger.info(
                     f'Successfully dumped "info_dump.xml" into "{self.dump_dir}"', __file__
                 )
-                
+
                 data = f'Successfully dumped "info_dump.xml" into "{self.dump_dir}"\n'
         except Exception as e:
             self.logger.error(
