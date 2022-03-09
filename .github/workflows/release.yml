@@ -2,7 +2,7 @@ name: Compile and publish binaries
 on:
   push:
     branches:
-      - 'release-source'
+      - 'releases-source'
   pull_request:
   workflow_dispatch:
   release:
@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: release-source
+          ref: releases-source
 
       - name: Set up Python 3
         run: brew install python3
@@ -49,7 +49,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: release-source
+          ref: releases-source
 
       - name: Set up Python 3
         uses: actions/setup-python@v2
@@ -86,7 +86,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: release-source
+          ref: releases-source
       
       - name: Install python3 and pip3
         run: sudo apt-get install python3 python3-pip
