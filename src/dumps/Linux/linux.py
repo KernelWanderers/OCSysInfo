@@ -42,11 +42,38 @@ class LinuxHardwareManager:
             )
             cpu_err(e)
 
+        architecture = subprocess.run(['uname', '-m'], capture_output=True, text=True)
+
+        if architecture.stdout == "aarch64\n" or "arm" in architecture.stdout: # Check if the architecture is ARM.
+            data = {}
+
+            model = re.search(r"(?<=Hardware\t\: ).+(?=\n)", cpus) # Get the name of the CPU.
+            arm_version = re.search(r"(?<=CPU architecture\: ).+(?=\n)", cpus) # Get the ARM version of the CPU
+            model = model.group()
+            data = {model: {}}
+
+            try:
+                # Count the amount of times 'processor'
+                # is matched, since threads are enumerated individually.
+                threads = cpus.count("processor")
+                data[model]["Threads"] = (threads)
+            except Exception as e:
+                self.logger.error(
+                    f"Failed to resolve thread count for {model} (PROC_FS)\n\t^^^^^^^^^{str(e)}",
+                    __file__,
+                )
+                pass
+
+            data[model]["ARM Version"] = arm_version.group()
+
+            self.info.get("CPU").append(data)
+            return
+        
         cpu = cpus.split("\n\n")
 
         if not cpu:
             return
-
+        
         cpu = cpu[0]  # Get only the first CPU identifier.
 
         model = re.search(r"(?<=model name\t\: ).+(?=\n)", cpu)
