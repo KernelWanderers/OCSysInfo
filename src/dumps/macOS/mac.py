@@ -174,7 +174,7 @@ class MacHardwareManager:
 
                 if default:
                     model = bytes(model).decode()
-                    model = model[0 : len(model) - 1]
+                    model = model[0: len(model) - 1]
             except Exception as e:
                 self.logger.error(
                     "Failed to obtain GPU device model (IOKit)"
@@ -204,7 +204,8 @@ class MacHardwareManager:
                 data = {"Device ID": dev, "Vendor": ven}
 
                 if default:
-                    path = pci_from_acpi_osx(device.get("acpi-path", ""), self.logger)
+                    path = pci_from_acpi_osx(
+                        device.get("acpi-path", ""), self.logger)
 
                     pcip = path.get("PCI Path", "")
                     acpi = path.get("ACPI Path", "")
@@ -238,7 +239,8 @@ class MacHardwareManager:
 
     def mem_info(self):
 
-        if self.vendor == "apple": return
+        if self.vendor == "apple":
+            return
 
         # Special thanks to [Flagers](https://github.com/flagersgit) for this.
         #
@@ -383,7 +385,8 @@ class MacHardwareManager:
                     ]
                 )
 
-                path = pci_from_acpi_osx(device.get("acpi-path", ""), self.logger)
+                path = pci_from_acpi_osx(
+                    device.get("acpi-path", ""), self.logger)
 
                 data = {
                     # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
@@ -556,7 +559,8 @@ class MacHardwareManager:
                 # Type of connector (SATA, USB, SCSI, etc.)
                 ct_type = protocol.get("Physical Interconnect").strip()
                 # Whether or not this device is internal or external.
-                location = protocol.get("Physical Interconnect Location").strip()
+                location = protocol.get(
+                    "Physical Interconnect Location").strip()
 
                 if ct_type.lower() == "pci-express":
                     _type = "Non-Volatile Memory Express (NVMe)"
