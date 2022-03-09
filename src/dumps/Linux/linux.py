@@ -174,7 +174,7 @@ class LinuxHardwareManager:
     def mem_info(self):
         if not os.path.isdir("/sys/firmware/dmi/entries"):
             return
-            
+
         print(
             "\nWe apologise for the inconvenience, but we really need you to run this specific call as sudo."
         )
@@ -183,7 +183,7 @@ class LinuxHardwareManager:
         response = input(
             "You can feel free to respond with 'N' if you don't wish to proceed with this! Or 'Y' if you do: "
         )
-        
+
         if "n" in response.lower():
             print("Cancelled, bailing memory detection...")
             return
@@ -212,22 +212,23 @@ class LinuxHardwareManager:
 
             if "dimm" in value.upper().decode("latin-1").strip().lower():
                 length_field = value[0x1]
-                strings = value[length_field : len(value)].split(b"\0")
+                strings = value[length_field: len(value)].split(b"\0")
 
                 try:
                     """
                     ---------------------
                     |    Part Number    |
                     ---------------------
-                    
+
                     Obtains the value at offset 1Ah, which indicates at which index, pre-sanitisation,
                     in the `strings` list the real string value is stored.
-                    
+
                     Which is: `strings[value[0x1A] - 1]`, after obtaining it, it decodes it to `ascii`.
-                    
+
                     Special thanks to [Quist](https://github.com/nadiaholmquist) for this.
                     """
-                    part_no = get_string_entry(strings, value[0x1A]).strip() + " (Part Number)"
+                    part_no = get_string_entry(
+                        strings, value[0x1A]).strip() + " (Part Number)"
                     data[part_no] = {}
                 except Exception as e:
                     self.logger.warning(
@@ -235,11 +236,11 @@ class LinuxHardwareManager:
                         __file__,
                     )
                     continue
-                
+
                 try:
                     # The type value is stored at offset 12h
                     type = MEMORY_TYPE[value[0x12]]
-                    
+
                     data[part_no]["Type"] = type
                 except Exception as e:
                     self.logger.warning(
@@ -317,7 +318,8 @@ class LinuxHardwareManager:
                     elif size == 0x7FFF:
                         # 4 bytes, at offset 1Ch
                         size = int(
-                            "".join(reversed(value.hex()[0x1C : 0x1C + 0x4])), 16
+                            "".join(
+                                reversed(value.hex()[0x1C: 0x1C + 0x4])), 16
                         )
 
                     # Whether or not the value is represented in KB or MB
@@ -420,10 +422,12 @@ class LinuxHardwareManager:
                     )
 
                 try:
-                    dirs = [n for n in os.listdir(path) if "hdaudio" in n.lower()]
+                    dirs = [n for n in os.listdir(
+                        path) if "hdaudio" in n.lower()]
 
                     for dir in dirs:
-                        chip_name = open(f"{path}/{dir}/chip_name", "r").read().strip()
+                        chip_name = open(
+                            f"{path}/{dir}/chip_name", "r").read().strip()
 
                         if "alc" in chip_name.lower():
                             data["ALC Codec"] = chip_name
@@ -601,7 +605,8 @@ class LinuxHardwareManager:
             # Check properties of the block device
             try:
                 model = open(f"{path}/device/model", "r").read().strip()
-                rotational = open(f"{path}/queue/rotational", "r").read().strip()
+                rotational = open(
+                    f"{path}/queue/rotational", "r").read().strip()
                 removable = open(f"{path}/removable", "r").read().strip()
 
                 # FIXME: USB block devices all report as HDDs?
@@ -616,9 +621,12 @@ class LinuxHardwareManager:
                     connector = "PCIe"
 
                     # Uses PCI vendor,device ids to get a vendor for the NVMe block device
-                    dev = open(f"{path}/device/device/device", "r").read().strip()
-                    ven = open(f"{path}/device/device/vendor", "r").read().strip()
-                    vendor = self.pci.get_item(dev[2:], ven[2:]).get("vendor", "")
+                    dev = open(f"{path}/device/device/device",
+                               "r").read().strip()
+                    ven = open(f"{path}/device/device/vendor",
+                               "r").read().strip()
+                    vendor = self.pci.get_item(
+                        dev[2:], ven[2:]).get("vendor", "")
 
                 elif "sd" in folder:
                     # TODO: Choose correct connector type for block devices that use the SCSI subsystem
