@@ -12,7 +12,10 @@ jobs:
     name: Build OSX binaries
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          ref: releases-source
+
       - name: Set up Python 3
         run: brew install python3
 
@@ -44,8 +47,10 @@ jobs:
     name: Build Windows binaries
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
-      
+      - uses: actions/checkout@v3
+        with:
+          ref: releases-source
+
       - name: Set up Python 3
         uses: actions/setup-python@v2
         with:
@@ -79,7 +84,9 @@ jobs:
     name: Build Linux x86_64 binaries
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          ref: releases-source
       
       - name: Install python3 and pip3
         run: sudo apt-get install python3 python3-pip
