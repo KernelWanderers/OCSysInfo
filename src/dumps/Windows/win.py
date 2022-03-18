@@ -3,6 +3,7 @@ from src.util.codename_manager import CodenameManager
 import wmi
 from .cpuid import CPUID
 from src.util.codename import gpu as _gpu
+from src.util.driver_type import driver_type
 from src.util.pci_root import pci_from_acpi_win
 from src.error.cpu_err import cpu_err
 from operator import itemgetter
@@ -62,7 +63,8 @@ class WindowsHardwareManager:
             data["Cores"] = CPU.wmi_property("NumberOfCores").value
 
             # Number of logical processors (threads)
-            data["Threads"] = CPU.wmi_property("NumberOfLogicalProcessors").value
+            data["Threads"] = CPU.wmi_property(
+                "NumberOfLogicalProcessors").value
 
             self.cpu["model"] = model
         except Exception as e:
@@ -77,7 +79,7 @@ class WindowsHardwareManager:
             SSE_OP = [
                 (1, 0, 3, 25),  # SSE
                 (1, 0, 3, 26),  # SSE2
-                (1, 0, 2, 0),  # SSE3
+                (1, 0, 2, 0),   # SSE3
                 (1, 0, 2, 19),  # SSE4.1
                 (1, 0, 2, 20),  # SSE4.2
             ]
@@ -120,7 +122,8 @@ class WindowsHardwareManager:
                 try:
                     gpu = GPU.wmi_property("Name").value
                     pci = GPU.wmi_property("PNPDeviceID").value
-                    match = re.search("(VEN_(\d|\w){4})\&(DEV_(\d|\w){4})", pci)
+                    match = re.search(
+                        "(VEN_(\d|\w){4})\&(DEV_(\d|\w){4})", pci)
                 except Exception as e:
                     self.logger.error(
                         f"Failed to obtain GPU device (WMI)\n\t^^^^^^^^^{str(e)}",
@@ -335,10 +338,12 @@ class WindowsHardwareManager:
 
                     if not "unable to" in ven.lower():
                         if "10ec" in ven.lower():
-                            model = {"device": f"Realtek ALC{hex(int(dev, 16))[2:]}"}
+                            model = {
+                                "device": f"Realtek ALC{hex(int(dev, 16))[2:]}"}
                         else:
                             try:
-                                model = self.pci.get_item(dev[2:], ven[2:]) or {}
+                                model = self.pci.get_item(
+                                    dev[2:], ven[2:]) or {}
                             except Exception as e:
                                 self.logger.warning(
                                     f"Failed to obtain Sound device (WMI)\n\t^^^^^^^^^{str(e)}",
@@ -392,7 +397,8 @@ class WindowsHardwareManager:
             )
             return
         else:
-            self.info["Motherboard"] = {"Model": model, "Manufacturer": manufacturer}
+            self.info["Motherboard"] = {
+                "Model": model, "Manufacturer": manufacturer}
 
     def storage_info(self):
         try:
@@ -423,7 +429,8 @@ class WindowsHardwareManager:
                     STORAGE.wmi_property("MediaType").value, "Unspecified"
                 )
                 ct_type, location = itemgetter("type", "location")(
-                    BUS_TYPE.get(STORAGE.wmi_property("BusType").value, "Unknown")
+                    BUS_TYPE.get(STORAGE.wmi_property(
+                        "BusType").value, "Unknown")
                 )
 
                 if "nvme" in ct_type.lower():
@@ -462,16 +469,19 @@ class WindowsHardwareManager:
 
     def get_kbpd(self, items):
         _items = []
+
         for item in items:
             try:
                 description = item.wmi_property("Description").value
+                pnp_id = item.wmi_property("PNPDeviceID").value
 
-                if not any(
-                    x in description.lower() for x in ("ps/2", "hid", "synaptics")
-                ):
-                    continue
+                d_type = driver_type(pnp_id, description, self.c)
 
-                _items.append({description: {}})
+                if d_type:
+                    description += f" ({d_type})"
+
+                _items.append(
+                    {description: {}})
             except Exception as e:
                 self.logger.error(
                     f"Failed to obtain information about keyboard/pointing device (WMI)\n\t^^^^^^^^^{str(e)}",
