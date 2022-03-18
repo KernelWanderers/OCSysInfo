@@ -1,6 +1,7 @@
 import os
 import re
 import subprocess
+from sys import exit
 from src.error.cpu_err import cpu_err
 from src.util.codename import gpu
 from src.util.pci_root import pci_from_acpi_linux
@@ -41,11 +42,38 @@ class LinuxHardwareManager:
             )
             cpu_err(e)
 
+        architecture = subprocess.run(['uname', '-m'], capture_output=True, text=True)
+
+        if architecture.stdout == "aarch64\n" or "arm" in architecture.stdout: # Check if the architecture is ARM.
+            data = {}
+
+            model = re.search(r"(?<=Hardware\t\: ).+(?=\n)", cpus) # Get the name of the CPU.
+            arm_version = re.search(r"(?<=CPU architecture\: ).+(?=\n)", cpus) # Get the ARM version of the CPU
+            model = model.group()
+            data = {model: {}}
+
+            try:
+                # Count the amount of times 'processor'
+                # is matched, since threads are enumerated individually.
+                threads = cpus.count("processor")
+                data[model]["Threads"] = (threads)
+            except Exception as e:
+                self.logger.error(
+                    f"Failed to resolve thread count for {model} (PROC_FS)\n\t^^^^^^^^^{str(e)}",
+                    __file__,
+                )
+                pass
+
+            data[model]["ARM Version"] = arm_version.group()
+
+            self.info.get("CPU").append(data)
+            return
+        
         cpu = cpus.split("\n\n")
 
         if not cpu:
             return
-
+        
         cpu = cpu[0]  # Get only the first CPU identifier.
 
         model = re.search(r"(?<=model name\t\: ).+(?=\n)", cpu)
@@ -173,7 +201,7 @@ class LinuxHardwareManager:
     def mem_info(self):
         if not os.path.isdir("/sys/firmware/dmi/entries"):
             return
-            
+
         print(
             "\nWe apologise for the inconvenience, but we really need you to run this specific call as sudo."
         )
@@ -182,7 +210,7 @@ class LinuxHardwareManager:
         response = input(
             "You can feel free to respond with 'N' if you don't wish to proceed with this! Or 'Y' if you do: "
         )
-        
+
         if "n" in response.lower():
             print("Cancelled, bailing memory detection...")
             return
@@ -211,22 +239,23 @@ class LinuxHardwareManager:
 
             if "dimm" in value.upper().decode("latin-1").strip().lower():
                 length_field = value[0x1]
-                strings = value[length_field : len(value)].split(b"\0")
+                strings = value[length_field: len(value)].split(b"\0")
 
                 try:
                     """
                     ---------------------
                     |    Part Number    |
                     ---------------------
-                    
+
                     Obtains the value at offset 1Ah, which indicates at which index, pre-sanitisation,
                     in the `strings` list the real string value is stored.
-                    
+
                     Which is: `strings[value[0x1A] - 1]`, after obtaining it, it decodes it to `ascii`.
-                    
+
                     Special thanks to [Quist](https://github.com/nadiaholmquist) for this.
                     """
-                    part_no = get_string_entry(strings, value[0x1A]).strip() + " (Part Number)"
+                    part_no = get_string_entry(
+                        strings, value[0x1A]).strip() + " (Part Number)"
                     data[part_no] = {}
                 except Exception as e:
                     self.logger.warning(
@@ -234,11 +263,11 @@ class LinuxHardwareManager:
                         __file__,
                     )
                     continue
-                
+
                 try:
                     # The type value is stored at offset 12h
                     type = MEMORY_TYPE[value[0x12]]
-                    
+
                     data[part_no]["Type"] = type
                 except Exception as e:
                     self.logger.warning(
@@ -316,7 +345,8 @@ class LinuxHardwareManager:
                     elif size == 0x7FFF:
                         # 4 bytes, at offset 1Ch
                         size = int(
-                            "".join(reversed(value.hex()[0x1C : 0x1C + 0x4])), 16
+                            "".join(
+                                reversed(value.hex()[0x1C: 0x1C + 0x4])), 16
                         )
 
                     # Whether or not the value is represented in KB or MB
@@ -419,10 +449,12 @@ class LinuxHardwareManager:
                     )
 
                 try:
-                    dirs = [n for n in os.listdir(path) if "hdaudio" in n.lower()]
+                    dirs = [n for n in os.listdir(
+                        path) if "hdaudio" in n.lower()]
 
                     for dir in dirs:
-                        chip_name = open(f"{path}/{dir}/chip_name", "r").read().strip()
+                        chip_name = open(
+                            f"{path}/{dir}/chip_name", "r").read().strip()
 
                         if "alc" in chip_name.lower():
                             data["ALC Codec"] = chip_name
@@ -600,7 +632,8 @@ class LinuxHardwareManager:
             # Check properties of the block device
             try:
                 model = open(f"{path}/device/model", "r").read().strip()
-                rotational = open(f"{path}/queue/rotational", "r").read().strip()
+                rotational = open(
+                    f"{path}/queue/rotational", "r").read().strip()
                 removable = open(f"{path}/removable", "r").read().strip()
 
                 # FIXME: USB block devices all report as HDDs?
@@ -615,9 +648,12 @@ class LinuxHardwareManager:
                     connector = "PCIe"
 
                     # Uses PCI vendor,device ids to get a vendor for the NVMe block device
-                    dev = open(f"{path}/device/device/device", "r").read().strip()
-                    ven = open(f"{path}/device/device/vendor", "r").read().strip()
-                    vendor = self.pci.get_item(dev[2:], ven[2:]).get("vendor", "")
+                    dev = open(f"{path}/device/device/device",
+                               "r").read().strip()
+                    ven = open(f"{path}/device/device/vendor",
+                               "r").read().strip()
+                    vendor = self.pci.get_item(
+                        dev[2:], ven[2:]).get("vendor", "")
 
                 elif "sd" in folder:
                     # TODO: Choose correct connector type for block devices that use the SCSI subsystem

@@ -5,8 +5,8 @@ import os
 import plistlib
 import subprocess
 import sys
+from sys import exit
 from src.info import name, version, arch, color_text, format_text, surprise
-import re
 from src.info import root_dir as root
 from src.util.os_version import os_ver
 from src.managers.tree import tree
@@ -234,7 +234,7 @@ class UI:
                 self.logger.info(
                     f'Successfully dumped "info_dump.xml" into "{self.dump_dir}"', __file__
                 )
-                
+
                 data = f'Successfully dumped "info_dump.xml" into "{self.dump_dir}"\n'
         except Exception as e:
             self.logger.error(

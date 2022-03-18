@@ -12,7 +12,6 @@ name = "OCSysInfo"
 version = "0.0.1-alpha"
 os_ver = ""
 arch = platform.machine()
-_platform = platform.system().lower()
 
 # Colours!
 pink = "\033[95m"
