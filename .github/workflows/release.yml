@@ -1,12 +1,7 @@
 name: Compile and publish binaries
 on:
-  push:
-    branches:
-      - 'releases-source'
-  pull_request:
-  workflow_dispatch:
   release:
-    types: [created, released, published]
+    types: [released, published, prereleased, edited]
 jobs:
   macOS:
     name: Build OSX binaries
