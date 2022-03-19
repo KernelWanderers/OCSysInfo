@@ -2,10 +2,7 @@ name: Compile and publish binaries
 
 on:
   release:
-    types:
-      - 'released'
-      - 'published'
-      - 'created'
+    types: [published]
 
 jobs:
   macOS:
