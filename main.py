@@ -34,7 +34,6 @@ if __name__ == "__main__":
         from src.error.logger import Logger
         from src.cli.ui import UI
         from src.cli.flags import FlagParser
-        from src.managers.devicemanager import DeviceManager
     except Exception as e:
         raise e
     else:
@@ -43,14 +42,14 @@ if __name__ == "__main__":
             print("Launching OCSysInfo...")
             logger.info("Launching OCSysInfo...", __file__)
             try:
-                print("Analyzing hardware... (this might take a while, don't panic)")
-                dump = DeviceManager(logger)
-                print("Initializing UI...")
-                ui = UI(dump, logger)
                 print("Initializing FlagParser...")
-                flag_parser = FlagParser(ui)
+                flag_parser = FlagParser(logger)
+                print("Initializing UI...")
+                ui = UI(flag_parser.dm, logger)
+                
                 print("Done! Launching UI...")
                 clear_screen()
+                ui.create_ui()
             except Exception as e:
                 if isinstance(e, requests.ConnectionError):
                     print(color_text("This program needs an internet connection to run. "
