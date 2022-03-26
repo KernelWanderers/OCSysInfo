@@ -1,13 +1,47 @@
 import os
 import sys
-from sys import exit
-from src.info import root_dir as root
+from src.cli.ui import clear
 from src.info import color_text
+from src.util.dump_functions.text import dump_txt
+from src.util.dump_functions.json import dump_json
+from src.util.dump_functions.xml import dump_xml
+from src.util.dump_functions.plist import dump_plist
+from src.managers.devicemanager import DeviceManager
 
 
 class FlagParser:
-    def __init__(self, ui):
-        self.ui = ui
+    """
+    Instance responsible for handling command-line arguments
+    in the very case that they're presented.
+
+    Special thanks to Dids for the ideas on how to implement
+    the FlagParser!
+    """
+
+    def __init__(self, logger, dm=None):
+        self.dm = dm
+        args = sys.argv[1:]
+
+        if not self.dm and not list(filter(lambda x: "-h" in x.lower(), args)):
+            print(color_text(
+                "Analyzing hardware... (this might take a while, don't panic)", "red"))
+            self.dm = DeviceManager(logger)
+            self.dm.info = {
+                k: v
+                for (k, v) in self.dm.info.items()
+                if self.dm.info[k] and (v[0] != {} if isinstance(v, list) else v != {})
+            }
+
+        self.logger = logger
+        self.completed = []
+        self.missing = []
+        self.interactive = not "--no-interactive" in args
+
+        if not self.interactive:
+            for i in range(len(args)):
+                if "--no-interactive" in args[i].lower():
+                    del args[i]
+
         self.flags = [
             {
                 "Aliases": ["--help", "-H"],
@@ -19,7 +53,7 @@ class FlagParser:
             },
             {
                 "Aliases": ["--text", "--txt", "-tx", "-T"],
-                "Command": self.ui.dump_txt,
+                "Command": dump_txt,
                 "Log": {
                     "Failed": "Failed to dump to TXT file (FLAGS)",
                     "Success": "Successfully dumped to TXT file (FLAGS)",
@@ -27,7 +61,7 @@ class FlagParser:
             },
             {
                 "Aliases": ["--json", "-J"],
-                "Command": self.ui.dump_json,
+                "Command": dump_json,
                 "Log": {
                     "Failed": "Failed to dump to JSON file (FLAGS)",
                     "Success": "Successfully dumped to JSON file (FLAGS)",
@@ -35,7 +69,7 @@ class FlagParser:
             },
             {
                 "Aliases": ["--xml", "-X"],
-                "Command": self.ui.dump_xml,
+                "Command": dump_xml,
                 "Log": {
                     "Failed": "Failed to dump to XML file (FLAGS)",
                     "Success": "Successfully dumped to XML file (FLAGS)",
@@ -43,7 +77,7 @@ class FlagParser:
             },
             {
                 "Aliases": ["--plist", "-P"],
-                "Command": self.ui.dump_plist,
+                "Command": dump_plist,
                 "Log": {
                     "Failed": "Failed to dump to Plist file (FLAGS)",
                     "Success": "Successfully dumped to Plist file (FLAGS)",
@@ -51,48 +85,38 @@ class FlagParser:
             },
         ]
 
-        self.parse_flags(sys.argv[1:])
+        self.handle(self.parse_flags(args))
 
     def help(self):
         try:
-            self.ui.clear()
+            clear()
 
             # List of possible arguments
             arguments = [
-                ("[--help]", "prints this help page"),
                 (
-                    "[--text]",
+                    "[--help]",
+                    "prints this help page"
+                ),
+                (
+                    "[--text]  <path>",
                     "dumps hardware information into a TXT file, inside of the specified directory",
                 ),
                 (
-                    "[--json]",
+                    "[--json]  <path>",
                     "dumps hardware information into a JSON file, inside of the specified directory",
                 ),
                 (
-                    "[--xml]",
+                    "[--xml]   <path>",
                     "dumps hardware information into an XML file, inside of the specified directory",
                 ),
                 (
-                    "[--plist]",
+                    "[--plist] <path>",
                     "dumps hardware information into a plist file, inside of the specified directory",
                 ),
-                ("", ""),
                 (
-                    "[--pathT]",
-                    "path to directory, where the information from the TXT dump will be stored",
-                ),
-                (
-                    "[--pathJ]",
-                    "path to directory, where the information from the JSON dump will be stored",
-                ),
-                (
-                    "[--pathX]",
-                    "path to directory, where the information from the XML dump will be stored",
-                ),
-                (
-                    "[--pathP]",
-                    "path to directory, where the information from the Plist dump will be stored",
-                ),
+                    "[--no-interactive]",
+                    "disables dynamic prompts for missing/invalid values (such as invalid dump types and [missing] paths)",
+                )
             ]
 
             longest = self._longest(arguments)
@@ -118,351 +142,201 @@ class FlagParser:
                 )
 
             print(
-                "\n\nExample:\n  <executable> -T -J ~/Downloads -X --pathX ~/Documents -P"
+                "\n\nExample:\n  <executable> -T ~/Downloads/myfolder -J ~/Downloads -X ~/Documents -P ."
             )
         except Exception as e:
             raise e
 
-    def parse_flags(self, args):
-        found = list(
-            filter(
-                lambda x: type(x.get("Argument", {})) == dict,
-                self.recursively_parse(args),
-            )
-        )
+    def handle(self, vals):
+        if not vals or len(vals) < 1:
+            return
 
-        # In case any of the flags match
-        # the ones that trigger the help page,
-        # simply run the help command, and exit.
-        if any(
-            "-H"
-            in f.get("Argument", {})
-            .get("Valid", [{}])[0]
-            .get("Found", {})
-            .get("Aliases", [])
-            for f in found
-        ):
+        for val in vals:
+            if val.get("Type") == "UNKNOWN" or not val.get("Path"):
+                self.missing.append(val)
+            elif val.get("Type") != "UNKNOWN" and val.get("Path"):
+                self.completed.append(val)
+
+        if self.missing:
+            self.prompts()
+
+        for completed in self.completed:
+            desc = self.dump_desc(completed.get('Type'))
+
+            try:
+                ok = color_text("   OK   ", "green")
+
+                print(
+                    f"[{ok}]   Attempting to dump {desc} to {completed.get('Path')}...")
+                self.logger.info(
+                    f"Attempting to dump {desc} file to {completed.get('Path')}...",
+                    __file__,
+                )
+
+                completed.get("Command")(
+                    self.dm, completed.get("Path"), self.logger)
+
+                print(
+                    f"[{ok}]   Successfully dumped hardware information to {desc} file! Stored in {completed.get('Path')}\n"
+                )
+                self.logger.info(
+                    f"Successfully dumped hardware information to {desc} file! Stored in {completed.get('Path')}",
+                    __file__,
+                )
+            except Exception as e:
+                fail = color_text(" FAILED ", "red")
+                print(
+                    f"[{fail}]   Failed to dump to {desc} file in {completed.get('Path')}...",
+                    __file__,
+                )
+                self.logger.error(
+                    f"Failed to dump to {desc}!\n\t^^^^^^^^^^^^{str(e)}",
+                    __file__,
+                )
+
+        self.logger.info("Successfully exited after dumping.\n\n", __file__)
+        exit(0)
+
+    def parse_flags(self, args):
+        if list(filter(lambda x: "-h" in x.lower(), args)):
             self.help()
             exit(0)
 
-        found = self.apff(found)
-        found = self.assign_paths(found)
+        vals = []
 
-        executed = False
-
-        for flag in found:
-            found = flag.get("Argument", {}).get("Valid", [{}])[0].get("Found", {})
-            path = flag.get("Path")
-
-            dump_type = ""
-
-            if not found.get("Aliases") or not found.get("Command"):
+        for i in range(len(args)):
+            if not args[i].startswith("-"):
                 continue
 
-            if "--text" in found.get("Aliases"):
-                dump_type = "TXT"
-            elif "--json" in found.get("Aliases"):
-                dump_type = "JSON"
-            elif "--xml" in found.get("Aliases"):
-                dump_type = "XML"
-            elif "--plist" in found.get("Aliases"):
-                dump_type = "Plist"
+            dump_type = self.dump_type(args[i])
 
-            if flag.get("Argument"):
-                try:
-                    ok = color_text("   OK   ", "green")
+            if len(args) <= i:
+                vals.append({
+                    "Type": dump_type,
+                    "Original": args[i],
+                    "Path": None,
+                    "Command": self.dump_func(dump_type)
+                })
 
-                    print(f"[{ok}]   Attempting to dump {dump_type} file to {path}...")
-                    self.ui.logger.info(
-                        f"Attempting to dump {dump_type} file to {path}...", __file__
-                    )
+            else:
+                vals.append({
+                    "Type": dump_type,
+                    "Original": args[i],
+                    "Path": self.parse_path(args[i + 1]) if len(args) > (i + 1) and not args[i + 1].startswith("-") else None,
+                    "Command": self.dump_func(dump_type)
+                })
 
-                    found.get("Command")(path)
-                    executed = True
+        return vals
 
-                    print(
-                        f"[{ok}]   Successfully dumped hardware information to {dump_type} file! Stored in {path}\n"
-                    )
-                    self.ui.logger.info(
-                        f"Successfully dumped hardware information to {dump_type} file! Stored in {path}",
-                        __file__,
-                    )
-                except Exception as e:
-                    fail = color_text(" FAILED ", "red")
-                    print(
-                        f"[{fail}]   Failed to dump to {dump_type}!\n\t^^^^^^^^^{str(e)}"
-                    )
-                    self.ui.logger.error(
-                        f"Failed to dump to {dump_type}!\n\t^^^^^^^^^^^^{str(e)}",
-                        __file__,
-                    )
+    def dump_type(self, value):
+        dump_type = "UNKNOWN"
 
-        if executed:
-            self.ui.logger.info("Successfully exited after dumping.\n\n", __file__)
+        for flag in self.flags:
+            aliases = flag.get("Aliases", [])
+            for i in range(len(aliases)):
+                if value.lower() == aliases[i].lower():
+                    dump_type = aliases[0]
+                    break
+
+        return dump_type
+
+    def prompts(self):
+        self.prompt(self.missing[0])
+
+        if self.missing:
+            return self.prompts()
+
+        if not self.interactive:
             exit(0)
 
-        self.ui.create_ui()
-
-    def recursively_parse(self, args=[]):
-        """
-        Function to properly format and extract flags.
-        Case #1:
-            <executable> -X -T -J [path]
-
-        We'd want to map the functions for dumping XML, TXT and JSON,
-        but make sure they're all dumped to the same path.
-
-        Case #2:
-            <executable> -X [path1] -T -J [path2]
-
-        Here, we'd want to execute the XML dump to path1,
-        but TXT and JSON dumps to path2.
-
-        Case #3:
-            <executable> -X [path1] -T -J
-
-        Here, we'd want to execute the XML dump to path1,
-        but TXT and JSON dumps to the root directory of the program.
-
-        Case #4:
-            <executable> -X -T --pathX <path1> --pathT <path2>
-
-        Here, we'd want to execute the XML dump to path1,
-        but TXT dump to path2.
-
-        Case #5:
-            <executable> -X -T -J --pathX <path1> --pathT <path2>
-
-        Here, we'd want to execute the XML dump to path1,
-        but TXT dump to path2, and JSON dump to the root directory of the program.
-        """
-
-        if len(args) == 0:
-            return [{}]
-
-        if "--path" == args[0][0:6].lower():
-            return [
-                {"Argument": args[0], "Path Flag": True},
-                *self.recursively_parse(args[2:]),
-            ]
-
-        if "-" in args[0][0]:
-            flag = self.find_flag(args[0])
-
-            if len(args) > 1:
-                if "-" in args[1]:
-                    return [
-                        {"Argument": flag, "Path": None},
-                        *self.recursively_parse(args[1:]),
-                    ]
-                else:
-                    if args[1] == ".":
-                        args[1] = os.getcwd()
-
-                    return [
-                        {"Argument": flag, "Path": args[1]},
-                        *self.recursively_parse(args[2:]),
-                    ]
-            elif len(args) == 1:
-                return [{"Argument": flag, "Path": root}]
-        else:
-            return [{"Argument": args[0]}, *self.recursively_parse(args[1:])]
-
-    def assign_paths(self, values):
-        # List of dictionaries with the following values:
-        #
-        #   Indexes — "tuple" specifying the range of elements without a path
-        #   Parent  — parent path the aforementioned should have
-        vals = []
-        i = 0
-
-        while i < len(values):
-            if not values[i].get("Path"):
-                k = i
-
-                while True:
-                    if len(values) <= k:
-                        vals.append({"Indexes": [i, k - 1], "Parent": os.getcwd()})
-                        i = k
-                        break
-
-                    if values[k].get("Path"):
-                        vals.append(
-                            {"Indexes": [i, k], "Parent": values[k].get("Path")}
-                        )
-
-                        i = k
-                        break
-
-                    k += 1
-            i += 1
-
-        for val in vals:
-            begin = val.get("Indexes")[0]
-            end = val.get("Indexes")[1]
-            k = begin
-
-            while k < end:
-                values[k]["Path"] = val.get("Parent")
-
-                k += 1
-
-        return values
-
-    # APFF – Assign Path From Flags
-    def apff(self, values):
-        # List of tuples:
-        #    (X, Y)
-        #
-        #  X – Format of dump file (TXT/JSON/XML/Plist)
-        #  Y – Index of its location in `values`
-        dumps = []
-
-        # List of tuples:
-        #    (K, N)
-        #
-        #  K — Parent format this directory belongs to (TXT/JSON/XML/Plist)
-        #  N — The path itself
-        paths = []
-
-        i, k = 0, 0
-
-        while i < len(values):
-            if type(values[i].get("Argument")) != dict:
-                i += 1
-                continue
-
-            success_log = (
-                values[i]
-                .get("Argument", {})
-                .get("Valid", [{}])[0]
-                .get("Found", {})
-                .get("Log", {})
-                .get("Success", "")
-            )
-
-            if "txt" in success_log.lower():
-                dumps.append(("TXT", i))
-            elif "json" in success_log.lower():
-                dumps.append(("JSON", i))
-            elif "xml" in success_log.lower():
-                dumps.append(("XML", i))
-            elif "plist" in success_log.lower():
-                dumps.append(("Plist", i))
-            elif success_log:
-                print("Uhhh. What?")
-                print("You appeared to have broken our CLI, bravo.")
-                exit(0)
-
-            i += 1
-
-        argv = sys.argv[1:]
-
-        while k < len(argv):
-            try:
-                path_arg = argv[k]
-            except IndexError:
-                break
-
-            if type(path_arg) != str:
-                k += 1
-                continue
-
-            if "--path" in path_arg.lower():
-                path = ""
-                parent = ""
-
-                # `path_arg[-1:]` retrieves the last character
-                #  of the flag. Example:
-                #      --pathX
-                #
-                #  here, it would yield `X`
-                if "t" == path_arg.split("=")[0][-1:].lower():
-                    parent = "TXT"
-                elif "j" == path_arg.split("=")[0][-1:].lower():
-                    parent = "JSON"
-                elif "x" == path_arg.split("=")[0][-1:].lower():
-                    parent = "XML"
-                elif "p" == path_arg.split("=")[0][-1:].lower():
-                    parent = "Plist"
-                else:
-                    print(f"\"{path_arg.split('=')[0]}\" is an invalid path flag!")
-                    print('Please use the "-H" flag to see a list of valid path flags.')
-                    exit(1)
-
-                if "=" in path_arg.lower():
-                    _arg = path_arg.split("=")[1]
-
-                    path = os.getcwd() if _arg == "." else _arg
-                else:
-                    try:
-                        path = argv[k + 1]
-
-                        if "-" in path:
-                            print(
-                                f"\"{path_arg.split('=')[0]}\" flag does not contain a path. Please specify one."
-                            )
-                            exit(1)
-
-                    except IndexError:
-                        print(
-                            f"\"{path_arg.split('=')[0]}\" flag does not contain a path. Please specify one."
-                        )
-                        exit(1)
-
-                paths.append((parent, path))
-
-            k += 1
-
-        missing = False
-
-        for path in paths:
-            found = next((dump for dump in dumps if dump[0] == path[0]), None)
-
-            if found:
-                try:
-                    # print(values[dumps[found[1]][1]])
-                    values[dumps[found[1]][1]]["Path"] = (
-                        path[1] if path[1] != "." else os.getcwd()
-                    )
-                except Exception as e:
-                    raise e
-            else:
-                missing = True
+    def prompt(self, missing, again=False):
+        if missing.get("Type") == "UNKNOWN":
+            if not self.interactive:
                 print(
-                    f'Path for "--{path[0].lower()}" flag specified, but flag not found!'
+                    f"'{missing.get('Original', 'UNKNOWN')}' is not a valid dump type!\n")
+                if missing.get("Path"):
+                    return self.delete_item(missing, self.missing)
+
+            else:
+                # Dump type
+                dt = self.dump_type(
+                    input(
+                        f"'{missing.get('Original', 'UNKNOWN')}' is not a valid dump type!\nPlease retype a new flag: ")
                 )
 
-        if missing:
-            exit(1)
+                print("\n")
 
-        return values
+                if dt == "UNKNOWN":
+                    missing["Original"] = dt
+                    return self.prompt(missing)
 
-    def find_flag(self, arg):
-        data = {"Valid": [], "Invalid": []}
+                missing["Type"] = dt
+                missing["Command"] = self.dump_func(dt)
 
-        found = next(
-            (
-                flag
-                for flag in self.flags
-                if arg.lower() in [x.lower() for x in flag.get("Aliases")]
-            ),
-            {},
-        )
+        if again == False and missing.get("Path") != None and not os.path.isdir(missing.get("Path") or ""):
+            again = True
 
-        data["Valid" if found else "Invalid"].append({"Original": arg, "Found": found})
+        if not missing.get("Path"):
+            if not self.interactive:
+                print(
+                    f"'{missing.get('Type') if missing.get('Type') != 'UNKNOWN' else missing.get('Original')}' is missing an accommodating path!\n\n" if not again else
+                    f"'{missing.get('Path')}' is an invalid path!\n\n"
+                )
+                return self.delete_item(missing, self.missing)
 
-        # In case some flags are invalid.
-        if data.get("Invalid"):
-            for invalid in data.get("Invalid"):
-                original = invalid.get("Original", "")
-                print(f'"{original}" is not a valid flag!')
+            else:
+                # Dump path
+                dp = self.parse_path(
+                    input(
+                        f"'{missing.get('Type') if missing.get('Type') != 'UNKNOWN' else missing.get('Original')}' is missing an accommodating path!\nPlease enter a path: " if not again else
+                        f"'{missing.get('Path')}' is an invalid path! Please enter a new, valid path: ")
+                )
 
-            print('Please use the "-H" flag to bring up the help menu.')
+                missing["Path"] = dp
 
-            exit(1)
+                print("\n\n")
 
-        return data
+                if not os.path.isdir(dp):
+                    return self.prompt(missing, again=True)
+
+        self.delete_item(missing, self.missing)
+        self.completed.append(missing)
+
+    def dump_desc(self, value):
+        if "-x" in value.lower():
+            return "XML"
+        elif "-t" in value.lower():
+            return "TXT"
+        elif "-j" in value.lower():
+            return "JSON"
+        elif "-p" in value.lower():
+            return "Plist"
+
+        return "UNKNOWN TYPE"
+
+    def dump_func(self, dump_type):
+        def func(x): return None
+
+        for flag in self.flags:
+            if dump_type in flag.get("Aliases", []):
+                func = flag.get("Command", lambda x: None)
+                break
+
+        return func
+
+    def delete_item(self, item, target):
+        for i in range(len(target)):
+            if target[i] == item:
+                del target[i]
+                break
+
+    def parse_path(self, path):
+        if path == ".":
+            return os.getcwd()
+        elif path.startswith("~/"):
+            return os.path.join(os.path.expanduser("~"), path[2:])
+
+        return path
 
     def _longest(self, tuples):
         highest = 0
