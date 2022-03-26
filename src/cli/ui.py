@@ -1,13 +1,13 @@
-import dicttoxml
-import json
-import logging
 import os
-import plistlib
 import subprocess
 import sys
 from src.info import name, version, arch, color_text, format_text, surprise
 from src.info import root_dir as root
 from src.util.os_version import os_ver
+from src.util.dump_functions.text import dump_txt
+from src.util.dump_functions.json import dump_json
+from src.util.dump_functions.xml import dump_xml
+from src.util.dump_functions.plist import dump_plist
 from src.managers.tree import tree
 
 
@@ -67,11 +67,6 @@ class UI:
 
     def __init__(self, dm, logger):
         self.dm = dm
-        self.dm.info = {
-            k: v
-            for (k, v) in self.dm.info.items()
-            if self.dm.info[k] and (v[0] != {} if isinstance(v, list) else v != {})
-        }
         self.logger = logger
         self.dump_dir = root
 
@@ -184,85 +179,16 @@ class UI:
         self.handle_cmd(cmd_options)
 
     def dump_txt(self):
-        data = None
-
-        try:
-            with open(
-                os.path.join(self.dump_dir, "info_dump.txt"), "w", encoding="utf-8"
-            ) as file:
-                for key in self.dm.info:
-                    file.write(tree(key, self.dm.info[key], color=False))
-                    file.write("\n")
-
-                file.close()
-                self.logger.info(
-                    f'Successfully dumped "info_dump.txt" into "{self.dump_dir}"', __file__
-                )
-
-                data = f'Successfully dumped "info_dump.txt" into "{self.dump_dir}"\n'
-        except Exception as e:
-            self.logger.error(
-                f"Failed to dump to TXT!\n\t^^^^^^^^^{str(e)}", __file__)
-
-        return data
+        return dump_txt(self.dm, self.dump_dir, self.logger)
 
     def dump_json(self):
-        data = None
-
-        try:
-            with open(os.path.join(self.dump_dir, "info_dump.json"), "w") as _json:
-                _json.write(json.dumps(
-                    self.dm.info, indent=4, sort_keys=False))
-                _json.close()
-                self.logger.info(
-                    f'Successfully dumped "info_dump.json" into "{self.dump_dir}"', __file__
-                )
-
-                data = f'Successfully dumped "info_dump.json" into "{self.dump_dir}"\n'
-        except Exception as e:
-            self.logger.error(
-                f"Failed to dump to JSON!\n\t^^^^^^^^^{str(e)}", __file__)
-
-        return data
-
+        return dump_json(self.dm, self.dump_dir, self.logger)
+    
     def dump_xml(self):
-        data = None
-
-        try:
-            with open(os.path.join(self.dump_dir, "info_dump.xml"), "wb") as xml:
-                # Disables debug prints from `dicttoxml`
-                dicttoxml.LOG.setLevel(logging.ERROR)
-                xml.write(dicttoxml.dicttoxml(self.dm.info, root=True))
-                xml.close()
-                self.logger.info(
-                    f'Successfully dumped "info_dump.xml" into "{self.dump_dir}"', __file__
-                )
-                
-                data = f'Successfully dumped "info_dump.xml" into "{self.dump_dir}"\n'
-        except Exception as e:
-            self.logger.error(
-                f"Failed to dump to XML!\n\t^^^^^^^^^{str(e)}", __file__)
-
-        return data
+        return dump_xml(self.dm, self.dump_dir, self.logger)
 
     def dump_plist(self):
-        data = None
-
-        try:
-            with open(os.path.join(self.dump_dir, "info_dump.plist"), "wb") as plist:
-                plistlib.dump(self.dm.info, plist, sort_keys=False)
-                plist.close()
-                self.logger.info(
-                    f'Successfully dumped info "info_dump.plist" into "{self.dump_dir}"', __file__
-                )
-
-                data = f'Successfully dumped info "info_dump.plist" into "{self.dump_dir}"\n'
-        except Exception as e:
-            self.logger.error(
-                f"Failed to dump to Plist!\n\t^^^^^^^^^{str(e)}", __file__
-            )
-
-        return data
+        return dump_plist(self.dm, self.dump_dir, self.logger)
 
     def quit(self):
         clear()
