@@ -1,28 +1,6 @@
 #!/usr/bin/env python3
 
 if __name__ == "__main__":
-    import sys
-    from src.util.missing_dep import Requirements, REQUIRED
-    if sys.version_info < (3, 8, 0):
-        print("OCSysInfo requires Python 3.8, while Python " + str(
-            sys.version.partition(" ")[0]) + " was detected. Terminating... ")
-        sys.exit(1)
-
-    # Check if there are missing dependencies
-    requirements = Requirements()
-    missing = requirements.test_req()
-
-    # If there are missing dependencies,
-    # list them and exit.
-    if missing:
-        for missed in missing:
-            print(f'\033[1m\033[4m\033[91mPackage "{missed}" is not installed!\033[0m')
-
-        try:
-            requirements.install_reqs(missing)
-        except KeyboardInterrupt:
-            exit(0)
-
     # requests, clear_screen and color_text are being imported here due to
     # the program throwing an error if there are missing dependencies
     # at the initial start-up phase of the program.
