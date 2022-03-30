@@ -193,7 +193,7 @@ class UI:
     def quit(self):
         clear()
         self.logger.info("Successfully exited.\n\n")
-        exit(0)
+        sys.exit(0)
 
     def create_ui(self):
         options = [

@@ -195,12 +195,12 @@ class FlagParser:
                 )
 
         self.logger.info("Successfully exited after dumping.\n\n", __file__)
-        exit(0)
+        sys.exit(0)
 
     def parse_flags(self, args):
         if list(filter(lambda x: "-h" in x.lower(), args)):
             self.help()
-            exit(0)
+            sys.exit(0)
 
         vals = []
 
@@ -247,7 +247,7 @@ class FlagParser:
             return self.prompts()
 
         if not self.interactive:
-            exit(0)
+            sys.exit(0)
 
     def prompt(self, missing, again=False):
         if missing.get("Type") == "UNKNOWN":
