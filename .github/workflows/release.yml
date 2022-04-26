@@ -18,9 +18,6 @@ jobs:
         with:
           python-version: "3.10.x"
 
-      - name: Check if python version supports ARM64 and x86_64 mode
-        run: file /usr/local/bin/python3
-
       - name: Install dependencies
         run: pip3 install -r requirements.txt
 
@@ -28,13 +25,13 @@ jobs:
         run: pip3 install pyinstaller
 
       - name: Build binaries for OSX
-        run: pyinstaller main.py --onefile --name ocsysinfo_osx_universal --paths=./src --target-architecture universal2
+        run: pyinstaller main.py --onefile --name ocsysinfo_osx_x86_64 --paths=./src --target-architecture x86_64
 
       - name: Upload to Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: Artifacts OSX
-          path: dist/ocsysinfo_osx_universal
+          path: dist/ocsysinfo_osx_x86_64
 
       - name: Upload to Release
         if: github.event_name == 'release'
