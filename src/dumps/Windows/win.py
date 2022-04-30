@@ -1,4 +1,6 @@
 import re
+
+import requests
 from src.util.codename_manager import CodenameManager
 import wmi
 from .cpuid import CPUID
@@ -14,7 +16,6 @@ class WindowsHardwareManager:
     """
     Instance, implementing `DeviceManager`, for extracting system information
     from Windows systems using the `WMI` infrastructure.
-
     https://docs.microsoft.com/en-us/windows/win32/wmisdk/wmi-start-page
     """
 
@@ -22,6 +23,7 @@ class WindowsHardwareManager:
         self.info = parent.info
         self.pci = parent.pci
         self.logger = parent.logger
+        self.offline = parent.offline
         self.cpu = {}
         self.c = wmi.WMI()
 
@@ -101,10 +103,11 @@ class WindowsHardwareManager:
             data["SSE"] = highest
             data["SSSE3"] = "Supported" if SSSE3 else "Not Available"
 
-            self.cnm = CodenameManager(model, manufacturer)
+            if not self.offline:
+                self.cnm = CodenameManager(model, manufacturer)
 
-            if self.cnm.codename:
-                data["Codename"] = self.cnm.codename
+                if self.cnm.codename:
+                    data["Codename"] = self.cnm.codename
 
             self.info["CPU"].append({model: data})
 
@@ -256,19 +259,23 @@ class WindowsHardwareManager:
                     )
                     continue
 
-                try:
-                    model = (
-                        self.pci.get_item(
-                            dev[2:], ven[2:], types="pci" if not usb else "usb"
+                if self.offline:
+                    model = { "device": "Unknown Network Controller" }
+                else:
+                    try:
+                        model = (
+                            self.pci.get_item(
+                                dev[2:], ven[2:], types="pci" if not usb else "usb"
+                            )
+                            or {}
                         )
-                        or {}
-                    )
-                except Exception as e:
-                    self.logger.error(
-                        f"Failed to obtain Network controller (WMI)\n\t^^^^^^^^^{str(e)}",
-                        __file__,
-                    )
-                    model = {}
+                    except Exception:
+                        model = { "device": "Unknown Network Controller" }
+
+                        self.logger.warning(
+                            f"Failed to obtain model for Network controller (WMI) – Non-critical, ignoring",
+                            __file__,
+                        )
 
                 data = {"Device ID": dev, "Vendor": ven}
 
@@ -341,15 +348,20 @@ class WindowsHardwareManager:
                             model = {
                                 "device": f"Realtek ALC{hex(int(dev, 16))[2:]}"}
                         else:
-                            try:
-                                model = self.pci.get_item(
-                                    dev[2:], ven[2:]) or {}
-                            except Exception as e:
-                                self.logger.warning(
-                                    f"Failed to obtain Sound device (WMI)\n\t^^^^^^^^^{str(e)}",
-                                    __file__,
-                                )
-                                continue
+                            if self.offline:
+                                model = { "device": "Unknown Sound Device" }
+                            else:
+                                try:
+                                    model = self.pci.get_item(
+                                        dev[2:], ven[2:])
+                                except Exception:
+                                    model = { "device": "Unknown Sound Device" }
+
+                                    self.logger.warning(
+                                        f"Failed to obtain model for Sound device (WMI) – Non-critical, ignoring",
+                                        __file__,
+                                    )
+                                
                 else:
                     self.logger.warning(
                         "[POST]: Failed to obtain Sound device (WMI)", __file__

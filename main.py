@@ -31,16 +31,15 @@ if __name__ == "__main__":
                 ui.create_ui()
             except Exception as e:
                 if isinstance(e, requests.ConnectionError):
-                    print(color_text("This program needs an internet connection to run. "
-                                     "Please connect to the internet and restart this program.", "red"))
-                    logger.critical("No internet connection found. Exiting OCSysInfo", __file__)
-                    sys.exit(0)
+                    flag_parser.offline = True
+
                 if isinstance(e, PermissionError):
                     print(color_text("Could not access the required data. "
                                      "Try running this program using elevated privileges.", "red"))
                     logger.critical("Could not access the required data. Exiting OCSysInfo\n\t"
                                     f"^^^^^^^^{str(e)}", __file__)
                     sys.exit(0)
+                    
                 else:
                     raise e
             finally:

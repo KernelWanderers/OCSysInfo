@@ -16,7 +16,7 @@ class PCIIDs:
         if not data and ven != "any":
             data = self.get_item_pi(dev, ven)
 
-        return data or None
+        return data or {}
 
     def get_item_dh(self, dev: str, ven: str = "any", types="pci") -> dict or None:
         content = requests.get(

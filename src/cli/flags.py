@@ -18,14 +18,16 @@ class FlagParser:
     the FlagParser!
     """
 
-    def __init__(self, logger, dm=None):
-        self.dm = dm
+    def __init__(self, logger, dm=None, offline=False):
         args = sys.argv[1:]
+
+        self.dm = dm
+        self.offline = offline or "--offline" in args
 
         if not self.dm and not list(filter(lambda x: "-h" in x.lower(), args)):
             print(color_text(
                 "Analyzing hardware... (this might take a while, don't panic)", "red"))
-            self.dm = DeviceManager(logger)
+            self.dm = DeviceManager(logger, offline=self.offline)
             self.dm.info = {
                 k: v
                 for (k, v) in self.dm.info.items()
@@ -37,9 +39,12 @@ class FlagParser:
         self.missing = []
         self.interactive = not "--no-interactive" in args
 
-        if not self.interactive:
+        if not self.interactive or "--offline" in args:
             for i in range(len(args)):
                 if "--no-interactive" in args[i].lower():
+                    del args[i]
+                
+                if "--offline" in args[i].lower():
                     del args[i]
 
         self.flags = [
@@ -116,6 +121,10 @@ class FlagParser:
                 (
                     "[--no-interactive]",
                     "disables dynamic prompts for missing/invalid values (such as invalid dump types and [missing] paths)",
+                ),
+                (
+                    "[--offline]",
+                    "runs the application in OFFLINE mode, regardless of whether or not an internet connection is available"
                 )
             ]
 

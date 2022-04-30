@@ -1,4 +1,6 @@
 import binascii
+
+import requests
 import src.dumps.macOS.ioreg as ioreg
 import subprocess
 from src.error.cpu_err import cpu_err
@@ -11,7 +13,6 @@ class MacHardwareManager:
     """
     Instance, implementing `DeviceManager`, for extracting system information
     from macOS using the `IOKit` framework.
-
     https://developer.apple.com/documentation/iokit
     """
 
@@ -19,6 +20,7 @@ class MacHardwareManager:
         self.info = parent.info
         self.pci = parent.pci
         self.logger = parent.logger
+        self.offline = parent.offline
         self.vendor = None
         self.cpu = {}
 
@@ -124,10 +126,11 @@ class MacHardwareManager:
                 "Supported" if features.lower().find("ssse3") > -1 else "Not Available"
             )
 
-        self.cnm = CodenameManager(model, vendor)
+        if not self.offline:
+            self.cnm = CodenameManager(model, vendor)
 
-        if self.cnm.codename:
-            data["Codename"] = self.cnm.codename
+            if self.cnm.codename:
+                data["Codename"] = self.cnm.codename
 
         self.info["CPU"].append({model: data})
 
@@ -391,6 +394,7 @@ class MacHardwareManager:
                 data = {
                     # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
                     "Device ID": dev,
+
                     # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
                     "Vendor": ven,
                 }
@@ -404,13 +408,24 @@ class MacHardwareManager:
                 if acpi:
                     data["ACPI Path"] = acpi
             except Exception as e:
-                self.logger.error(
-                    "Failed to obtain vendor/device id for Network controller (IOKit)"
-                    + f"\n\t^^^^^^^^^{str(e)}"
+                self.logger.critical(
+                    f"Failed to obtain vendor/device id for Network controller (IOKit)\n\t^^^^^^^^^{str(e)}",
+                    __file__,
                 )
                 continue
 
-            model = self.pci.get_item(dev[2:], ven[2:])
+            if self.offline:
+                model = {"device": "Unknown Network Controller"}
+            else:
+                try:
+                    model = self.pci.get_item(dev[2:], ven[2:])
+                except Exception:
+                    model = {"device": "Unknown Network Controller"}
+
+                    self.logger.warning(
+                        f"Failed to obtain model for Network controller (IOKit) – Non-critical, ignoring",
+                        __file__,
+                    )
 
             if model:
                 model = model.get("device")
@@ -467,12 +482,19 @@ class MacHardwareManager:
                     )
                     continue
 
-                model = self.pci.get_item(dev[2:], ven[2:])
-
-                if model:
-                    model = model.get("device")
+                if self.offline:
+                    model = "N/a"
                 else:
-                    model = "N/A"
+                    try:
+                        model = self.pci.get_item(
+                            dev[2:], ven[2:]).get("device", "")
+                    except Exception:
+                        model = "N/A"
+
+                        self.logger.warning(
+                            f"Failed to obtain model for Sound Device (IOKit) – Non-critical, ignoring",
+                            __file__,
+                        )
 
             else:
                 try:
@@ -499,10 +521,19 @@ class MacHardwareManager:
                     )
                     continue
 
-                model = self.pci.get_item(dev[2:], ven[2:]).get("device", "")
-
-                if not model:
+                if self.offline:
                     model = "N/A"
+                else:
+                    try:
+                        model = self.pci.get_item(
+                            dev[2:], ven[2:]).get("device", "")
+                    except Exception:
+                        model = "N/A"
+
+                        self.logger.warning(
+                            f"Failed to obtain model for Sound Device (IOKit) – Non-critical, ignoring",
+                            __file__,
+                        )
 
             path = pci_from_acpi_osx(device.get("acpi-path", ""), self.logger)
 
