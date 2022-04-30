@@ -20,6 +20,7 @@ class LinuxHardwareManager:
         self.info = parent.info
         self.pci = parent.pci
         self.logger = parent.logger
+        self.offline = parent.offline
 
     def dump(self):
         self.cpu_info()
@@ -41,13 +42,17 @@ class LinuxHardwareManager:
             )
             cpu_err(e)
 
-        architecture = subprocess.run(['uname', '-m'], capture_output=True, text=True)
+        architecture = subprocess.run(
+            ['uname', '-m'], capture_output=True, text=True)
 
-        if architecture.stdout == "aarch64\n" or "arm" in architecture.stdout: # Check if the architecture is ARM.
+        # Check if the architecture is ARM.
+        if architecture.stdout == "aarch64\n" or "arm" in architecture.stdout:
             data = {}
 
-            model = re.search(r"(?<=Hardware\t\: ).+(?=\n)", cpus) # Get the name of the CPU.
-            arm_version = re.search(r"(?<=CPU architecture\: ).+(?=\n)", cpus) # Get the ARM version of the CPU
+            # Get the name of the CPU.
+            model = re.search(r"(?<=Hardware\t\: ).+(?=\n)", cpus)
+            # Get the ARM version of the CPU
+            arm_version = re.search(r"(?<=CPU architecture\: ).+(?=\n)", cpus)
             model = model.group()
             data = {model: {}}
 
@@ -67,12 +72,12 @@ class LinuxHardwareManager:
 
             self.info.get("CPU").append(data)
             return
-        
+
         cpu = cpus.split("\n\n")
 
         if not cpu:
             return
-        
+
         cpu = cpu[0]  # Get only the first CPU identifier.
 
         model = re.search(r"(?<=model name\t\: ).+(?=\n)", cpu)
@@ -127,10 +132,11 @@ class LinuxHardwareManager:
             )
             pass
 
-        self.cnm = CodenameManager(model, vendor)
+        if not self.offline:
+            self.cnm = CodenameManager(model, vendor)
 
-        if self.cnm.codename:
-            data[model]["Codename"] = self.cnm.codename
+            if self.cnm.codename:
+                data[model]["Codename"] = self.cnm.codename
 
         self.info.get("CPU").append(data)
 
@@ -153,15 +159,27 @@ class LinuxHardwareManager:
                     ven = open(f"{path}/vendor", "r").read().strip()
                     dev = open(f"{path}/device", "r").read().strip()
 
-                    model = self.pci.get_item(dev[2:], ven[2:]).get("device")
-
                     data = {"Device ID": dev, "Vendor": ven}
                 except Exception as e:
-                    self.logger.warning(
+                    self.logger.critical(
                         f"Failed to obtain vendor/device id for GPU device (SYS_FS/DRM)\n\t^^^^^^^^^{str(e)}",
                         __file__,
                     )
                     continue
+
+                if self.offline:
+                    model = "Unknown GPU Device"
+                else:
+                    try:
+                        model = self.pci.get_item(
+                            dev[2:], ven[2:]).get("device")
+                    except Exception:
+                        model = "Unknown GPU Device"
+
+                        self.logger.warning(
+                            f"Failed to obtain model for GPU Device (SYS_FS/DRM) – Non-critical, ignoring",
+                            __file__,
+                        )
 
                 try:
                     pcir = pci_from_acpi_linux(path, self.logger)
@@ -379,13 +397,25 @@ class LinuxHardwareManager:
 
                     data = {"Device ID": dev, "Vendor": ven}
 
-                    model = self.pci.get_item(dev[2:], ven[2:]).get("device")
                 except Exception as e:
                     self.logger.error(
                         f"Failed to obtain vendor/device id for Network controller (SYS_FS/NET)\n\t^^^^^^^^^{str(e)}",
                         __file__,
                     )
                     return
+
+                if self.offline:
+                    model = "Unknown Network Controller"
+                else:
+                    try:
+                        model = self.pci.get_item(dev[2:], ven[2:]).get("device")
+                    except Exception:
+                        model = "Unknown Network Controller"
+
+                        self.logger.warning(
+                            f"Failed to obtain model for Network Controller (SYS_FS/NET) – Non-critical, ignoring",
+                            __file__,
+                        )
 
                 try:
                     pcir = pci_from_acpi_linux(path, self.logger)
@@ -422,13 +452,25 @@ class LinuxHardwareManager:
                     dev = open(f"{path}/device", "r").read().strip()
 
                     data = {"Device ID": dev, "Vendor": ven}
-                    model = self.pci.get_item(dev[2:], ven[2:]).get("device")
                 except Exception as e:
                     self.logger.warning(
-                        f"Failed to obtain vendor/device id for Audio controller (SYS_FS/SOUND)\n\t^^^^^^^^^{str(e)}",
+                        f"Failed to obtain vendor/device id for Audio device/controller (SYS_FS/SOUND)\n\t^^^^^^^^^{str(e)}",
                         __file__,
                     )
                     continue
+
+                if self.offline:
+                    model = "Unknown Sound Device"
+                else:
+                    try:
+                        model = self.pci.get_item(dev[2:], ven[2:]).get("device")
+                    except Exception:
+                        model = "Unknown Sound Device"
+
+                        self.logger.warning(
+                            f"Failed to obtain model for Audio device/controller (SYS_FS/SOUND) – Non-critical, ignoring",
+                            __file__,
+                        )
 
                 try:
                     pcir = pci_from_acpi_linux(f"{path}", self.logger)
@@ -539,7 +581,7 @@ class LinuxHardwareManager:
                     vendor = open(f"{path}/id/vendor", "r").read().strip()
                 except Exception as e:
                     self.logger.error(
-                        f"Failed to obtain product/vendor id of device using the RMI4 protocol (SYS_FS/INPUT) – Non-critical, ignoring\n\t^^^^^^^^^{str(e)}",
+                        f"Failed to obtain product/vendor id of device using the RMI4 protocol (SYS_FS/INPUT) – Non-critical, ignoring",
                         __file__,
                     )
                     continue
@@ -566,7 +608,7 @@ class LinuxHardwareManager:
                     name = open(f"{path}/name").read().strip()
                 except Exception as e:
                     self.logger.error(
-                        f"Failed to obtain PS2 device name (SYS_FS/INPUT) – Non-critical, ignoring\n\t^^^^^^^^^{str(e)}",
+                        f"Failed to obtain PS2 device name (SYS_FS/INPUT) – Non-critical, ignoring",
                         __file__,
                     )
                     continue
@@ -590,25 +632,31 @@ class LinuxHardwareManager:
                     ven = "0x" + open(f"{path}/id/vendor", "r").read().strip()
                 except Exception as e:
                     self.logger.warning(
-                        f"Failed to obtain device/vendor id of ambiguous Input device (SYS_FS/INPUT) – Non-critical, ignoring\n\t^^^^^^^^^{str(e)}",
+                        f"Failed to obtain device/vendor id of ambiguous Input device (SYS_FS/INPUT) – Non-critical, ignoring",
                         __file__,
                     )
                     continue
 
                 else:
                     if ven and dev:
-                        name = self.pci.get_item(dev[2:], ven[2:], types="usb")
+                        if self.offline:
+                            name = {"device": "Unknown Input Device"}
+                        
+                        else:
+                            try:
+                                name = self.pci.get_item(
+                                    dev[2:], ven[2:], types="usb")
+                            except Exception:
+                                name = {"device": "Unknown Input Device"}
 
-                        if not name:
-                            self.logger.warning(
-                                "Failed to identify ambiguous Input device (SYS_FS/INPUT) – Non-critical, ignoring",
-                                __file__,
-                            )
-                            continue
+                                self.logger.warning(
+                                    f"Failed to obtain model for Input device (SYS_FS/INPUT) – Non-critical, ignoring",
+                                    __file__,
+                                )
 
                         self.info["Input"].append(
                             {
-                                name.get("device", "Unknown"): {
+                                name.get("device", "Unknown Input Device"): {
                                     "Device ID": dev,
                                     "Vendor": ven,
                                 }
@@ -646,13 +694,25 @@ class LinuxHardwareManager:
                 if "nvme" in folder:
                     connector = "PCIe"
 
-                    # Uses PCI vendor,device ids to get a vendor for the NVMe block device
+                    # Uses PCI vendor & device ids to get a vendor for the NVMe block device
                     dev = open(f"{path}/device/device/device",
                                "r").read().strip()
                     ven = open(f"{path}/device/device/vendor",
                                "r").read().strip()
-                    vendor = self.pci.get_item(
-                        dev[2:], ven[2:]).get("vendor", "")
+
+                    if self.offline:
+                        vendor = ""
+                    
+                    else:
+                        try:
+                            vendor = self.pci.get_item(
+                                dev[2:], ven[2:]).get("vendor", "")
+                        except Exception:
+                            vendor = ""
+
+                            self.logger.warning(
+                                f"Failed to obtain vendor for block device (SYS_FS/BLOCK) – Non-critical, ignoring"
+                            )
 
                 elif "sd" in folder:
                     # TODO: Choose correct connector type for block devices that use the SCSI subsystem
