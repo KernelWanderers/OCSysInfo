@@ -9,7 +9,7 @@ import os
 import sys
 
 name = "OCSysInfo"
-version = "0.0.1-alpha"
+version = "v1.0.4"
 os_ver = ""
 arch = platform.machine()
 
