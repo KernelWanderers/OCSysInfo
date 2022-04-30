@@ -33,7 +33,14 @@ def parse_codename(cpu_name):
 
     URL = URL.replace(" ", "_")
 
-    contents = requests.get(URL).content.decode("utf-8")
+    try:
+        contents = requests.get(URL).content.decode("utf-8")
+    except Exception as e:
+        if isinstance(e, requests.ConnectionError):
+            return
+        else:
+            raise e
+            
     data = {"Microarchitecture": "", "Codename": ""}
 
     try:

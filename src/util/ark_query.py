@@ -36,8 +36,14 @@ def quick_search(search_term):
         + "&input_query={0}"
     )
 
-    r = requests.get(url.format(search_term))
-    return r.json()
+    try:
+        r = requests.get(url.format(search_term))
+        return r.json()
+    except Exception as e:
+        if isinstance(e, requests.ConnectionError):
+            return
+        else:
+            raise e
 
 
 def get_codename(ark_url):
@@ -47,7 +53,14 @@ def get_codename(ark_url):
 
     Parsing it, we can get the codename.
     """
-    text_thing = requests.get(ark_url).content.decode("utf8")
+    try:
+        text_thing = requests.get(ark_url).content.decode("utf8")
+    except Exception as e:
+        if isinstance(e, requests.ConnectionError):
+            return
+        else:
+            raise e
+            
     lines = text_thing.split("\n")
     actual_line = {"a": {}}
     for line_index in range(len(lines)):
