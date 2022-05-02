@@ -132,7 +132,7 @@ class FlagParser:
             print(" " + "#" + " " * 10 + title + " " * 10 + "#")
             print("#" * (len(title) + 22), "\n" * 2)
             print(
-                "<executable> \n  | [--help/-H] \n  | [--text/--txt/-tx/-T] \n  | [--json/-J] \n  | [--xml/-X] \n  | [--plist/-P]\n"
+                "<executable> \n  | [--help/-H] \n  | [--text/--txt/-tx/-T] \n  | [--json/-J] \n  | [--xml/-X] \n  | [--plist/-P]\n  | [--no-interactive]\n  | [--offline]\n"
             )
 
             for argument in arguments:
