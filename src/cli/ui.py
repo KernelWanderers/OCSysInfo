@@ -110,6 +110,9 @@ class UI:
         dump_dir = input("Please enter the directory (or 'Q' to exit.): ").strip().replace(
             '"', '').replace("'", "")
 
+        if "~" in dump_dir:
+            dump_dir = dump_dir.replace("~", os.path.expanduser("~"))
+
         if not len(dump_dir):
             clear()
             title()
