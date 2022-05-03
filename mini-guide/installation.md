@@ -1,5 +1,4 @@
 ## How to install
----
 
 There’s really only two ways of running OCSysInfo:
     
@@ -11,7 +10,6 @@ We will demonstrate both methods.
 <br />
 
 ## Method A (using a precombiled binary)
----
 
 This is the simplest and easiest method. You simply go over to the [releases](https://github.com/kernelBPD/OCSysInfo/releases) page, and download an executable for your OS. <br />
 
@@ -52,7 +50,6 @@ And voila! OCSysInfo should be up and running.
 <br />
 
 ## Method B (downloading the source code)
----
 
 Before we start, please ensure that you have Python 3.9 or later installed onto your machine. As this is the __PRIMARY__ prerequisite in order to run the application. <br />
 If you don’t have Python installed, please head over to [Python’s official website](https://www.python.org/downloads/) to download and install it.
