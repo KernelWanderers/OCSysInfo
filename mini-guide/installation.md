@@ -1,4 +1,4 @@
-# How to install
+## How to install
 ---
 
 There’s really only two ways of running OCSysInfo:
@@ -10,7 +10,7 @@ We will demonstrate both methods.
 
 <br />
 
-# Method A (using a precombiled binary)
+## Method A (using a precombiled binary)
 ---
 
 This is the simplest and easiest method. You simply go over to the [releases](https://github.com/kernelBPD/OCSysInfo/releases) page, and download an executable for your OS. <br />
@@ -51,7 +51,7 @@ And voila! OCSysInfo should be up and running.
 
 <br />
 
-# Method B (downloading the source code)
+## Method B (downloading the source code)
 ---
 
 Before we start, please ensure that you have Python 3.9 or later installed onto your machine. As this is the __PRIMARY__ prerequisite in order to run the application. <br />
@@ -59,7 +59,7 @@ If you don’t have Python installed, please head over to [Python’s official w
 
 Firstly, you’ll want to download the source code of the project, either by downloading it as a `.zip` file from GitHub, or by using `git clone`. <br /> <br />
 
-# Downloading it manually through GitHub’s website
+## Downloading it manually through GitHub’s website
 ![Downloading manually](Images/download-manually-1.png)
 
 ![Downloading manually](Images/download-manually-2.png)
@@ -70,7 +70,7 @@ Afterwards, you should have a file of the source code – extract it and go to [
 
 <br />
 
-# Downloading via `git clone`
+## Downloading via `git clone`
 
 Redirect to a place in your machine where you want to git clone the project in. 
 In this example, we redirected into `~/Documents`.
@@ -88,7 +88,7 @@ cd OCSysInfo
 
 <br />
 
-# Installing dependencies and running the app
+## Installing dependencies and running the app
 
 Before we begin, please ensure once more that you have Python 3.9 or later installed. A quick way to verify this is by running:
 

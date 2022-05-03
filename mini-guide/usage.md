@@ -1,4 +1,4 @@
-# OCSysInfo Usage
+## OCSysInfo Usage
 
 
 <u>IMPORTANT</u>: Laptop users: we advise that you disconnect any external USB devices from your machine before attempting to run OCSysInfo, as this may detect a lot of ambiguous devices which may confuse you.
