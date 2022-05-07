@@ -125,7 +125,7 @@ Then, run the `main.py` script located in the project's root. (Do also make sure
 
 ```sh
 # Clone the repository using Git
-git clone https://github.com/iabtw/OCSysInfo.git
+git clone https://github.com/KernelWanderers/OCSysInfo.git
 
 # Switch to the repository folder
 cd OCSysInfo

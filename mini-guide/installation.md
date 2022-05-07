@@ -11,7 +11,7 @@ We will demonstrate both methods.
 
 ## Method A (using a precombiled binary)
 
-This is the simplest and easiest method. You simply go over to the [releases](https://github.com/kernelBPD/OCSysInfo/releases) page, and download an executable for your OS. <br />
+This is the simplest and easiest method. You simply go over to the [releases](https://github.com/KernelWanderers/OCSysInfo/releases) page, and download an executable for your OS. <br />
 
 In this example, we’re on an Intel machine running macOS, so we’d want to download the `osx_x86_64` binary. 
 
@@ -77,7 +77,7 @@ In this example, we redirected into `~/Documents`.
 cd ~/Documents 
 
 # Git cloning the project
-git clone https://github.com/kernelBPD/OCSysInfo.git
+git clone https://github.com/KernelWanderers/OCSysInfo.git
 
 # Redirecting into the project's source code
 cd OCSysInfo

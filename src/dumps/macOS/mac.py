@@ -248,7 +248,7 @@ class MacHardwareManager:
 
         # Special thanks to [Flagers](https://github.com/flagersgit) for this.
         #
-        # Source: https://github.com/iabtw/OCSysInfo/pull/10
+        # Source: https://github.com/KernelWanderers/OCSysInfo/pull/10
         interface = ioreg.corefoundation_to_native(
             ioreg.IORegistryEntryCreateCFProperties(
                 ioreg.IORegistryEntryFromPath(

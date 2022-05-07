@@ -408,7 +408,8 @@ class LinuxHardwareManager:
                     model = "Unknown Network Controller"
                 else:
                     try:
-                        model = self.pci.get_item(dev[2:], ven[2:]).get("device")
+                        model = self.pci.get_item(
+                            dev[2:], ven[2:]).get("device")
                     except Exception:
                         model = "Unknown Network Controller"
 
@@ -463,7 +464,8 @@ class LinuxHardwareManager:
                     model = "Unknown Sound Device"
                 else:
                     try:
-                        model = self.pci.get_item(dev[2:], ven[2:]).get("device")
+                        model = self.pci.get_item(
+                            dev[2:], ven[2:]).get("device")
                     except Exception:
                         model = "Unknown Sound Device"
 
@@ -606,8 +608,8 @@ class LinuxHardwareManager:
 
                 try:
                     name = open(f"{path}/name").read().strip()
-                except Exception as e:
-                    self.logger.error(
+                except Exception:
+                    self.logger.warning(
                         f"Failed to obtain PS2 device name (SYS_FS/INPUT) – Non-critical, ignoring",
                         __file__,
                     )
@@ -621,6 +623,27 @@ class LinuxHardwareManager:
             # Also includes Battery level controls, LED control, etc
             if "thinkpad_acpi" in path.lower():
                 self.info["Input"].append({"Thinkpad Fn Keys": {}})
+
+            # I2C devices (over RMI4 _or_ HID)
+            if "i2c" in path.lower():
+                if not os.path.isfile(f"{path}/id"):
+                    self.logger.warning(
+                        "Failed to obtain device/vendor id of I2C device (SYS_FS/INPUT) – Non-critical, ignoring",
+                        __file__,
+                    )
+                    name = {"device": "Unknown Input Device"}
+
+                try:
+                    ven = open(f"{path}/id/vendor").read().strip()
+                    dev = open(f"{path}/id/device").read().strip()
+
+                    name["device"] = name["device"] + " (I2C)"
+                except Exception:
+                    self.logger.warning(
+                        f"Failed to obtain I2C device name (SYS_FS/INPUT) – Non-critical, ignoring",
+                        __file__,
+                    )
+                    continue
 
             # TODO: Handle I2C HID
             if not "usb" in path.lower():
@@ -641,7 +664,7 @@ class LinuxHardwareManager:
                     if ven and dev:
                         if self.offline:
                             name = {"device": "Unknown Input Device"}
-                        
+
                         else:
                             try:
                                 name = self.pci.get_item(
@@ -702,7 +725,7 @@ class LinuxHardwareManager:
 
                     if self.offline:
                         vendor = ""
-                    
+
                     else:
                         try:
                             vendor = self.pci.get_item(
