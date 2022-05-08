@@ -1,48 +1,86 @@
+import wmi
 import subprocess
+from ctypes import c_ulong
+from src.cfgmgr32.core.cfgmgr32 import CM32
+from src.cfgmgr32.util.get_info import get_info
 
-smbus_driver = subprocess.check_output(["powershell", "Get-WmiObject", "-Class", "Win32_PnPEntity", "|", "Where",
-                                        "-Property", "CompatibleID", "-Contains", "-Value", '"PCI\CC_0C0500"', "|", "Select", "Name"]).decode().lower()
+cm32 = CM32()
 
-smbus_elan = len(smbus_driver) > 0 and "elans" in smbus_driver
-smbus_syna = len(smbus_driver) > 0 and "synaptics" in smbus_driver
-
-def is_usb(inf, service):
-    return inf.split(".")[0] in ("msmouse", "keyboard", "input") and service in ("mouhid", "kbdhid", "hidusb")
-
-
-def is_i2c(inf, service):
-    return "hidi2c" in inf and service == "hidi2c"
+PS2_compatible = [
+    "PNP0F03",
+    "PNP0F12",
+    "PNP0F13",
+]
 
 
-def is_smbus(desc):
-    return ("synaptics" in desc and smbus_syna) or ("elans" in desc and smbus_elan)
+def protocol(pnp_id, logger, _wmi=wmi.WMI()):
+    pdnDevInst = c_ulong()
 
+    status = cm32.CM_Locate_DevNodeA(
+        pdnDevInst,
+        pnp_id.encode("UTF8")
+    ).get("code")
 
-def is_ps2(service):
-    return "i8042" in service.lower()
+    if status != 0x0:
+        logger.warning(
+            f"Failed to determine connection protocol of ambiguous device at status code {status} (WMI) - Non-critical, ignoring",
+            __file__,
+        )
+        return status
 
+    parent = c_ulong()
 
-def driver_type(pnp_id, desc, w):
-    pnp_entity = w.query(f"SELECT * FROM Win32_PnPEntity WHERE PNPDeviceID = '{pnp_id}'")[
-        0].GetDeviceProperties(["DEVPKEY_Device_DriverInfPath", "DEVPKEY_Device_Service", "DEVPKEY_Device_Stack"])
+    stat = cm32.CM_Get_Parent(
+        parent,
+        pdnDevInst,
+    ).get("code")
 
-    protocol = None
+    if stat != 0x0:
+        logger.warning(
+            f"Failed to determine connection protocol of ambiguous device (at parent) at status code {stat} (WMI) - Non-critical, ignoring",
+            __file__,
+        )
+        return stat
 
-    for instances in pnp_entity:
-        if type(instances) == int:
-            continue
+    device_data = get_info(pdnDevInst, cm32)
+    parent_data = get_info(parent, cm32)
 
-        inf = instances[0].Data.lower()
-        service = instances[1].Data.lower()
+    con_type = "UNKNOWN"
 
-        if is_usb(inf, service):
-            protocol = "USB"
-        elif is_i2c(inf, service):
-            protocol = "I2C"
-        elif is_ps2(service):
-            if is_smbus(desc.lower()):
-                protocol = "SMBus"
-            else:
-                protocol = "PS/2"
+    if "i2c" in device_data.get("name", "").lower() \
+            or "i2c" in parent_data.get("name").lower():
+        con_type = "I2C"
 
-    return protocol
+    elif "usb" in device_data.get("driver_desc", "").lower() \
+            or "usb" in parent_data.get("driver_desc", "").lower():
+        con_type = "USB"
+
+    else:
+        compatible_ids = device_data.get("compatible_ids", "").lower()
+
+        for id in PS2_compatible:
+            if id.lower() in compatible_ids:
+                compatible_ids = compatible_ids.replace(id.lower(), "")
+
+        smbus_driver = None
+
+        for entity in _wmi.instances("Win32_PnPEntity"):
+            compat_id = entity.wmi_property("CompatibleID").value
+
+            if compat_id and \
+                    type(compat_id) != str and \
+                    "PCI\\CC_0C0500" in compat_id:
+
+                smbus_driver = entity
+                break
+
+        if smbus_driver:
+            name = smbus_driver.wmi_property("Name").value
+
+            if "synaptics" in name.lower() \
+                    or "elans" in name.lower():
+                return "SMBus"
+
+        con_type = "PS/2"
+
+    return con_type
