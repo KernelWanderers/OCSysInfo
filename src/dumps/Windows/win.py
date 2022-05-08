@@ -1,11 +1,9 @@
 import re
-
-import requests
-from src.util.codename_manager import CodenameManager
 import wmi
+from src.util.codename_manager import CodenameManager
 from .cpuid import CPUID
 from src.util.codename import gpu as _gpu
-from src.util.driver_type import driver_type
+from src.util.driver_type import protocol
 from src.util.pci_root import pci_from_acpi_win
 from src.error.cpu_err import cpu_err
 from operator import itemgetter
@@ -16,6 +14,7 @@ class WindowsHardwareManager:
     """
     Instance, implementing `DeviceManager`, for extracting system information
     from Windows systems using the `WMI` infrastructure.
+
     https://docs.microsoft.com/en-us/windows/win32/wmisdk/wmi-start-page
     """
 
@@ -487,7 +486,7 @@ class WindowsHardwareManager:
                 description = item.wmi_property("Description").value
                 pnp_id = item.wmi_property("PNPDeviceID").value
 
-                d_type = driver_type(pnp_id, description, self.c)
+                d_type = protocol(pnp_id, self.logger, _wmi=self.c)
 
                 if d_type:
                     description += f" ({d_type})"
