@@ -69,6 +69,7 @@ class UI:
         self.dm = dm
         self.logger = logger
         self.dump_dir = root
+        self.state = "menu"
 
     def handle_cmd(self, options=[]):
         cmd = input("\n\nPlease select an option: ")
@@ -101,6 +102,77 @@ class UI:
 
             clear()
             self.create_ui()
+
+    def toggle_data(self):
+        # Sanitise the UI
+        clear()
+        title()
+
+        data_options = [
+            ("C", "CPU"),
+            ("G", "GPU"),
+            ("B", "Motherboard"),
+            ("M", "Memory"),
+            ("N", "Network"),
+            ("A", "Audio"),
+            ("I", "Input"),
+            ("S", "Storage"),
+        ]
+
+        opts = ["C", "G", "B", "M", "N", "A", "I", "S"]
+
+        for opt in data_options:
+            toggled = " " if opt[1] in self.dm.off_data else "X"
+
+            print(f"[{toggled}] ({opt[0]}) - {opt[1]}")
+
+        selected = input(
+            "Please select an option to toggle (or 'R'/'Q' to return): ")
+
+        if selected.lower() == "q" or selected.lower() == "r":
+            clear()
+            title()
+
+            print(color_text("Please wait while we adjust settings...\n", "green"))
+
+            asyncs = []
+
+            for opt in data_options:
+                if not opt[1] in self.dm.off_data and \
+                        not self.dm.info.get(opt[1]):
+                    asyncs.append(opt[1])
+
+            asyncs = ", ".join(asyncs)
+
+            print(f"Attempting to retrieve dumps for: {asyncs}...\n")
+
+            try:
+                self.dm.manager.dump()
+                self.dm.info = self.dm.manager.info
+
+                if input(color_text("[   OK   ] Successfully retrieved additional dumps.", "green") + " Press [enter] to return...") is not None:
+                    pass
+            except Exception:
+                if input(color_text("[ FAILED ] Unable to retrieve dumps.", "red") + " Press [enter] to return...") is not None:
+                    pass
+
+            if self.state == "discovery":
+                return self.discover()
+            else:
+                return self.create_ui()
+
+        if not selected.upper() in opts and \
+                input(color_text("Invalid option! Press [enter] to retry...", "red")) is not None:
+            self.toggle_data()
+
+        option = data_options[opts.index(selected.upper())][1]
+
+        if option in self.dm.off_data:
+            del self.dm.off_data[self.dm.off_data.index(option)]
+        else:
+            self.dm.off_data.append(option)
+
+        return self.toggle_data()
 
     def change_dump_dir(self):
         # Sanitise the UI
@@ -142,7 +214,7 @@ class UI:
                     else self.dm.info[key] == {}
                 )
 
-                if key and not is_empty:
+                if key and not is_empty and not key in self.dm.off_data:
                     val = tree(key, self.dm.info[key])
                     print(val)
             except Exception as e:
@@ -161,6 +233,7 @@ class UI:
             (color_text("X. ", "yellow"), "Dump as XML"),
             (color_text("P. ", "yellow"), "Dump as Plist"),
             (color_text("C. ", "yellow"), "Change dump directory"),
+            (color_text("A. ", "yellow"), "Toggle data"),
             (color_text("Q. ", "yellow"), "Quit"),
         ]
 
@@ -171,6 +244,7 @@ class UI:
             ("X", "X.", self.dump_xml),
             ("P", "P.", self.dump_plist),
             ("C", "C.", self.change_dump_dir),
+            ("A", "A.", self.toggle_data),
             ("Q", "Q.", self.quit),
         ]
 
@@ -179,6 +253,8 @@ class UI:
 
         self.logger.info("Successfully ran 'discovery'.", __file__)
 
+        self.state = "discovery"
+
         self.handle_cmd(cmd_options)
 
     def dump_txt(self):
@@ -186,7 +262,7 @@ class UI:
 
     def dump_json(self):
         return dump_json(self.dm, self.dump_dir, self.logger)
-    
+
     def dump_xml(self):
         return dump_xml(self.dm, self.dump_dir, self.logger)
 
@@ -206,6 +282,7 @@ class UI:
             (color_text("X. ", "yellow"), "Dump as XML"),
             (color_text("P. ", "yellow"), "Dump as Plist"),
             (color_text("C. ", "yellow"), "Change dump directory"),
+            (color_text("A. ", "yellow"), "Toggle data"),
             ("\n\n", color_text("Q. ", "yellow"), "Quit"),
         ]
 
@@ -216,6 +293,7 @@ class UI:
             ("X", "X.", self.dump_xml),
             ("P", "P.", self.dump_plist),
             ("C", "C.", self.change_dump_dir),
+            ("A", "A.", self.toggle_data),
             ("Q", "Q.", self.quit),
         ]
 
@@ -242,6 +320,8 @@ class UI:
                 print("".join(option))
 
             self.logger.info("UI creation ran successfully.", __file__)
+
+            self.state = "menu"
 
             self.handle_cmd(cmd_options)
         except Exception as e:

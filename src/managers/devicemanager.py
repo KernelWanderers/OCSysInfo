@@ -5,7 +5,7 @@ from src.managers.pciids import PCIIDs
 class DeviceManager:
     """Instance responsible for exposing all important information about the current system's hardware."""
 
-    def __init__(self, logger, offline=False):
+    def __init__(self, logger, off_data=[], offline=False):
         self.info = {
             "CPU": [],
             "Motherboard": {},
@@ -20,6 +20,7 @@ class DeviceManager:
         self.platform = platform.system().lower()
         self.logger = logger
         self.offline = offline
+        self.off_data = off_data
 
         if self.platform == "darwin":
             from src.dumps.macOS.mac import MacHardwareManager

@@ -23,18 +23,27 @@ class WindowsHardwareManager:
         self.pci = parent.pci
         self.logger = parent.logger
         self.offline = parent.offline
+        self.off_data = parent.off_data
         self.cpu = {}
         self.c = wmi.WMI()
 
     def dump(self):
-        self.cpu_info()
-        self.gpu_info()
-        self.mem_info()
-        self.net_info()
-        self.audio_info()
-        self.mobo_info()
-        self.storage_info()
-        self.input_info()
+        if not "CPU" in self.off_data and not self.info.get("CPU", []):
+            self.cpu_info()
+        if not "Motherboard" in self.off_data and not self.info.get("Motherboard", {}):
+            self.mobo_info()
+        if not "GPU" in self.off_data and not self.info.get("GPU", []):
+            self.gpu_info()
+        if not "Memory" in self.off_data and not self.info.get("Memory", []):
+            self.mem_info()
+        if not "Network" in self.off_data and not self.info.get("Network", []):
+            self.net_info()
+        if not "Audio" in self.off_data and not self.info.get("Audio", []):
+            self.audio_info()
+        if not "Input" in self.off_data and not self.info.get("Input", []):
+            self.input_info()
+        if not "Storage" in self.off_data and not self.info.get("Storage", []):
+            self.storage_info()
 
     # Credits: https://github.com/flababah/cpuid.py/blob/master/example.py#L25
     def is_set(self, cpu, leaf, subleaf, reg_idx, bit):
