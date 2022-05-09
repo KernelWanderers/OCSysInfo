@@ -6,6 +6,7 @@ on:
 
 jobs:
   macOS:
+    permissions: write-all
     name: Build OSX binaries
     runs-on: macos-latest
     steps:
@@ -43,6 +44,7 @@ jobs:
           file_glob: true
 
   windows:
+    permissions: write-all
     name: Build Windows binaries
     runs-on: windows-latest
     steps:
@@ -80,6 +82,7 @@ jobs:
           file_glob: true
 
   linux_x64:
+    permissions: write-all
     name: Build Linux x86_64 binaries
     runs-on: ubuntu-latest
     steps:
