@@ -626,24 +626,33 @@ class LinuxHardwareManager:
 
             # I2C devices (over RMI4 _or_ HID)
             if "i2c" in path.lower():
+                _data = {}
+
                 if not os.path.isfile(f"{path}/id"):
                     self.logger.warning(
                         "Failed to obtain device/vendor id of I2C device (SYS_FS/INPUT) – Non-critical, ignoring",
                         __file__,
                     )
-                    name = {"device": "Unknown Input Device"}
+                    name = {"device": "Ambiguous Input Device (I2C)"}
 
                 try:
                     ven = open(f"{path}/id/vendor").read().strip()
                     dev = open(f"{path}/id/device").read().strip()
 
-                    name["device"] = name["device"] + " (I2C)"
+                    _data = {
+                        "Device ID": dev,
+                        "Vendor ID": ven,
+                    }
                 except Exception:
                     self.logger.warning(
-                        f"Failed to obtain I2C device name (SYS_FS/INPUT) – Non-critical, ignoring",
+                        f"Failed to obtain device/vendor id of I2C device (SYS_FS/INPUT) – Non-critical, ignoring",
                         __file__,
                     )
                     continue
+
+                self.info["Input"].append({
+                    name.get("device"): _data
+                })
 
             # TODO: Handle I2C HID
             if not "usb" in path.lower():
