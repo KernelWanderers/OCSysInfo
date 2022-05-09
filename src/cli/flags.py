@@ -13,21 +13,21 @@ class FlagParser:
     """
     Instance responsible for handling command-line arguments
     in the very case that they're presented.
-
-    Special thanks to Dids for the ideas on how to implement
-    the FlagParser!
     """
 
     def __init__(self, logger, dm=None, offline=False):
-        args = sys.argv[1:]
-
+        self.args = sys.argv[1:]
         self.dm = dm
-        self.offline = offline or "--offline" in args
+        self.offline = offline or "--offline" in self.args
+        self.toggled_off = []
 
-        if not self.dm and not list(filter(lambda x: "-h" in x.lower(), args)):
+        if "--off-data" in self.args:
+            self.off_data(self.args[self.args.index("--off-data") + 1])
+
+        if not self.dm and not list(filter(lambda x: "-h" in x.lower(), self.args)):
             print(color_text(
                 "Analyzing hardware... (this might take a while, don't panic)", "red"))
-            self.dm = DeviceManager(logger, offline=self.offline)
+            self.dm = DeviceManager(logger, off_data=self.toggled_off, offline="--offline" in self.args)
             self.dm.info = {
                 k: v
                 for (k, v) in self.dm.info.items()
@@ -37,15 +37,15 @@ class FlagParser:
         self.logger = logger
         self.completed = []
         self.missing = []
-        self.interactive = not "--no-interactive" in args
+        self.interactive = not "--no-interactive" in self.args
 
-        if not self.interactive or "--offline" in args:
-            for i in range(len(args)):
-                if "--no-interactive" in args[i].lower():
-                    del args[i]
-                
-                if "--offline" in args[i].lower():
-                    del args[i]
+        if not self.interactive or "--offline" in self.args:
+            for i in range(len(self.args)):
+                if "--no-interactive" in self.args[i].lower():
+                    del self.args[i]
+
+                if "--offline" in self.args[i].lower():
+                    del self.args[i]
 
         self.flags = [
             {
@@ -90,7 +90,7 @@ class FlagParser:
             },
         ]
 
-        self.handle(self.parse_flags(args))
+        self.handle(self.parse_flags(self.args))
 
     def help(self):
         try:
@@ -119,6 +119,10 @@ class FlagParser:
                     "dumps hardware information into a plist file, inside of the specified directory",
                 ),
                 (
+                    "[--off-data] \"{data}\"",
+                    "disables detecting particular data (such as CPU, GPU, etc.) - must supply array under string."
+                ),
+                (
                     "[--no-interactive]",
                     "disables dynamic prompts for missing/invalid values (such as invalid dump types and [missing] paths)",
                 ),
@@ -135,7 +139,7 @@ class FlagParser:
             print(" " + "#" + " " * 10 + title + " " * 10 + "#")
             print("#" * (len(title) + 22), "\n" * 2)
             print(
-                "<executable> \n  | [--help/-H] \n  | [--text/--txt/-tx/-T] \n  | [--json/-J] \n  | [--xml/-X] \n  | [--plist/-P]\n"
+                "<executable> \n  | [--help/-H] \n  | [--text/--txt/-tx/-T] \n  | [--json/-J] \n  | [--xml/-X] \n  | [--plist/-P]\n  | [--no-interactive]\n  | [--offline]\n"
             )
 
             for argument in arguments:
@@ -151,10 +155,12 @@ class FlagParser:
                 )
 
             print(
-                "\n\nExample:\n  <executable> -T ~/Downloads/myfolder -J ~/Downloads -X ~/Documents -P ."
+                "\n\nExample:\n  <executable> -T ~/Downloads/myfolder -J ~/Downloads -X ~/Documents -P . --off-data \"{Memory, Network}\""
             )
         except Exception as e:
             raise e
+
+    # Reminder: Thank Dids
 
     def handle(self, vals):
         if not vals or len(vals) < 1:
@@ -204,12 +210,41 @@ class FlagParser:
                 )
 
         self.logger.info("Successfully exited after dumping.\n\n", __file__)
-        sys.exit(0)
+        exit(0)
+
+    def off_data(self, arr):
+        orig = arr
+        arr = arr.replace("{", "").replace("}", "").split(", ")
+
+        if not arr:
+            return
+
+        repl = {
+            "cpu": "CPU",
+            "gpu": "GPU",
+            "motherboard": "Motherboard",
+            "memory": "Memory",
+            "network": "Network",
+            "audio": "Audio",
+            "input": "Input",
+            "storage": "Storage",
+        }
+
+        for val in arr:
+            val = repl[val.lower()]
+
+        self.toggled_off = arr
+
+        del self.args[self.args.index("--off-data")]
+        del self.args[self.args.index(orig)]
 
     def parse_flags(self, args):
         if list(filter(lambda x: "-h" in x.lower(), args)):
             self.help()
-            sys.exit(0)
+            exit(0)
+
+        if "--off-data" in args:
+            return self.off_data(args[args.index("--off-data") + 1])
 
         vals = []
 
@@ -256,7 +291,7 @@ class FlagParser:
             return self.prompts()
 
         if not self.interactive:
-            sys.exit(0)
+            exit(0)
 
     def prompt(self, missing, again=False):
         if missing.get("Type") == "UNKNOWN":

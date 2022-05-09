@@ -12,6 +12,7 @@ class LinuxHardwareManager:
     """
     Instance, implementing `DeviceManager`, for extracting system information
     from Linux using the `sysfs` pseudo file system.
+
     https://www.kernel.org/doc/html/latest/admin-guide/sysfs-rules.html
     """
 
@@ -20,16 +21,25 @@ class LinuxHardwareManager:
         self.pci = parent.pci
         self.logger = parent.logger
         self.offline = parent.offline
+        self.off_data = parent.off_data
 
     def dump(self):
-        self.cpu_info()
-        self.mobo_info()
-        self.gpu_info()
-        self.mem_info()
-        self.net_info()
-        self.audio_info()
-        self.input_info()
-        self.block_info()
+        if not "CPU" in self.off_data and not self.info.get("CPU", []):
+            self.cpu_info()
+        if not "Motherboard" in self.off_data and not self.info.get("Motherboard", {}):
+            self.mobo_info()
+        if not "GPU" in self.off_data and not self.info.get("GPU", []):
+            self.gpu_info()
+        if not "Memory" in self.off_data and not self.info.get("Memory", []):
+            self.mem_info()
+        if not "Network" in self.off_data and not self.info.get("Network", []):
+            self.net_info()
+        if not "Audio" in self.off_data and not self.info.get("Audio", []):
+            self.audio_info()
+        if not "Input" in self.off_data and not self.info.get("Input", []):
+            self.input_info()
+        if not "Storage" in self.off_data and not self.info.get("Storage", []):
+            self.block_info()
 
     def cpu_info(self):
         try:
@@ -262,9 +272,12 @@ class LinuxHardwareManager:
                     ---------------------
                     |    Part Number    |
                     ---------------------
+
                     Obtains the value at offset 1Ah, which indicates at which index, pre-sanitisation,
                     in the `strings` list the real string value is stored.
+
                     Which is: `strings[value[0x1A] - 1]`, after obtaining it, it decodes it to `ascii`.
+
                     Special thanks to [Quist](https://github.com/nadiaholmquist) for this.
                     """
                     part_no = get_string_entry(
@@ -319,9 +332,11 @@ class LinuxHardwareManager:
                     ---------------------
                     |      CAPACITY     |
                     ---------------------
+
                     Looks at the 2 bytes at offset 0Ch to hopefully determine its size;
                     in case the of these 2 bytes is equal to 0x7FFF, it looks at the 4 bytes
                     at offset 1Ch.
+
                     In the case that the value at offset 0Ch is equal to 0xFFFF,
                     it would mean that the size is unknown.
                     """
@@ -402,7 +417,8 @@ class LinuxHardwareManager:
                     model = "Unknown Network Controller"
                 else:
                     try:
-                        model = self.pci.get_item(dev[2:], ven[2:]).get("device")
+                        model = self.pci.get_item(
+                            dev[2:], ven[2:]).get("device")
                     except Exception:
                         model = "Unknown Network Controller"
 
@@ -457,7 +473,8 @@ class LinuxHardwareManager:
                     model = "Unknown Sound Device"
                 else:
                     try:
-                        model = self.pci.get_item(dev[2:], ven[2:]).get("device")
+                        model = self.pci.get_item(
+                            dev[2:], ven[2:]).get("device")
                     except Exception:
                         model = "Unknown Sound Device"
 
@@ -600,8 +617,8 @@ class LinuxHardwareManager:
 
                 try:
                     name = open(f"{path}/name").read().strip()
-                except Exception as e:
-                    self.logger.error(
+                except Exception:
+                    self.logger.warning(
                         f"Failed to obtain PS2 device name (SYS_FS/INPUT) – Non-critical, ignoring",
                         __file__,
                     )
@@ -615,6 +632,36 @@ class LinuxHardwareManager:
             # Also includes Battery level controls, LED control, etc
             if "thinkpad_acpi" in path.lower():
                 self.info["Input"].append({"Thinkpad Fn Keys": {}})
+
+            # I2C devices (over RMI4 _or_ HID)
+            if "i2c" in path.lower():
+                _data = {}
+
+                if not os.path.isfile(f"{path}/id"):
+                    self.logger.warning(
+                        "Failed to obtain device/vendor id of I2C device (SYS_FS/INPUT) – Non-critical, ignoring",
+                        __file__,
+                    )
+                    name = {"device": "Ambiguous Input Device (I2C)"}
+
+                try:
+                    ven = open(f"{path}/id/vendor").read().strip()
+                    dev = open(f"{path}/id/device").read().strip()
+
+                    _data = {
+                        "Device ID": dev,
+                        "Vendor ID": ven,
+                    }
+                except Exception:
+                    self.logger.warning(
+                        f"Failed to obtain device/vendor id of I2C device (SYS_FS/INPUT) – Non-critical, ignoring",
+                        __file__,
+                    )
+                    continue
+
+                self.info["Input"].append({
+                    name.get("device"): _data
+                })
 
             # TODO: Handle I2C HID
             if not "usb" in path.lower():
@@ -635,7 +682,7 @@ class LinuxHardwareManager:
                     if ven and dev:
                         if self.offline:
                             name = {"device": "Unknown Input Device"}
-                        
+
                         else:
                             try:
                                 name = self.pci.get_item(
@@ -696,7 +743,7 @@ class LinuxHardwareManager:
 
                     if self.offline:
                         vendor = ""
-                    
+
                     else:
                         try:
                             vendor = self.pci.get_item(
