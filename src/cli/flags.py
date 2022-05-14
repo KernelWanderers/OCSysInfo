@@ -1,5 +1,6 @@
 import os
 import sys
+from sys import exit
 from src.cli.ui import clear
 from src.info import color_text
 from src.util.dump_functions.text import dump_txt
