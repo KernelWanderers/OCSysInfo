@@ -74,40 +74,17 @@ def pci_from_acpi_win(wmi, instance_id, logger):
 
     for device in devices:
         # A valid ACPI/PCI path shouldn't have
-        # a `USB(...)` as any argument.
+        # `USB(...)` as any argument.
         if "usb" in device.lower():
             logger.warning(
                 "[USB WARNING]: Non-constructable ACPI/PCI path - ignoring.. (WMI)"
             )
             break
 
-        if not "acpi" in device.lower() and "pci" in device.lower():
-            path = ""
+        path = ""
 
-            for arg in device.split("#"):
-
-                # Thank you to DhinakG for this.
-                #
-                # E.g: PCI(0301) -> ['PCI', '0301']
-                digit = arg[:-1].split("(")[1]
-
-                if not digit:
-                    path = None
-                    return
-
-                # Add PCIROOT (domain)
-                if "pciroot" in arg.lower():
-                    path += f"PciRoot({hex(int(digit, 16))})"
-                    continue
-
-                path += f"/Pci({hex(int(digit[0:2], 16))},{hex(int(digit[2:], 16))})"
-
-            data["PCI Path"] = path
-
-        elif "acpi" in device.lower():
-            path = ""
-
-            for arg in device.split("#"):
+        for arg in device.split("#"):
+            if "acpi" in device.lower():
                 if "_SB" in arg:
                     path += "\_SB"
                     continue
@@ -128,7 +105,26 @@ def pci_from_acpi_win(wmi, instance_id, logger):
 
                 path += f".{val}"
 
-            data["ACPI Path"] = path
+                data["ACPI Path"] = path
+                continue
+
+            # Thank you to DhinakG for this.
+            #
+            # E.g: PCI(0301) -> ['PCI', '0301']
+            digit = arg[:-1].split("(")[1]
+
+            if not digit:
+                path = None
+                return
+
+            # Add PCIROOT (domain)
+            if "pciroot" in arg.lower():
+                path += f"PciRoot({hex(int(digit, 16))})"
+                continue
+
+            path += f"/Pci({hex(int(digit[0:2], 16))},{hex(int(digit[2:], 16))})"
+
+            data["PCI Path"] = path
 
     return data
 
