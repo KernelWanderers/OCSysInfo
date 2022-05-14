@@ -1,6 +1,7 @@
 import os
 import subprocess
 import sys
+from sys import exit
 from src.info import name, version, arch, color_text, format_text, surprise
 from src.info import root_dir as root
 from src.util.os_version import os_ver

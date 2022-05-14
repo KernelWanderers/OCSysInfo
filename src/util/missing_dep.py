@@ -2,7 +2,7 @@ import os.path
 from unittest import TestCase
 from pkg_resources import require, DistributionNotFound
 from subprocess import call
-from sys import platform, executable
+from sys import platform, executable, exit
 from src import info
 
 try:

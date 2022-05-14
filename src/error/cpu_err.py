@@ -1,3 +1,5 @@
+from sys import exit
+
 def cpu_err(e):
     print("Something went wrong during 'CPU' discovery.")
     print(

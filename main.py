@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
 if __name__ == "__main__":
-    import sys
+    from sys import exit, version_info, version
     from src.util.missing_dep import Requirements, REQUIRED
-    if sys.version_info < (3, 8, 0):
+    if version_info < (3, 8, 0):
         print("OCSysInfo requires Python 3.8, while Python " + str(
-            sys.version.partition(" ")[0]) + " was detected. Terminating... ")
-        sys.exit(1)
+            version.partition(" ")[0]) + " was detected. Terminating... ")
+        exit(1)
 
     # Check if there are missing dependencies
     requirements = Requirements()
@@ -58,7 +58,7 @@ if __name__ == "__main__":
                                      "Try running this program using elevated privileges.", "red"))
                     logger.critical("Could not access the required data. Exiting OCSysInfo\n\t"
                                     f"^^^^^^^^{str(e)}", __file__)
-                    sys.exit(0)
+                    exit(0)
                 else:
                     raise e
             finally:
@@ -68,4 +68,4 @@ if __name__ == "__main__":
             logger.info("Successfully launched OCSysInfo.", __file__)
         except KeyboardInterrupt:
             logger.info("Exited successfully.", __file__)
-            sys.exit(0)
+            exit(0)
