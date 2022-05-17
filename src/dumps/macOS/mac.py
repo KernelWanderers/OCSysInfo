@@ -1,12 +1,10 @@
 import binascii
-
-import requests
 import src.dumps.macOS.ioreg as ioreg
 import subprocess
 from src.error.cpu_err import cpu_err
 from src.util.codename import gpu
 from src.util.codename_manager import CodenameManager
-from src.util.pci_root import pci_from_acpi_osx
+from src.util.pci_root import construct_pcip_osx
 
 
 class MacHardwareManager:
@@ -46,7 +44,6 @@ class MacHardwareManager:
             self.input_info()
         if not "Storage" in self.off_data and not self.info.get("Storage", []):
             self.storage_info()
-
 
     def cpu_info(self):
         try:
@@ -217,8 +214,8 @@ class MacHardwareManager:
                 data = {"Device ID": dev, "Vendor": ven}
 
                 if default:
-                    path = pci_from_acpi_osx(
-                        device.get("acpi-path", ""), self.logger)
+                    path = construct_pcip_osx(
+                        i, device.get("acpi-path", ""), self.logger)
 
                     pcip = path.get("PCI Path", "")
                     acpi = path.get("ACPI Path", "")
@@ -398,8 +395,8 @@ class MacHardwareManager:
                     ]
                 )
 
-                path = pci_from_acpi_osx(
-                    device.get("acpi-path", ""), self.logger)
+                path = construct_pcip_osx(
+                    i, device.get("acpi-path", ""), self.logger)
 
                 data = {
                     # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
@@ -545,7 +542,8 @@ class MacHardwareManager:
                             __file__,
                         )
 
-            path = pci_from_acpi_osx(device.get("acpi-path", ""), self.logger)
+            path = construct_pcip_osx(
+                i, device.get("acpi-path", ""), self.logger)
 
             pcip = path.get("PCI Path", "")
             acpi = path.get("ACPI Path", "")
