@@ -3,13 +3,10 @@ from src.dumps.macOS.ioreg import *
 
 
 def _get_valid(slot):
-
     try:
-        slot, func = [hex(int(n, 16)) for n in slot.split(":")[2].split(".")]
-    except Exception as e:
+        return [hex(int(n, 16)) for n in slot.split(":")[2].split(".")]
+    except Exception:
         return [None, None]
-
-    return [slot, func]
 
 # Original source:
 # https://github.com/dortania/OpenCore-Legacy-Patcher/blob/ca859c7ad7ac2225af3b50626d88f3bfe014eaa8/resources/device_probe.py#L67-L93
@@ -32,7 +29,7 @@ def construct_pcip_osx(parent_entry, acpi, logger):
                         )[1]
                     ).split(',')
                 ] + ['0x0'])[:2]
-                
+
                 paths.append(
                     f'Pci({bus},{func})'
                 )
