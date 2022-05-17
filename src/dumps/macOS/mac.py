@@ -1,5 +1,5 @@
 import binascii
-import src.dumps.macOS.ioreg as ioreg
+from src.dumps.macOS.ioreg import *
 import subprocess
 from src.error.cpu_err import cpu_err
 from src.util.codename import gpu
@@ -153,9 +153,9 @@ class MacHardwareManager:
             device = {"IONameMatched": "gpu,*"}
 
         # Obtain generator instance, whose values are `CFDictionary`-ies
-        interface = ioreg.ioiterator_to_list(
-            ioreg.IOServiceGetMatchingServices(
-                ioreg.kIOMasterPortDefault, device, None
+        interface = ioiterator_to_list(
+            IOServiceGetMatchingServices(
+                kIOMasterPortDefault, device, None
             )[1]
         )
 
@@ -163,9 +163,9 @@ class MacHardwareManager:
         for i in interface:
 
             # Obtain CFDictionaryRef of the current PCI/AppleARM device.
-            device = ioreg.corefoundation_to_native(
-                ioreg.IORegistryEntryCreateCFProperties(
-                    i, None, ioreg.kCFAllocatorDefault, ioreg.kNilOptions
+            device = corefoundation_to_native(
+                IORegistryEntryCreateCFProperties(
+                    i, None, kCFAllocatorDefault, kNilOptions
                 )
             )[1]
 
@@ -242,7 +242,7 @@ class MacHardwareManager:
 
             self.info["GPU"].append({model: data})
 
-            ioreg.IOObjectRelease(i)
+            IOObjectRelease(i)
 
         if default and not self.vendor:
             self.gpu_info(default=False)
@@ -255,14 +255,14 @@ class MacHardwareManager:
         # Special thanks to [Flagers](https://github.com/flagersgit) for this.
         #
         # Source: https://github.com/KernelWanderers/OCSysInfo/pull/10
-        interface = ioreg.corefoundation_to_native(
-            ioreg.IORegistryEntryCreateCFProperties(
-                ioreg.IORegistryEntryFromPath(
-                    ioreg.kIOMasterPortDefault, b"IODeviceTree:/memory"
+        interface = corefoundation_to_native(
+            IORegistryEntryCreateCFProperties(
+                IORegistryEntryFromPath(
+                    kIOMasterPortDefault, b"IODeviceTree:/memory"
                 ),
                 None,
-                ioreg.kCFAllocatorDefault,
-                ioreg.kNilOptions,
+                kCFAllocatorDefault,
+                kNilOptions,
             )[1]
         )
 
@@ -367,9 +367,9 @@ class MacHardwareManager:
         }
 
         # Obtain generator instance, whose values are `CFDictionary`-ies
-        interface = ioreg.ioiterator_to_list(
-            ioreg.IOServiceGetMatchingServices(
-                ioreg.kIOMasterPortDefault, device, None
+        interface = ioiterator_to_list(
+            IOServiceGetMatchingServices(
+                kIOMasterPortDefault, device, None
             )[1]
         )
 
@@ -377,9 +377,9 @@ class MacHardwareManager:
         for i in interface:
 
             # Obtain CFDictionaryRef of the current PCI device.
-            device = ioreg.corefoundation_to_native(
-                ioreg.IORegistryEntryCreateCFProperties(
-                    i, None, ioreg.kCFAllocatorDefault, ioreg.kNilOptions
+            device = corefoundation_to_native(
+                IORegistryEntryCreateCFProperties(
+                    i, None, kCFAllocatorDefault, kNilOptions
                 )
             )[1]
 
@@ -439,7 +439,7 @@ class MacHardwareManager:
 
                 self.info["Network"].append({model: data})
 
-            ioreg.IOObjectRelease(i)
+            IOObjectRelease(i)
 
     def audio_info(self, default=False):
 
@@ -453,9 +453,9 @@ class MacHardwareManager:
             _device = {"IOProviderClass": "IOHDACodecDevice"}
 
         # Obtain generator instance, whose values are `CFDictionary`-ies
-        interface = ioreg.ioiterator_to_list(
-            ioreg.IOServiceGetMatchingServices(
-                ioreg.kIOMasterPortDefault, _device, None
+        interface = ioiterator_to_list(
+            IOServiceGetMatchingServices(
+                kIOMasterPortDefault, _device, None
             )[1]
         )
 
@@ -463,9 +463,9 @@ class MacHardwareManager:
         for i in interface:
 
             # Obtain CFDictionaryRef of the current PCI device.
-            device = ioreg.corefoundation_to_native(
-                ioreg.IORegistryEntryCreateCFProperties(
-                    i, None, ioreg.kCFAllocatorDefault, ioreg.kNilOptions
+            device = corefoundation_to_native(
+                IORegistryEntryCreateCFProperties(
+                    i, None, kCFAllocatorDefault, kNilOptions
                 )
             )[1]
 
@@ -556,7 +556,7 @@ class MacHardwareManager:
 
             self.info["Audio"].append({model: data})
 
-            ioreg.IOObjectRelease(i)
+            IOObjectRelease(i)
 
         # If we don't find any AppleHDACodec devices (i.e. if it's a T2 Mac, try to find any multimedia controllers.)
         # This _will_ also fail on non-x86* architectures.
@@ -569,17 +569,17 @@ class MacHardwareManager:
 
         device = {"IOProviderClass": "IOBlockStorageDevice"}
 
-        interface = ioreg.ioiterator_to_list(
-            ioreg.IOServiceGetMatchingServices(
-                ioreg.kIOMasterPortDefault, device, None
+        interface = ioiterator_to_list(
+            IOServiceGetMatchingServices(
+                kIOMasterPortDefault, device, None
             )[1]
         )
 
         for i in interface:
 
-            device = ioreg.corefoundation_to_native(
-                ioreg.IORegistryEntryCreateCFProperties(
-                    i, None, ioreg.kCFAllocatorDefault, ioreg.kNilOptions
+            device = corefoundation_to_native(
+                IORegistryEntryCreateCFProperties(
+                    i, None, kCFAllocatorDefault, kNilOptions
                 )
             )[1]
 
@@ -617,22 +617,22 @@ class MacHardwareManager:
                 {name: {"Type": _type, "Connector": ct_type, "Location": location}}
             )
 
-            ioreg.IOObjectRelease(i)
+            IOObjectRelease(i)
 
     def input_info(self):
         device = {"IOProviderClass": "IOHIDDevice"}
 
-        interface = ioreg.ioiterator_to_list(
-            ioreg.IOServiceGetMatchingServices(
-                ioreg.kIOMasterPortDefault, device, None
+        interface = ioiterator_to_list(
+            IOServiceGetMatchingServices(
+                kIOMasterPortDefault, device, None
             )[1]
         )
 
         for i in interface:
 
-            device = ioreg.corefoundation_to_native(
-                ioreg.IORegistryEntryCreateCFProperties(
-                    i, None, ioreg.kCFAllocatorDefault, ioreg.kNilOptions
+            device = corefoundation_to_native(
+                IORegistryEntryCreateCFProperties(
+                    i, None, kCFAllocatorDefault, kNilOptions
                 )
             )[1]
 
@@ -665,4 +665,4 @@ class MacHardwareManager:
 
             self.info["Input"].append({name: data})
 
-            ioreg.IOObjectRelease(i)
+            IOObjectRelease(i)
