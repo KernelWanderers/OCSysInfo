@@ -54,7 +54,7 @@ def construct_pcip_osx(parent_entry, acpi, logger):
         else:
             paths = []
             logger.warning(
-                "Invalid PCI device – unable to construct PCI path (IOKit)\n\tErr: " + acpi,
+                "Invalid PCI device – unable to construct PCI path (IOKit)",
                 __file__,
             )
             break
