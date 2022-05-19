@@ -244,7 +244,7 @@ class MacHardwareManager:
 
             IOObjectRelease(i)
 
-        if default and not self.vendor:
+        if default and self.vendor == "apple":
             self.gpu_info(default=False)
 
     def mem_info(self):
@@ -273,6 +273,7 @@ class MacHardwareManager:
 
         for prop in interface:
             val = interface[prop]
+
             if type(val) == bytes:
                 if "reg" in prop.lower() and length:
                     for i in range(length):
@@ -292,6 +293,7 @@ class MacHardwareManager:
                             )
                             modules = []
                             break
+
                 else:
                     try:
                         val = [
@@ -324,6 +326,7 @@ class MacHardwareManager:
                     if "dimm-types" in prop.lower():
                         key = "Type"
                         value = val[i]
+
                     elif "slot-names" in prop.lower():
                         key = "Slot"
                         try:
@@ -335,12 +338,15 @@ class MacHardwareManager:
                                 f"Failed to obtain BANK/Channel values for RAM module! (IOKit/MemInfo)\n\t^^^^^^^^^{str(e)}",
                                 __file__,
                             )
+
                     elif "dimm-speeds" in prop.lower():
                         key = "Frequency (MHz)"
                         value = val[i]
+
                     elif "dimm-manufacturer" in prop.lower():
                         key = "Manufacturer"
                         value = val[i]
+
                     elif "reg" in prop.lower():
                         key = "Capacity"
                         value = f"{sizes[i]}MB"
@@ -490,7 +496,7 @@ class MacHardwareManager:
                     continue
 
                 if self.offline:
-                    model = "N/a"
+                    model = "N/A"
                 else:
                     try:
                         model = self.pci.get_item(

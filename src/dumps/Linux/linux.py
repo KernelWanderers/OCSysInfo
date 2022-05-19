@@ -105,7 +105,7 @@ class LinuxHardwareManager:
             self.logger.critical(
                 "Failed to obtain basic CPU information (PROC_FS)", __file__
             )
-            exit(0)
+            cpu_err("AMBIGUOUS ISSUE")
 
         if flagers:
             flagers = flagers.group()
@@ -445,8 +445,7 @@ class LinuxHardwareManager:
                         f"Failed during ACPI/PCI path construction (SYS_FS/NET)\n\t^^^^^^^^^{str(e)}"
                     )
 
-                else:
-                    self.info.get("Network").append({model: data})
+                self.info.get("Network").append({model: data})
 
     def audio_info(self):
         for file in os.listdir("/sys/class/sound"):
@@ -516,8 +515,7 @@ class LinuxHardwareManager:
                         f"Failed to obtain ALC codec for Audio controller (SYS_FS/SOUND)\n\t^^^^^^^^^{str(e)}"
                     )
 
-                else:
-                    self.info.get("Audio").append({model: data})
+                self.info.get("Audio").append({model: data})
 
     def mobo_info(self):
 
@@ -539,13 +537,15 @@ class LinuxHardwareManager:
             )
             return
 
-        if model:
-            data = {"Model": model}
+        if not model:
+            return
 
-            if vendor:
-                data["Vendor"] = vendor
+        data = {"Model": model}
 
-            self.info["Motherboard"] = data
+        if vendor:
+            data["Vendor"] = vendor
+
+        self.info["Motherboard"] = data
 
     def input_info(self):
 
@@ -679,31 +679,30 @@ class LinuxHardwareManager:
                     )
                     continue
 
-                else:
-                    if ven and dev:
-                        if self.offline:
+                if ven and dev:
+                    if self.offline:
+                        name = {"device": "Unknown Input Device"}
+
+                    else:
+                        try:
+                            name = self.pci.get_item(
+                                dev[2:], ven[2:], types="usb")
+                        except Exception:
                             name = {"device": "Unknown Input Device"}
 
-                        else:
-                            try:
-                                name = self.pci.get_item(
-                                    dev[2:], ven[2:], types="usb")
-                            except Exception:
-                                name = {"device": "Unknown Input Device"}
+                            self.logger.warning(
+                                f"Failed to obtain model for Input device (SYS_FS/INPUT) – Non-critical, ignoring",
+                                __file__,
+                            )
 
-                                self.logger.warning(
-                                    f"Failed to obtain model for Input device (SYS_FS/INPUT) – Non-critical, ignoring",
-                                    __file__,
-                                )
-
-                        self.info["Input"].append(
-                            {
-                                name.get("device", "Unknown Input Device"): {
-                                    "Device ID": dev,
-                                    "Vendor": ven,
-                                }
+                    self.info["Input"].append(
+                        {
+                            name.get("device", "Unknown Input Device"): {
+                                "Device ID": dev,
+                                "Vendor": ven,
                             }
-                        )
+                        }
+                    )
 
     def block_info(self):
         # Block devices are found under /sys/block/
