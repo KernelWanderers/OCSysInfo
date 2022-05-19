@@ -40,13 +40,13 @@ We'll want to take the first entry found (`*:pcie002`), since we need only 1 add
 
 On Windows it's pretty much just a matter of properly slicing a string and splitting it – `PCIROOT(0)#PCI(0100)#PCI(0000)` -> `PciRoot(0x0)/Pci(0x1,0x0)/Pci(0x0,0x0)`
 
-__Logic behind the Windows implementation__: <https://github.com/KernelWanderers/OCSysInfo/blob/main/src/util/pci_root.py#L50-L129>
+[__Logic behind the Windows implementation__](https://github.com/KernelWanderers/OCSysInfo/blob/main/src/util/pci_root.py#L50-L129)
 
 # macOS
 
 On macOS, it's slightly more convoluted, but ultimately equally as accurate and proper. 
 
-__Logic behind the macOS implementation__ (special thank we to DhinakG and rest of the Dortania team for allowing us to copy over this implementation into OCSysInfo): <https://github.com/KernelWanderers/OCSysInfo/blob/main/src/util/pci_root.py#L14-L76>
+[__Logic behind the macOS implementation__](https://github.com/KernelWanderers/OCSysInfo/blob/main/src/util/pci_root.py#L14-L76) (special thank we to DhinakG and rest of the Dortania team for allowing us to copy over this implementation into OCSysInfo)
 
 Before this more improved and proper logic on macOS, we previously had looked at its “location in plane” value.
 

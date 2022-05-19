@@ -275,4 +275,4 @@ The following contains credits to all the people who helped assist in the making
 
 - @[Apethesis](https://github.com/Apethesis) — for assistance in testing the application in its various stages.
 
-- @[ThatCopy](https://github.com/ThatCopy) — for assistance in locating and fixing bugs and issues with the terminal on OSX.
+- @[ThatCopy](https://github.com/ThatCopy) — for assistance in locating and fixing bugs and issues with the terminal on OSX, as well as completely defining and taking care of the logic for detecting ARM (ARM64 and ARMv7) CPUs on Linux.
