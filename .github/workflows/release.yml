@@ -2,10 +2,11 @@ name: Compile and publish binaries
 
 on:
   release:
-    types: [published]
+    types: [published, released, prereleased]
 
 jobs:
   macOS:
+    permissions: write-all
     name: Build OSX binaries
     runs-on: macos-latest
     steps:
@@ -14,7 +15,9 @@ jobs:
           ref: releases-source
 
       - name: Set up Python 3
-        run: brew install python3
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10.x"
 
       - name: Install dependencies
         run: pip3 install -r requirements.txt
@@ -41,6 +44,7 @@ jobs:
           file_glob: true
 
   windows:
+    permissions: write-all
     name: Build Windows binaries
     runs-on: windows-latest
     steps:
@@ -51,7 +55,7 @@ jobs:
       - name: Set up Python 3
         uses: actions/setup-python@v2
         with:
-          python-version: "3.x"
+          python-version: "3.10.x"
 
       - name: Install dependencies
         run: pip3 install -r requirements.txt
@@ -78,6 +82,7 @@ jobs:
           file_glob: true
 
   linux_x64:
+    permissions: write-all
     name: Build Linux x86_64 binaries
     runs-on: ubuntu-latest
     steps:

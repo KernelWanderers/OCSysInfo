@@ -1,50 +1,76 @@
 import os
+from src.dumps.macOS.ioreg import *
 
 
 def _get_valid(slot):
-
     try:
-        slot, func = [hex(int(n, 16)) for n in slot.split(":")[2].split(".")]
-    except Exception as e:
+        return [hex(int(n, 16)) for n in slot.split(":")[2].split(".")]
+    except Exception:
         return [None, None]
 
-    return [slot, func]
+# Original source:
+# https://github.com/dortania/OpenCore-Legacy-Patcher/blob/ca859c7ad7ac2225af3b50626d88f3bfe014eaa8/resources/device_probe.py#L67-L93
+def construct_pcip_osx(parent_entry, acpi, logger):
+    data = {
+        "PCI Path": "",
+        "ACPI Path": ""
+    }
+    paths = []
+    entry = parent_entry
 
+    while entry:
+        if IOObjectConformsTo(entry, b'IOPCIDevice'):
+            try:
+                bus, func = ([
+                    hex(int(i, 16)) for i in
+                    ioname_t_to_str(
+                        IORegistryEntryGetLocationInPlane(
+                            entry, b'IOService', None
+                        )[1]
+                    ).split(',')
+                ] + ['0x0'])[:2]
 
-def pci_from_acpi_osx(raw_path, logger):
-    if not raw_path:
-        logger.warning(
-            "Failed to obtain constructable path from anonymous device (IOKit)",
-            __file__,
-        )
-        return {}
+                paths.append(
+                    f'Pci({bus},{func})'
+                )
+            except ValueError:
+                logger.warning(
+                    "Failed to construct PCI path for ambiguous PCI device (IOKit) – Non-critical, ignoring.",
+                    __file__,
+                )
+                break
 
-    p_path = ""
-    a_path = ""
+        elif IOObjectConformsTo(entry, b'IOACPIPlatformDevice'):
+            paths.append(
+                f'PciRoot({hex(int(corefoundation_to_native(IORegistryEntryCreateCFProperty(entry, "_UID", kCFAllocatorDefault, kNilOptions)) or 0))})')
+            break
 
-    for arg in raw_path.split(":")[1].split("/")[1:]:
-        if not "@" in arg.lower():
-            a_path += f"\{arg}"
+        elif IOObjectConformsTo(entry, b'IOPCIBridge'):
+            pass
+
         else:
-            acpi = arg.split("@")[0]
-            a_path += f".{acpi}"
+            paths = []
+            logger.warning(
+                "Invalid PCI device – unable to construct PCI path (IOKit)",
+                __file__,
+            )
+            break
 
-            # The below logic is
-            # implemented by CorpNewt.
-            #
-            # Thanks, bb!
-            pcip = int(arg.split("@")[1], 16)
+        parent = IORegistryEntryGetParentEntry(entry, b'IOService', None)[1]
 
-            a = hex(pcip >> 16 & 0xFFFF)
-            b = hex(pcip & 0xFFFF)
+        if entry != parent_entry:
+            IOObjectRelease(entry)
 
-            if "pci" in arg.lower():
-                p_path += f"PciRoot({a})"
-                continue
+        entry = parent
 
-            p_path += f"/Pci({a},{b})"
+    if paths:
+        data['PCI Path'] = '/'.join(reversed(paths))
 
-    return {"PCI Path": p_path, "ACPI Path": a_path}
+    if acpi:
+        data['ACPI Path'] = ''.join([("\\" if "sb" in a.lower(
+        ) else ".") + a.split("@")[0] for a in acpi.split(':')[1].split('/')[1:]])
+
+    return data
 
 
 def pci_from_acpi_win(wmi, instance_id, logger):
@@ -74,40 +100,17 @@ def pci_from_acpi_win(wmi, instance_id, logger):
 
     for device in devices:
         # A valid ACPI/PCI path shouldn't have
-        # a `USB(...)` as any argument.
+        # `USB(...)` as any argument.
         if "usb" in device.lower():
             logger.warning(
                 "[USB WARNING]: Non-constructable ACPI/PCI path - ignoring.. (WMI)"
             )
             break
 
-        if not "acpi" in device.lower() and "pci" in device.lower():
-            path = ""
+        path = ""
 
-            for arg in device.split("#"):
-
-                # Thank you to DhinakG for this.
-                #
-                # E.g: PCI(0301) -> ['PCI', '0301']
-                digit = arg[:-1].split("(")[1]
-
-                if not digit:
-                    path = None
-                    return
-
-                # Add PCIROOT (domain)
-                if "pciroot" in arg.lower():
-                    path += f"PciRoot({hex(int(digit, 16))})"
-                    continue
-
-                path += f"/Pci({hex(int(digit[0:2], 16))},{hex(int(digit[2:], 16))})"
-
-            data["PCI Path"] = path
-
-        elif "acpi" in device.lower():
-            path = ""
-
-            for arg in device.split("#"):
+        for arg in device.split("#"):
+            if "acpi" in device.lower():
                 if "_SB" in arg:
                     path += "\_SB"
                     continue
@@ -128,7 +131,26 @@ def pci_from_acpi_win(wmi, instance_id, logger):
 
                 path += f".{val}"
 
-            data["ACPI Path"] = path
+                data["ACPI Path"] = path
+                continue
+
+            # Thank you to DhinakG for this.
+            #
+            # E.g: PCI(0301) -> ['PCI', '0301']
+            digit = arg[:-1].split("(")[1]
+
+            if not digit:
+                path = None
+                return
+
+            # Add PCIROOT (domain)
+            if "pciroot" in arg.lower():
+                path += f"PciRoot({hex(int(digit, 16))})"
+                continue
+
+            path += f"/Pci({hex(int(digit[0:2], 16))},{hex(int(digit[2:], 16))})"
+
+            data["PCI Path"] = path
 
     return data
 
@@ -188,7 +210,8 @@ def pci_from_acpi_linux(device_path, logger):
 
                     if "pcie" in nest and not slot in nest:
                         # Add PCIROOT (bus id)
-                        pcip += "PciRoot({})".format(hex(int(path.split(":")[1], 16)))
+                        pcip += "PciRoot({})".format(
+                            hex(int(path.split(":")[1], 16)))
 
                         """
                         slotc - Child slot

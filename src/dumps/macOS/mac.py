@@ -1,12 +1,10 @@
 import binascii
-
-import requests
-import src.dumps.macOS.ioreg as ioreg
+from src.dumps.macOS.ioreg import *
 import subprocess
 from src.error.cpu_err import cpu_err
 from src.util.codename import gpu
 from src.util.codename_manager import CodenameManager
-from src.util.pci_root import pci_from_acpi_osx
+from src.util.pci_root import construct_pcip_osx
 
 
 class MacHardwareManager:
@@ -46,7 +44,6 @@ class MacHardwareManager:
             self.input_info()
         if not "Storage" in self.off_data and not self.info.get("Storage", []):
             self.storage_info()
-
 
     def cpu_info(self):
         try:
@@ -156,9 +153,9 @@ class MacHardwareManager:
             device = {"IONameMatched": "gpu,*"}
 
         # Obtain generator instance, whose values are `CFDictionary`-ies
-        interface = ioreg.ioiterator_to_list(
-            ioreg.IOServiceGetMatchingServices(
-                ioreg.kIOMasterPortDefault, device, None
+        interface = ioiterator_to_list(
+            IOServiceGetMatchingServices(
+                kIOMasterPortDefault, device, None
             )[1]
         )
 
@@ -166,9 +163,9 @@ class MacHardwareManager:
         for i in interface:
 
             # Obtain CFDictionaryRef of the current PCI/AppleARM device.
-            device = ioreg.corefoundation_to_native(
-                ioreg.IORegistryEntryCreateCFProperties(
-                    i, None, ioreg.kCFAllocatorDefault, ioreg.kNilOptions
+            device = corefoundation_to_native(
+                IORegistryEntryCreateCFProperties(
+                    i, None, kCFAllocatorDefault, kNilOptions
                 )
             )[1]
 
@@ -217,8 +214,8 @@ class MacHardwareManager:
                 data = {"Device ID": dev, "Vendor": ven}
 
                 if default:
-                    path = pci_from_acpi_osx(
-                        device.get("acpi-path", ""), self.logger)
+                    path = construct_pcip_osx(
+                        i, device.get("acpi-path", ""), self.logger)
 
                     pcip = path.get("PCI Path", "")
                     acpi = path.get("ACPI Path", "")
@@ -245,9 +242,9 @@ class MacHardwareManager:
 
             self.info["GPU"].append({model: data})
 
-            ioreg.IOObjectRelease(i)
+            IOObjectRelease(i)
 
-        if default and not self.vendor:
+        if default and self.vendor == "apple":
             self.gpu_info(default=False)
 
     def mem_info(self):
@@ -258,14 +255,14 @@ class MacHardwareManager:
         # Special thanks to [Flagers](https://github.com/flagersgit) for this.
         #
         # Source: https://github.com/KernelWanderers/OCSysInfo/pull/10
-        interface = ioreg.corefoundation_to_native(
-            ioreg.IORegistryEntryCreateCFProperties(
-                ioreg.IORegistryEntryFromPath(
-                    ioreg.kIOMasterPortDefault, b"IODeviceTree:/memory"
+        interface = corefoundation_to_native(
+            IORegistryEntryCreateCFProperties(
+                IORegistryEntryFromPath(
+                    kIOMasterPortDefault, b"IODeviceTree:/memory"
                 ),
                 None,
-                ioreg.kCFAllocatorDefault,
-                ioreg.kNilOptions,
+                kCFAllocatorDefault,
+                kNilOptions,
             )[1]
         )
 
@@ -276,6 +273,7 @@ class MacHardwareManager:
 
         for prop in interface:
             val = interface[prop]
+
             if type(val) == bytes:
                 if "reg" in prop.lower() and length:
                     for i in range(length):
@@ -295,6 +293,7 @@ class MacHardwareManager:
                             )
                             modules = []
                             break
+
                 else:
                     try:
                         val = [
@@ -327,6 +326,7 @@ class MacHardwareManager:
                     if "dimm-types" in prop.lower():
                         key = "Type"
                         value = val[i]
+
                     elif "slot-names" in prop.lower():
                         key = "Slot"
                         try:
@@ -338,12 +338,15 @@ class MacHardwareManager:
                                 f"Failed to obtain BANK/Channel values for RAM module! (IOKit/MemInfo)\n\t^^^^^^^^^{str(e)}",
                                 __file__,
                             )
+
                     elif "dimm-speeds" in prop.lower():
                         key = "Frequency (MHz)"
                         value = val[i]
+
                     elif "dimm-manufacturer" in prop.lower():
                         key = "Manufacturer"
                         value = val[i]
+
                     elif "reg" in prop.lower():
                         key = "Capacity"
                         value = f"{sizes[i]}MB"
@@ -370,9 +373,9 @@ class MacHardwareManager:
         }
 
         # Obtain generator instance, whose values are `CFDictionary`-ies
-        interface = ioreg.ioiterator_to_list(
-            ioreg.IOServiceGetMatchingServices(
-                ioreg.kIOMasterPortDefault, device, None
+        interface = ioiterator_to_list(
+            IOServiceGetMatchingServices(
+                kIOMasterPortDefault, device, None
             )[1]
         )
 
@@ -380,9 +383,9 @@ class MacHardwareManager:
         for i in interface:
 
             # Obtain CFDictionaryRef of the current PCI device.
-            device = ioreg.corefoundation_to_native(
-                ioreg.IORegistryEntryCreateCFProperties(
-                    i, None, ioreg.kCFAllocatorDefault, ioreg.kNilOptions
+            device = corefoundation_to_native(
+                IORegistryEntryCreateCFProperties(
+                    i, None, kCFAllocatorDefault, kNilOptions
                 )
             )[1]
 
@@ -398,8 +401,8 @@ class MacHardwareManager:
                     ]
                 )
 
-                path = pci_from_acpi_osx(
-                    device.get("acpi-path", ""), self.logger)
+                path = construct_pcip_osx(
+                    i, device.get("acpi-path", ""), self.logger)
 
                 data = {
                     # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
@@ -442,7 +445,7 @@ class MacHardwareManager:
 
                 self.info["Network"].append({model: data})
 
-            ioreg.IOObjectRelease(i)
+            IOObjectRelease(i)
 
     def audio_info(self, default=False):
 
@@ -456,9 +459,9 @@ class MacHardwareManager:
             _device = {"IOProviderClass": "IOHDACodecDevice"}
 
         # Obtain generator instance, whose values are `CFDictionary`-ies
-        interface = ioreg.ioiterator_to_list(
-            ioreg.IOServiceGetMatchingServices(
-                ioreg.kIOMasterPortDefault, _device, None
+        interface = ioiterator_to_list(
+            IOServiceGetMatchingServices(
+                kIOMasterPortDefault, _device, None
             )[1]
         )
 
@@ -466,9 +469,9 @@ class MacHardwareManager:
         for i in interface:
 
             # Obtain CFDictionaryRef of the current PCI device.
-            device = ioreg.corefoundation_to_native(
-                ioreg.IORegistryEntryCreateCFProperties(
-                    i, None, ioreg.kCFAllocatorDefault, ioreg.kNilOptions
+            device = corefoundation_to_native(
+                IORegistryEntryCreateCFProperties(
+                    i, None, kCFAllocatorDefault, kNilOptions
                 )
             )[1]
 
@@ -493,7 +496,7 @@ class MacHardwareManager:
                     continue
 
                 if self.offline:
-                    model = "N/a"
+                    model = "N/A"
                 else:
                     try:
                         model = self.pci.get_item(
@@ -545,7 +548,8 @@ class MacHardwareManager:
                             __file__,
                         )
 
-            path = pci_from_acpi_osx(device.get("acpi-path", ""), self.logger)
+            path = construct_pcip_osx(
+                i, device.get("acpi-path", ""), self.logger)
 
             pcip = path.get("PCI Path", "")
             acpi = path.get("ACPI Path", "")
@@ -558,7 +562,7 @@ class MacHardwareManager:
 
             self.info["Audio"].append({model: data})
 
-            ioreg.IOObjectRelease(i)
+            IOObjectRelease(i)
 
         # If we don't find any AppleHDACodec devices (i.e. if it's a T2 Mac, try to find any multimedia controllers.)
         # This _will_ also fail on non-x86* architectures.
@@ -571,17 +575,17 @@ class MacHardwareManager:
 
         device = {"IOProviderClass": "IOBlockStorageDevice"}
 
-        interface = ioreg.ioiterator_to_list(
-            ioreg.IOServiceGetMatchingServices(
-                ioreg.kIOMasterPortDefault, device, None
+        interface = ioiterator_to_list(
+            IOServiceGetMatchingServices(
+                kIOMasterPortDefault, device, None
             )[1]
         )
 
         for i in interface:
 
-            device = ioreg.corefoundation_to_native(
-                ioreg.IORegistryEntryCreateCFProperties(
-                    i, None, ioreg.kCFAllocatorDefault, ioreg.kNilOptions
+            device = corefoundation_to_native(
+                IORegistryEntryCreateCFProperties(
+                    i, None, kCFAllocatorDefault, kNilOptions
                 )
             )[1]
 
@@ -619,22 +623,22 @@ class MacHardwareManager:
                 {name: {"Type": _type, "Connector": ct_type, "Location": location}}
             )
 
-            ioreg.IOObjectRelease(i)
+            IOObjectRelease(i)
 
     def input_info(self):
         device = {"IOProviderClass": "IOHIDDevice"}
 
-        interface = ioreg.ioiterator_to_list(
-            ioreg.IOServiceGetMatchingServices(
-                ioreg.kIOMasterPortDefault, device, None
+        interface = ioiterator_to_list(
+            IOServiceGetMatchingServices(
+                kIOMasterPortDefault, device, None
             )[1]
         )
 
         for i in interface:
 
-            device = ioreg.corefoundation_to_native(
-                ioreg.IORegistryEntryCreateCFProperties(
-                    i, None, ioreg.kCFAllocatorDefault, ioreg.kNilOptions
+            device = corefoundation_to_native(
+                IORegistryEntryCreateCFProperties(
+                    i, None, kCFAllocatorDefault, kNilOptions
                 )
             )[1]
 
@@ -667,4 +671,4 @@ class MacHardwareManager:
 
             self.info["Input"].append({name: data})
 
-            ioreg.IOObjectRelease(i)
+            IOObjectRelease(i)

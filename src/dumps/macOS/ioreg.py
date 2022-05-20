@@ -10,6 +10,8 @@ from PyObjCTools import Conversion
 
 IOKit = NSBundle.bundleWithIdentifier_("com.apple.framework.IOKit")
 
+io_name_t_ref_out = b"[128c]"  # io_name_t is char[128]
+const_io_name_t_ref_in = b"r*"
 CFStringRef = b"^{__CFString=}"
 CFDictionaryRef = b"^{__CFDictionary=}"
 CFAllocatorRef = b"^{__CFAllocator=}"
@@ -17,12 +19,16 @@ CFAllocatorRef = b"^{__CFAllocator=}"
 # https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtTypeEncodings.html
 functions = [
     ("IORegistryEntryCreateCFProperties", b"IIo^@" + CFAllocatorRef + b"I"),
-    ("IORegistryEntryCreateCFProperty", b"@I" + CFStringRef + CFAllocatorRef + b"I"),
+    ("IORegistryEntryGetLocationInPlane", b"II" + const_io_name_t_ref_in + b"o" + io_name_t_ref_out),
     ("IORegistryEntryGetRegistryEntryID", b"IIo^Q"),
-    ("IORegistryEntryFromPath", b"II*"),
+    ("IORegistryEntryCreateCFProperty", b"@I" + CFStringRef + CFAllocatorRef + b"I"),
+    ("IORegistryEntryGetParentEntry", b"IIr*o^I"),
     ("IOServiceGetMatchingServices", b"II" + CFDictionaryRef + b"o^I"),
     ("IORegistryEntryIDMatching", CFDictionaryRef + b"Q"),
+    ("IORegistryEntryFromPath", b"II*"),
+    ("IORegistryEntryGetPath", b"II" + const_io_name_t_ref_in + b"o" + io_name_t_ref_out),
     ("IOServiceNameMatching", CFDictionaryRef + b"r*"),
+    ("IOObjectConformsTo", b"II" + const_io_name_t_ref_in),
     ("IOServiceMatching", CFDictionaryRef + b"r*"),
     ("IOObjectRelease", b"II"),
     ("IOIteratorNext", b"II"),
@@ -62,18 +68,32 @@ kIORegistryIterateParents = 2
 def IORegistryEntryCreateCFProperties(entry, properties, allocator, options):
     raise NotImplementedError
 
+# kern_return_t IORegistryEntryGetLocationInPlane(io_registry_entry_t entry, const io_name_t plane, io_name_t location);
+def IORegistryEntryGetLocationInPlane(entry, plane, location):
+    raise NotImplementedError
+
 
 # CFTypeRef IORegistryEntryCreateCFProperty(io_registry_entry_t entry, CFStringRef key, CFAllocatorRef allocator, IOOptionBits options);
-def IORegistryEntryCreateCFProperty(entry, key: str, allocator, options):
+def IORegistryEntryCreateCFProperty(entry, key, allocator, options):
+    raise NotImplementedError
+
+# kern_return_t IORegistryEntryGetParentEntry(io_registry_entry_t entry, const char *plane, io_registry_entry_t parent);
+def IORegistryEntryGetParentEntry(entry, plane, parent):
     raise NotImplementedError
 
 
-# kern_return_t IORegistryEntryGetRegistryEntryID(io_registry_entry_t entry, uint64_t * entryID)
-def IORegistryEntryGetRegistryEntryID(entrY, entryID):
+# kern_return_t IORegistryEntryGetRegistryEntryID(io_registry_entry_t entry, uint64_t * entryID);
+def IORegistryEntryGetRegistryEntryID(entry, entryID):
     raise NotImplementedError
 
 
+# io_registry_entry_t IORegistryEntryFromPath(mach_port_t masterPort, io_name_t path);
 def IORegistryEntryFromPath(masterPort, path):
+    raise NotImplementedError
+
+
+# kern_return_t IORegistryGetPath(io_registry_entry_t entry, const io_name_t plane, io_string_t path);
+def IORegistryEntryGetPath(entry, plane, path):
     raise NotImplementedError
 
 
@@ -94,6 +114,10 @@ def IOServiceNameMatching(name):
 
 # CFMutableDictionaryRef IOServiceMatching(const char * name);
 def IOServiceMatching(name):
+    raise NotImplementedError
+
+# boolean_t IOObjectConformsTo(io_object_t object, const char *className);
+def IOObjectConformsTo(object, className):
     raise NotImplementedError
 
 

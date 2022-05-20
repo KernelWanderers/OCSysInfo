@@ -128,62 +128,62 @@ class WindowsHardwareManager:
                 __file__,
             )
             return
-        else:
-            for GPU in GPUS:
-                try:
-                    gpu = GPU.wmi_property("Name").value
-                    pci = GPU.wmi_property("PNPDeviceID").value
-                    match = re.search(
-                        "(VEN_(\d|\w){4})\&(DEV_(\d|\w){4})", pci)
-                except Exception as e:
-                    self.logger.error(
-                        f"Failed to obtain GPU device (WMI)\n\t^^^^^^^^^{str(e)}",
-                        __file__,
-                    )
-                    continue
 
-                data = {}
-                ven, dev = "Unable to detect.", "Unable to detect."
+        for GPU in GPUS:
+            try:
+                gpu = GPU.wmi_property("Name").value
+                pci = GPU.wmi_property("PNPDeviceID").value
+                match = re.search(
+                    "(VEN_(\d|\w){4})\&(DEV_(\d|\w){4})", pci)
+            except Exception as e:
+                self.logger.error(
+                    f"Failed to obtain GPU device (WMI)\n\t^^^^^^^^^{str(e)}",
+                    __file__,
+                )
+                continue
 
-                if match:
-                    ven, dev = [
-                        "0x" + x.split("_")[1] for x in match.group(0).split("&")
-                    ]
+            data = {}
+            ven, dev = "Unable to detect.", "Unable to detect."
 
-                    if ven and dev:
-                        data["Device ID"] = dev
-                        data["Vendor"] = ven
+            if match:
+                ven, dev = [
+                    "0x" + x.split("_")[1] for x in match.group(0).split("&")
+                ]
 
-                try:
-                    paths = pci_from_acpi_win(self.c, pci, self.logger)
+                if ven and dev:
+                    data["Device ID"] = dev
+                    data["Vendor"] = ven
 
-                    if paths:
-                        pcip = paths.get("PCI Path", "")
-                        acpi = paths.get("ACPI Path", "")
+            try:
+                paths = pci_from_acpi_win(self.c, pci, self.logger)
 
-                        if pcip:
-                            data["PCI Path"] = pcip
+                if paths:
+                    pcip = paths.get("PCI Path", "")
+                    acpi = paths.get("ACPI Path", "")
 
-                        if acpi:
-                            data["ACPI Path"] = acpi
-                except Exception as e:
-                    self.logger.warning(
-                        f"Failed to construct PCI/ACPI paths for GPU device\n\t^^^^^^^^^{str(e)}",
-                        __file__,
-                    )
+                    if pcip:
+                        data["PCI Path"] = pcip
 
-                gpucname = _gpu(dev, ven)
+                    if acpi:
+                        data["ACPI Path"] = acpi
+            except Exception as e:
+                self.logger.warning(
+                    f"Failed to construct PCI/ACPI paths for GPU device\n\t^^^^^^^^^{str(e)}",
+                    __file__,
+                )
 
-                if gpucname:
-                    data["Codename"] = gpucname
+            gpucname = _gpu(dev, ven)
 
-                if not gpu:
-                    self.logger.warning(
-                        "[POST]: Failed to obtain GPU device (WMI)", __file__
-                    )
-                    gpu = "Unknown GPU Device"
+            if gpucname:
+                data["Codename"] = gpucname
 
-                self.info["GPU"].append({gpu: data})
+            if not gpu:
+                self.logger.warning(
+                    "[POST]: Failed to obtain GPU device (WMI)", __file__
+                )
+                gpu = "Unknown GPU Device"
+
+            self.info["GPU"].append({gpu: data})
 
     def mem_info(self):
         try:
@@ -194,34 +194,34 @@ class WindowsHardwareManager:
                 __file__,
             )
             return
-        else:
-            for module in RAM:
-                try:
-                    bank = module.wmi_property("BankLabel").value
-                    capacity = module.wmi_property("Capacity").value
-                    channel = module.wmi_property("DeviceLocator").value
-                    manufacturer = module.wmi_property("Manufacturer").value
-                    type = module.wmi_property("SMBIOSMemoryType").value
-                    spid = module.wmi_property("ConfiguredClockSpeed").value
-                    part_no = module.wmi_property("PartNumber").value.strip()
-                except Exception as e:
-                    self.logger.critical(
-                        f"Failed to obtain information about RAM module (WMI)\n\t^^^^^^^^^{str(e)}",
-                        __file__,
-                    )
-                    continue
 
-                self.info["Memory"].append(
-                    {
-                        f"{part_no} (Part-Number)": {
-                            "Type": MEMORY_TYPE.get(type) or "Unknown",
-                            "Slot": {"Bank": bank, "Channel": channel},
-                            "Frequency (MHz)": f"{spid} MHz",
-                            "Manufacturer": manufacturer,
-                            "Capacity": f"{round(int(capacity) / 0x100000)}MB",
-                        }
-                    }
+        for module in RAM:
+            try:
+                bank = module.wmi_property("BankLabel").value
+                capacity = module.wmi_property("Capacity").value
+                channel = module.wmi_property("DeviceLocator").value
+                manufacturer = module.wmi_property("Manufacturer").value
+                type = module.wmi_property("SMBIOSMemoryType").value
+                spid = module.wmi_property("ConfiguredClockSpeed").value
+                part_no = module.wmi_property("PartNumber").value.strip()
+            except Exception as e:
+                self.logger.critical(
+                    f"Failed to obtain information about RAM module (WMI)\n\t^^^^^^^^^{str(e)}",
+                    __file__,
                 )
+                continue
+
+            self.info["Memory"].append(
+                {
+                    f"{part_no} (Part-Number)": {
+                        "Type": MEMORY_TYPE.get(type) or "Unknown",
+                        "Slot": {"Bank": bank, "Channel": channel},
+                        "Frequency (MHz)": f"{spid} MHz",
+                        "Manufacturer": manufacturer,
+                        "Capacity": f"{round(int(capacity) / 0x100000)}MB",
+                    }
+                }
+            )
 
     def net_info(self):
         try:
@@ -232,87 +232,87 @@ class WindowsHardwareManager:
                 __file__,
             )
             return
-        else:
-            for NIC in NICS:
-                try:
-                    path = NIC.wmi_property("PNPDeviceID").value
-                    if not path:
-                        continue
 
-                    data = {}
-                    model = {}
-                except Exception as e:
-                    self.logger.warning(
-                        f"Failed to obtain Network controller (WMI)\n\t^^^^^^^^^{str(e)}",
-                        __file__,
-                    )
+        for NIC in NICS:
+            try:
+                path = NIC.wmi_property("PNPDeviceID").value
+                if not path:
                     continue
 
-                usb = False
-                match = re.search(
-                    "((VEN_(\d|\w){4})\&(DEV_(\d|\w){4}))|((VID_(\d|\w){4})\&(PID_(\d|\w){4}))",
-                    path,
-                )
-
-                ven, dev = "Unable to detect.", "Unable to detect."
-
-                if match:
-                    ven, dev = [
-                        "0x" + x.split("_")[1] for x in match.group(0).split("&")
-                    ]
-                else:
-                    self.logger.warning(
-                        "[POST]: Failed to obtain Network controller (WMI)",
-                        __file__,
-                    )
-                    continue
-
-                if self.offline:
-                    model = { "device": "Unknown Network Controller" }
-                else:
-                    try:
-                        model = (
-                            self.pci.get_item(
-                                dev[2:], ven[2:], types="pci" if not usb else "usb"
-                            )
-                            or {}
-                        )
-                    except Exception:
-                        model = { "device": "Unknown Network Controller" }
-
-                        self.logger.warning(
-                            f"Failed to obtain model for Network controller (WMI) – Non-critical, ignoring",
-                            __file__,
-                        )
-
-                data = {"Device ID": dev, "Vendor": ven}
-
-                try:
-                    paths = pci_from_acpi_win(self.c, path, self.logger)
-
-                    if paths:
-                        pcip = paths.get("PCI Path", "")
-                        acpi = paths.get("ACPI Path", "")
-
-                        if pcip:
-                            data["PCI Path"] = pcip
-
-                        if acpi:
-                            data["ACPI Path"] = acpi
-                except Exception as e:
-                    self.logger.warning(
-                        f"Failed to construct PCI/ACPI paths for Network controller\n\t^^^^^^^^^{str(e)}",
-                        __file__,
-                    )
-
-                if not model and "unable to" in data["Device ID"].lower():
-                    continue
-
-                self.info["Network"].append(
-                    {model.get("device", "Unknown Network Controller"): data}
-                )
-
+                data = {}
                 model = {}
+            except Exception as e:
+                self.logger.warning(
+                    f"Failed to obtain Network controller (WMI)\n\t^^^^^^^^^{str(e)}",
+                    __file__,
+                )
+                continue
+
+            usb = False
+            match = re.search(
+                "((VEN_(\d|\w){4})\&(DEV_(\d|\w){4}))|((VID_(\d|\w){4})\&(PID_(\d|\w){4}))",
+                path,
+            )
+
+            ven, dev = "Unable to detect.", "Unable to detect."
+
+            if match:
+                ven, dev = [
+                    "0x" + x.split("_")[1] for x in match.group(0).split("&")
+                ]
+            else:
+                self.logger.warning(
+                    "[POST]: Failed to obtain Network controller (WMI)",
+                    __file__,
+                )
+                continue
+
+            if self.offline:
+                model = { "device": "Unknown Network Controller" }
+            else:
+                try:
+                    model = (
+                        self.pci.get_item(
+                            dev[2:], ven[2:], types="pci" if not usb else "usb"
+                        )
+                        or {}
+                    )
+                except Exception:
+                    model = { "device": "Unknown Network Controller" }
+
+                    self.logger.warning(
+                        f"Failed to obtain model for Network controller (WMI) – Non-critical, ignoring",
+                        __file__,
+                    )
+
+            data = {"Device ID": dev, "Vendor": ven}
+
+            try:
+                paths = pci_from_acpi_win(self.c, path, self.logger)
+
+                if paths:
+                    pcip = paths.get("PCI Path", "")
+                    acpi = paths.get("ACPI Path", "")
+
+                    if pcip:
+                        data["PCI Path"] = pcip
+
+                    if acpi:
+                        data["ACPI Path"] = acpi
+            except Exception as e:
+                self.logger.warning(
+                    f"Failed to construct PCI/ACPI paths for Network controller\n\t^^^^^^^^^{str(e)}",
+                    __file__,
+                )
+
+            if not model and "unable to" in data["Device ID"].lower():
+                continue
+
+            self.info["Network"].append(
+                {model.get("device", "Unknown Network Controller"): data}
+            )
+
+            model = {}
 
     def audio_info(self):
         try:
@@ -323,87 +323,87 @@ class WindowsHardwareManager:
                 __file__,
             )
             return
-        else:
-            for AUDIO in HDA:
-                try:
-                    path = AUDIO.wmi_property("PNPDeviceID").value
-                    if not path:
-                        continue
 
-                    data = {}
-                    model = {}
-                except Exception as e:
-                    self.logger.error(
-                        f"Failed to obtain Sound device (WMI)\n\t^^^^^^^^^{str(e)}",
-                        __file__,
-                    )
+        for AUDIO in HDA:
+            try:
+                path = AUDIO.wmi_property("PNPDeviceID").value
+                if not path:
                     continue
 
-                match = re.search(
-                    "((VEN_(\d|\w){4})\&(DEV_(\d|\w){4}))|((VID_(\d|\w){4})\&(PID_(\d|\w){4}))",
-                    path,
-                )
-
-                ven, dev = "Unable to detect.", "Unable to detect."
-
-                if match:
-                    ven, dev = [
-                        "0x" + x.split("_")[1] for x in match.group(0).split("&")
-                    ]
-
-                    if not "unable to" in ven.lower():
-                        if "10ec" in ven.lower():
-                            model = {
-                                "device": f"Realtek ALC{hex(int(dev, 16))[2:]}"}
-                        else:
-                            if self.offline:
-                                model = { "device": "Unknown Sound Device" }
-                            else:
-                                try:
-                                    model = self.pci.get_item(
-                                        dev[2:], ven[2:])
-                                except Exception:
-                                    model = { "device": "Unknown Sound Device" }
-
-                                    self.logger.warning(
-                                        f"Failed to obtain model for Sound device (WMI) – Non-critical, ignoring",
-                                        __file__,
-                                    )
-                                
-                else:
-                    self.logger.warning(
-                        "[POST]: Failed to obtain Sound device (WMI)", __file__
-                    )
-                    continue
-
-                data = {"Device ID": dev, "Vendor": ven}
-
-                try:
-                    paths = pci_from_acpi_win(self.c, path, self.logger)
-
-                    if paths:
-                        pcip = paths.get("PCI Path", "")
-                        acpi = paths.get("ACPI Path", "")
-
-                        if pcip:
-                            data["PCI Path"] = pcip
-
-                        if acpi:
-                            data["ACPI Path"] = acpi
-                except Exception as e:
-                    self.logger.warning(
-                        f"Failed to construct PCI/ACPI paths for Sound device\n\t^^^^^^^^^{str(e)}",
-                        __file__,
-                    )
-
-                if not model and "unable to" in data["Device ID"].lower():
-                    continue
-
-                self.info["Audio"].append(
-                    {model.get("device", "Unknown Sound Device"): data}
-                )
-
+                data = {}
                 model = {}
+            except Exception as e:
+                self.logger.error(
+                    f"Failed to obtain Sound device (WMI)\n\t^^^^^^^^^{str(e)}",
+                    __file__,
+                )
+                continue
+
+            match = re.search(
+                "((VEN_(\d|\w){4})\&(DEV_(\d|\w){4}))|((VID_(\d|\w){4})\&(PID_(\d|\w){4}))",
+                path,
+            )
+
+            ven, dev = "Unable to detect.", "Unable to detect."
+
+            if match:
+                ven, dev = [
+                    "0x" + x.split("_")[1] for x in match.group(0).split("&")
+                ]
+
+                if not "unable to" in ven.lower():
+                    if "10ec" in ven.lower():
+                        model = {
+                            "device": f"Realtek ALC{hex(int(dev, 16))[2:]}"}
+                    else:
+                        if self.offline:
+                            model = { "device": "Unknown Sound Device" }
+                        else:
+                            try:
+                                model = self.pci.get_item(
+                                    dev[2:], ven[2:])
+                            except Exception:
+                                model = { "device": "Unknown Sound Device" }
+
+                                self.logger.warning(
+                                    f"Failed to obtain model for Sound device (WMI) – Non-critical, ignoring",
+                                    __file__,
+                                )
+                            
+            else:
+                self.logger.warning(
+                    "[POST]: Failed to obtain Sound device (WMI)", __file__
+                )
+                continue
+
+            data = {"Device ID": dev, "Vendor": ven}
+
+            try:
+                paths = pci_from_acpi_win(self.c, path, self.logger)
+
+                if paths:
+                    pcip = paths.get("PCI Path", "")
+                    acpi = paths.get("ACPI Path", "")
+
+                    if pcip:
+                        data["PCI Path"] = pcip
+
+                    if acpi:
+                        data["ACPI Path"] = acpi
+            except Exception as e:
+                self.logger.warning(
+                    f"Failed to construct PCI/ACPI paths for Sound device\n\t^^^^^^^^^{str(e)}",
+                    __file__,
+                )
+
+            if not model and "unable to" in data["Device ID"].lower():
+                continue
+
+            self.info["Audio"].append(
+                {model.get("device", "Unknown Sound Device"): data}
+            )
+
+            model = {}
 
     def mobo_info(self):
         try:
@@ -416,9 +416,9 @@ class WindowsHardwareManager:
                 __file__,
             )
             return
-        else:
-            self.info["Motherboard"] = {
-                "Model": model, "Manufacturer": manufacturer}
+
+        self.info["Motherboard"] = {
+            "Model": model, "Manufacturer": manufacturer}
 
     def storage_info(self):
         try:
@@ -477,15 +477,15 @@ class WindowsHardwareManager:
                 __file__,
             )
             return
-        else:
-            _kbs = self.get_kbpd(KBS)
-            _pds = self.get_kbpd(PDS)
 
-            for kb in _kbs:
-                self.info["Input"].append(kb)
+        _kbs = self.get_kbpd(KBS)
+        _pds = self.get_kbpd(PDS)
 
-            for pd in _pds:
-                self.info["Input"].append(pd)
+        for kb in _kbs:
+            self.info["Input"].append(kb)
+
+        for pd in _pds:
+            self.info["Input"].append(pd)
 
     def get_kbpd(self, items):
         _items = []

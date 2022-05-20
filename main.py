@@ -32,7 +32,6 @@ if __name__ == "__main__":
             except Exception as e:
                 if isinstance(e, requests.ConnectionError):
                     flag_parser.offline = True
-
                 if isinstance(e, PermissionError):
                     print(color_text("Could not access the required data. "
                                      "Try running this program using elevated privileges.", "red"))

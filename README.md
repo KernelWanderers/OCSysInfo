@@ -11,65 +11,103 @@ A basic, high-level and efficient CLI for discovering hardware information about
 ```
 ─ CPU
   └── Intel(R) Core(TM) i5-8400 CPU @ 2.80GHz
-      ├── Cores: 6 cores
-      ├── Threads: 6 threads
+      ├── Cores: 6
+      ├── Threads: 6
       ├── SSE: SSE4.2
       ├── SSSE3: Supported
-      └── Codename: Coffee Lake-S
+      └── Codename: Coffee Lake
+
+─ Motherboard
+  ├── Model: B365M DS3H
+  └── Manufacturer: Gigabyte Technology Co., Ltd.
 
 ─ GPU
-  ├── Intel UHD Graphics 630
-  │   ├── Device ID: 0x3e92
+  ├── Intel(R) UHD Graphics 630
+  │   ├── Device ID: 0x3E92
   │   ├── Vendor: 0x8086
   │   ├── PCI Path: PciRoot(0x0)/Pci(0x2,0x0)
   │   └── ACPI Path: \_SB.PCI0.GFX0
-  └── AMD Radeon WhateverGreenDowngradeFixed 390X Hawaii XT
-      ├── Device ID: 0x67b0
+  └── AMD Radeon (TM) R9 390 Series
+      ├── Device ID: 0x67B1
       ├── Vendor: 0x1002
       ├── PCI Path: PciRoot(0x0)/Pci(0x1,0x0)/Pci(0x0,0x0)
       ├── ACPI Path: \_SB.PCI0.PEG0.PEGP
       └── Codename: Hawaii
 
+─ Memory
+  ├── F4-2400C15-4GRR (Part-Number)
+  │   ├── Type: DDR4
+  │   ├── Slot
+  │   │   ├── Bank: BANK 0
+  │   │   └── Channel: ChannelA-DIMM0
+  │   ├── Frequency (MHz): 2400 MHz
+  │   ├── Manufacturer: 04CD
+  │   └── Capacity: 4096MB
+  ├── F4-2400C15-4GRR (Part-Number)
+  │   ├── Type: DDR4
+  │   ├── Slot
+  │   │   ├── Bank: BANK 1
+  │   │   └── Channel: ChannelA-DIMM1
+  │   ├── Frequency (MHz): 2400 MHz
+  │   ├── Manufacturer: 04CD
+  │   └── Capacity: 4096MB
+  ├── F4-2400C15-4GRR (Part-Number)
+  │   ├── Type: DDR4
+  │   ├── Slot
+  │   │   ├── Bank: BANK 2
+  │   │   └── Channel: ChannelB-DIMM0
+  │   ├── Frequency (MHz): 2400 MHz
+  │   ├── Manufacturer: 04CD
+  │   └── Capacity: 4096MB
+  └── F4-2400C15-4GRR (Part-Number)
+      ├── Type: DDR4
+      ├── Slot
+      │   ├── Bank: BANK 3
+      │   └── Channel: ChannelB-DIMM1
+      ├── Frequency (MHz): 2400 MHz
+      ├── Manufacturer: 04CD
+      └── Capacity: 4096MB
+
 ─ Network
   └── RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller
       ├── Device ID: 0x8168
-      ├── Vendor: 0x10ec
+      ├── Vendor: 0x10EC
       ├── PCI Path: PciRoot(0x0)/Pci(0x1c,0x4)/Pci(0x0,0x0)
       └── ACPI Path: \_SB.PCI0.RP05.PXSX
 
 ─ Audio
-  ├── Realtek ALC887
-  │   ├── Device ID: 0x0887
-  │   └── Vendor: 0x10ec
-  ├── 200 Series PCH HD Audio
-  │   ├── Device ID: 0xa2f0
-  │   ├── Vendor: 0x8086
-  │   ├── PCI Path: PciRoot(0x0)/Pci(0x1f,0x3)
-  │   └── ACPI Path: \_SB.PCI0.HDAS
-  └── Hawaii HDMI Audio [Radeon R9 290/290X / 390/390X]
-      ├── Device ID: 0xaac8
-      └── Vendor: 0x1002
+  ├── Unknown Sound Device
+  │   ├── Device ID: 0x4938
+  │   └── Vendor: 0x0BDA
+  ├── RV635 HDMI Audio [Radeon HD 3650/3730/3750]
+  │   ├── Device ID: 0xAA01
+  │   └── Vendor: 0x1002
+  ├── Intel(R) Display Audio
+  │   ├── Device ID: 0x280B
+  │   └── Vendor: 0x8086
+  └── Realtek ALC887
+      ├── Device ID: 0x0887
+      └── Vendor: 0x10EC
 
 ─ Input
-  ├── TUF GAMING K7 (USB)
-  │   ├── Device ID: 0x18aa
-  │   └── Vendor: 0xb05
-  └── USB OPTICAL MOUSE (USB)
-      ├── Device ID: 0x2521
-      └── Vendor: 0x93a
+  └── HID Keyboard Device
 
 ─ Storage
-  ├── LITEON CV3-8D128-HP
-  │   ├── Type: Solid State Drive (SSD)
-  │   ├── Connector: SATA
+  ├── WDC WD2500AAJS-00L7A0
+  │   ├── Type: Unspecified
+  │   ├── Connector: Serial ATA (SATA)
   │   └── Location: Internal
+  ├── Kingston DataTraveler 2.0
+  │   ├── Type: Unspecified
+  │   ├── Connector: USB
+  │   └── Location: External
   ├── KINGSTON SA400S37240G
   │   ├── Type: Solid State Drive (SSD)
-  │   ├── Connector: SATA
+  │   ├── Connector: Serial ATA (SATA)
   │   └── Location: Internal
-  └── WDC WD2500AAJS-00L7A0
-      ├── Type: Hard Disk Drive (HDD)
-      ├── Connector: SATA
+  └── LITEON CV3-8D128-HP
+      ├── Type: Solid State Drive (SSD)
+      ├── Connector: Serial ATA (SATA)
       └── Location: Internal
 ```
 </details>
@@ -87,7 +125,7 @@ Then, run the `main.py` script located in the project's root. (Do also make sure
 
 ```sh
 # Clone the repository using Git
-git clone https://github.com/iabtw/OCSysInfo.git
+git clone https://github.com/KernelWanderers/OCSysInfo.git
 
 # Switch to the repository folder
 cd OCSysInfo
@@ -236,3 +274,5 @@ The following contains credits to all the people who helped assist in the making
 - @[Fewtarius](https://github.com/fewtarius) — for assistance in testing the application in its various stages.
 
 - @[Apethesis](https://github.com/Apethesis) — for assistance in testing the application in its various stages.
+
+- @[ThatCopy](https://github.com/ThatCopy) — for assistance in locating and fixing bugs and issues with the terminal on OSX, as well as completely defining and taking care of the logic for detecting ARM (ARM64 and ARMv7) CPUs on Linux.
