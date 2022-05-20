@@ -1,7 +1,7 @@
 import os
 import platform
 
-if platform.system.lower() == "darwin":
+if platform.system().lower() == "darwin":
     from src.dumps.macOS.ioreg import *
 
 
