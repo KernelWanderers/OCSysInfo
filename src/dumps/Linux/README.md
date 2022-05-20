@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="../../../resources/icons/OCSI_logo_linux.png" width="500">
+<img src="../../../resources/icons/OCSI_logo_linux.png" width="300">
 
 # Linux
 
