@@ -9,7 +9,7 @@ def patch_info_plist():
     print("Patching CFBundleExecutable...")
     plist = plistlib.load(Path(plist_path).open("rb"))
 
-    plist["CFBundleExectuable"] = "Launcher"
+    plist["CFBundleExecutable"] = "Launcher"
 
     print("Writing changes...")
     plistlib.dump(plist, Path(
