@@ -33,7 +33,6 @@ jobs:
       - name: Patch app bundle, extract binary file
         run: |
           cd dist/ocsysinfo_osx_x86_64.app/Contents/MacOS/
-          cp ocsysinfo_osx_x86_64 ../../../
           mv ocsysinfo_osx_x86_64 ocsysinfo_osx_x86_64_bin
           touch ocsysinfo_osx_x86_64
           chmod +x ocsysinfo_osx_x86_64
@@ -43,14 +42,14 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Artifacts OSX
-          path: dist/
+          path: dist/ocsysinfo_osx_x86_64.app
 
       - name: Upload to Release
         if: github.event_name == 'release'
         uses: svenstaro/upload-release-action@e74ff71f7d8a4c4745b560a485cc5fdb9b5b999d
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/ocsysinfo_osx_*
+          file: dist/ocsysinfo_osx_x86_64.app
           tag: ${{ github.ref }}
           file_glob: true
 
