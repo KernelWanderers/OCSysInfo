@@ -43,6 +43,7 @@ jobs:
 
       - name: Pack app bundle to DMG 
         run: |
+          rm -rf dist/OCSysInfo
           create-dmg \
             --volname "OCSysInfo" \
             --volicon "resources/icons/OCSI_logo_mac.icns" \
