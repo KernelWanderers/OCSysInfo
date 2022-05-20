@@ -22,36 +22,48 @@ jobs:
       - name: Install dependencies
         run: pip3 install -r requirements.txt
 
+      - name: Install convert-dmg
+        run: brew install convert-dmg
+
       - name: Install pyinstaller
         run: pip3 install pyinstaller
 
       - name: Build app bundle & binaries for OSX
-        run: pyinstaller main.py --onefile --windowed --name ocsysinfo_osx_x86_64 --icon=./resources/icons/OCSI_logo_mac.icns --paths=./src --target-architecture x86_64
+        run: pyinstaller main.py --onefile --windowed --name OCSysInfo --icon=./resources/icons/OCSI_logo_mac.icns --paths=./src --target-architecture x86_64
 
       # Hacky way of redirecting an app bundle
       # into terminal.
       - name: Patch app bundle, extract binary file
         run: |
-          cd dist/ocsysinfo_osx_x86_64.app/Contents/MacOS/
-          mv ocsysinfo_osx_x86_64 ocsysinfo_osx_x86_64_bin
-          touch ocsysinfo_osx_x86_64
-          chmod +x ocsysinfo_osx_x86_64
-          echo "#\!/bin/bash\ndir=(dirname $0)\nopen -a Terminal file://${dir}/ocsysinfo_osx_x86_64_bin" > ocsysinfo_osx_x86_64
-          cd ../../../
-          zip -e ocsysinfo_osx_x86_64.zip ocsysinfo_osx_x86_64.app
+          cd dist/OCSysInfo.app/Contents/MacOS/
+          mv OCSysInfo OCSysInfo_bin
+          touch OCSysInfo
+          chmod +x OCSysInfo
+          echo "#\!/bin/bash\ndir=(dirname $0)\nopen -a Terminal file://${dir}/OCSysInfo_bin" > OCSysInfo
+
+      - name: Pack app bundle to DMG 
+        run: |
+          create-dmg \
+            --volname "OCSysInfo" \
+            --volicon "resources/icons/OCSI_logo_mac.icns" \
+            --window-pos 200 120 \
+            --icon "OCSysInfo.app" 300 202 \
+            --window-size 800 400 \
+            --app-drop-link 600 200 "ocsysinfo_osx_x86_64.dmg" "dist/"
+
 
       - name: Upload to Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: Artifacts OSX
-          path: dist/ocsysinfo_osx*
+          path: ocsysinfo_osx_x86_64.dmg
 
       - name: Upload to Release
         if: github.event_name == 'release'
         uses: svenstaro/upload-release-action@e74ff71f7d8a4c4745b560a485cc5fdb9b5b999d
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/ocsysinfo_osx_x86_64.zip
+          file: ocsysinfo_osx_x86_64.dmg
           tag: ${{ github.ref }}
           file_glob: true
 
