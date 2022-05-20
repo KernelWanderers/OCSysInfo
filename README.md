@@ -6,10 +6,10 @@
 
 </div>
 
-
-A basic, high-level and efficient CLI for discovering hardware information about the current system.
-
 <div align="center">
+  
+A basic, high-level and efficient CLI for discovering hardware information about the current system.
+  
 <a href="https://github.com/KernelWanderers/OCSysInfo/blob/main/LICENSE"><img src="https://img.shields.io/github/license/KernelWanderers/OCSysInfo?color=%232885D7&style=for-the-badge"></a>
 <a href="https://github.com/KernelWanderers/OCSysInfo/releases/"><img src="https://img.shields.io/github/downloads/KernelWanderers/OCSysInfo/total?color=%231DE2D0&style=for-the-badge" /></a>
 <img src="https://img.shields.io/github/workflow/status/KernelWanderers/OCSysInfo/Compile%20and%20publish%20binaries?style=for-the-badge" />
