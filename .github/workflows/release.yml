@@ -22,8 +22,8 @@ jobs:
       - name: Install dependencies
         run: pip3 install -r requirements.txt
 
-      - name: Install convert-dmg
-        run: brew install convert-dmg
+      - name: Install create-dmg
+        run: brew install create-dmg
 
       - name: Install pyinstaller
         run: pip3 install pyinstaller
