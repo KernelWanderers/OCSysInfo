@@ -25,14 +25,24 @@ jobs:
       - name: Install pyinstaller
         run: pip3 install pyinstaller
 
-      - name: Build binaries for OSX
-        run: pyinstaller main.py --onefile --name ocsysinfo_osx_x86_64 --paths=./src --target-architecture x86_64
+      - name: Build app bundle & binaries for OSX
+        run: pyinstaller main.py --onefile --windowed --name ocsysinfo_osx_x86_64 --icon=./resources/icons/OCSI_logo_mac.icns --paths=./src --target-architecture x86_64
+
+      # Hacky way of redirecting an app bundle
+      # into terminal.
+      - name: Patch app bundle, extract binary file
+        run: |
+          cd dist/ocsysinfo_osx_x86_64.app/Contents/macOS/ocsysinfo_osx_x86_64 ../../../
+          mv ocsysinfo_osx_x86_64 ocsysinfo_osx_x86_64_bin
+          touch ocsysinfo_osx_x86_64
+          chmod +x ocsysinfo_osx_x86_64
+          echo "#\!/bin/bash\ndir=(dirname $0)\nopen -a Terminal file://${dir}/ocsysinfo_osx_x86_64_bin" > ocsysinfo_osx_x86_64
 
       - name: Upload to Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: Artifacts OSX
-          path: dist/ocsysinfo_osx_x86_64
+          path: dist/
 
       - name: Upload to Release
         if: github.event_name == 'release'
@@ -64,7 +74,7 @@ jobs:
         run: pip3 install pyinstaller
 
       - name: Build binaries for Windows
-        run: pyinstaller main.py --onefile --name ocsysinfo_win --paths=./src
+        run: pyinstaller main.py --onefile --name ocsysinfo_win --paths=./src --icon=./resources/icons/OCSI_logo_win.ico
 
       - name: Upload to Artifacts
         uses: actions/upload-artifact@v2
@@ -105,7 +115,7 @@ jobs:
       - name: Upload to Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: Artifacts Linux ARM64
+          name: Artifacts Linux
           path: dist/ocsysinfo_linux_x86_64
         
       - name: Upload to Release
