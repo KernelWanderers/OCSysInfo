@@ -1,6 +1,6 @@
 
 <div align="center">
-<img src="./resources/icons/OCSI_logo_3.png" width="400"/>
+<img src="resources/icons/OCSI_logo_readme.png" width="400"/>
 
 <a href="https://github.com/KernelWanderers/OCSysInfo/blob/main/LICENSE"><img src="https://img.shields.io/github/license/KernelWanderers/OCSysInfo?color=%232885D7&style=for-the-badge"></a>
 <a href="https://github.com/KernelWanderers/OCSysInfo/releases/"><img src="https://img.shields.io/github/downloads/KernelWanderers/OCSysInfo/total?color=%231DE2D0&style=for-the-badge" /></a>
