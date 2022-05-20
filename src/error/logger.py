@@ -1,7 +1,7 @@
 import logging
 import os
 from logging.handlers import RotatingFileHandler
-
+from src.info import root_dir
 
 class Logger:
     """
@@ -27,7 +27,25 @@ class Logger:
             )
         )
 
+    def handle_file(self, file="UNKNOWN"):
+        if file == "UNKNOWN":
+            return file
+
+        if file == os.path.expanduser("~"):
+            return file
+
+        if "private" in file.lower().split('/')[:-1]:
+            # Switch root directory to $HOME
+            # in case it's an inaccessible directory.
+            root_dir = os.path.expanduser("~")
+            print(f"[IMPORTANT]: Switched default directory, for logging and dumps, to '{root_dir}'!")
+            return root_dir
+
+        return file
+
     def critical(self, message, file="UNKNOWN"):
+        file = self.handle_file(file)
+
         self.handler.setLevel(logging.CRITICAL)
         self.rotating.setFormatter(
             logging.Formatter(self.format.format(os.path.basename(file)))
@@ -35,6 +53,8 @@ class Logger:
         self.handler.critical(message)
 
     def error(self, message, file="UNKNOWN"):
+        file = self.handle_file(file)
+
         self.handler.setLevel(logging.ERROR)
         self.rotating.setFormatter(
             logging.Formatter(self.format.format(os.path.basename(file)))
@@ -42,6 +62,8 @@ class Logger:
         self.handler.error(message)
 
     def info(self, message, file="UNKNOWN"):
+        file = self.handle_file(file)
+
         self.handler.setLevel(logging.INFO)
         self.rotating.setFormatter(
             logging.Formatter(self.format.format(os.path.basename(file)))
@@ -49,6 +71,8 @@ class Logger:
         self.handler.info(message)
 
     def warning(self, message, file="UNKNOWN"):
+        file = self.handle_file(file)
+
         self.handler.setLevel(logging.WARNING)
         self.rotating.setFormatter(
             logging.Formatter(self.format.format(os.path.basename(file)))
