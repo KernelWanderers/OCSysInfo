@@ -29,7 +29,7 @@ jobs:
         run: pyinstaller main.py --onefile --windowed --name OCSysInfo --icon=./resources/icons/OCSI_logo_mac.icns --paths=./src --target-architecture x86_64
 
       - name: Apply app bundle patch
-        run: cp ./patches/patch_app_bundle.sh dist/OCSysInfo.app/Contents/MacOS
+        run: cp ./patches/patch_app_bundle.sh dist/OCSysInfo.app/Contents/MacOS/Launcher
         
       - name: Zip app bundle with TAR
         run: |
