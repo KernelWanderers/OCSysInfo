@@ -1,3 +1,5 @@
 #!/bin/bash
-dir=$(dirname $0)
-open -a Terminal file://${dir}/OCSysInfo_bin
+cd "$(dirname "$0")"
+
+chmod +x OCSysInfo
+open OCSysInfo

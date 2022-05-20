@@ -30,10 +30,9 @@ jobs:
 
       - name: Apply app bundle patch
         run: |
-          mv dist/OCSysInfo.app/Contents/MacOS/OCSysInfo \
-            dist/OCSysInfo.app/Contents/MacOS/OCSysInfo_bin
-          cp ./patches/launcher.sh dist/OCSysInfo.app/Contents/MacOS/OCSysInfo
-        
+          cp ./patches/launcher.sh dist/OCSysInfo.app/Contents/MacOS/Launcher
+          python3 ./patches/patch_plist.py
+
       - name: Zip app bundle
         run: |
           cd dist
