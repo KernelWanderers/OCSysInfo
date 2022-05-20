@@ -31,10 +31,10 @@ jobs:
       - name: Apply app bundle patch
         run: cp ./patches/patch_app_bundle.sh dist/OCSysInfo.app/Contents/MacOS
         
-      - name: Zip app bundle
+      - name: Zip app bundle with TAR
         run: |
           cd dist
-          zip -r ../OCSysInfo.app.zip OCSysInfo.app
+          tar -cvf ../OCSysInfo.app.tar OCSysInfo.app
         # run: |
         #   rm -rf dist/OCSysInfo
         #   create-dmg \
@@ -51,14 +51,14 @@ jobs:
         with:
           name: Artifacts OSX
           file: OCSysInfo.app
-          path: OCSysInfo.app.zip
+          path: OCSysInfo.app.tar
 
       - name: Upload to Release
         if: github.event_name == 'release'
         uses: svenstaro/upload-release-action@e74ff71f7d8a4c4745b560a485cc5fdb9b5b999d
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: OCSysInfo.app.zip
+          file: OCSysInfo.app.tar
           tag: ${{ github.ref }}
           file_glob: true
 
