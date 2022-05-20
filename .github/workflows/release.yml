@@ -31,6 +31,7 @@ jobs:
       - name: Apply app bundle patch
         run: |
           cp ./patches/launcher.sh dist/OCSysInfo.app/Contents/MacOS/Launcher
+          chmod +x dist/OCSysInfo.app/Contents/MacOS/Launcher
           python3 ./patches/patch_plist.py
 
       - name: Zip app bundle
