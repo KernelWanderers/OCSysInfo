@@ -1,4 +1,10 @@
+<div align="center">
+
+<img src="../../../resources/icons/OCSI_logo_linux.png" width="300">
+
 # Linux
+
+</div>
 
 This platform has probably caused the most inconvenience amongst us compared to any other. <br />
 
