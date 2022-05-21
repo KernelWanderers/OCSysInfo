@@ -3,10 +3,10 @@ from unittest import TestCase
 from pkg_resources import require, DistributionNotFound
 from subprocess import call
 from sys import platform, executable, exit
-from src import info
+from src.info import AppInfo
 
 try:
-    REQUIRED = open(os.path.join(info.root_dir, "requirements.txt")).read()
+    REQUIRED = open(os.path.join(AppInfo.root_dir, "requirements.txt")).read()
 except Exception as e:
     raise Exception(
         f"Failed to locate requirements file. Maybe it was deleted?\n\n{str(e)}"
