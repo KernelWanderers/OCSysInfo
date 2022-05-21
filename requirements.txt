@@ -1,12 +1,14 @@
 # Cross-platform
-requests; python_version >= '3.8'
-dicttoxml; python_version >= '3.8'
-distro; python_version >= '3.8'
-xmltodict; python_version >= '3.8'
+requests; python_version >= '3.9'
+dicttoxml; python_version >= '3.9'
+xmltodict; python_version >= '3.9'
 
 # macOS
-pyobjc; python_version >= '3.8' and sys_platform == 'darwin'
+pyobjc; python_version >= '3.9' and sys_platform == 'darwin'
 
 # Windows
-wmi; python_version >= '3.8' and sys_platform == 'win32'
-pywin32; python_version >= '3.8' and sys_platform == 'win32'
+wmi; python_version >= '3.9' and sys_platform == 'win32'
+pywin32; python_version >= '3.9' and sys_platform == 'win32'
+
+# Linux
+distro; python_version >= '3.9' and sys_platform == 'linux'
