@@ -7,11 +7,39 @@ the UI functions.
 import platform
 import os
 import sys
+from platform import system
 
-name = "OCSysInfo"
-version = "v1.0.5"
-os_ver = ""
-arch = platform.machine()
+dir_delim = "\\" if platform.system().lower() == "windows" else "/"
+
+class AppInfo:
+    name = "OCSysInfo"
+    version = "v1.0.5"
+    os_ver = ""
+    arch = platform.machine()
+    root_dir = ""
+
+    def set_root_dir(new_dir):
+        if not os.path.isdir(new_dir):
+            return
+
+        try:
+            AppInfo.root_dir = AppInfo.sanitise_dir(new_dir)
+        except Exception:
+            return
+
+        return AppInfo.root_dir
+
+    def sanitise_dir(dir):
+        if getattr(sys, 'frozen', False):
+            dir = os.path.dirname(sys.executable)
+            os.chdir(dir)
+        else:
+            dir = os.path.dirname(os.path.abspath(__file__))
+
+        if "src" in dir.split(dir_delim):
+            dir = dir_delim.join(dir.split(dir_delim)[:-1])
+
+        return dir
 
 # Colours!
 pink = "\033[95m"
@@ -64,14 +92,3 @@ surprise = f"""{cyan}
 ⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀⠀⠀⠈⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⣿⣿
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿{end_formatting}
 """
-
-dir_delim = "\\" if platform.system().lower() == "windows" else "/"
-
-if getattr(sys, 'frozen', False):
-    root_dir = os.path.dirname(sys.executable)
-    os.chdir(root_dir)
-else:
-    root_dir = os.path.dirname(os.path.abspath(__file__))
-
-if "src" in root_dir.split(dir_delim):
-    root_dir = dir_delim.join(root_dir.split(dir_delim)[:-1])

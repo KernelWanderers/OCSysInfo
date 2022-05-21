@@ -1,7 +1,8 @@
 import logging
 import os
 from logging.handlers import RotatingFileHandler
-
+from platform import system
+from src.info import AppInfo
 
 class Logger:
     """
@@ -10,14 +11,15 @@ class Logger:
     application's state.
     """
 
-    def __init__(self):
+    def __init__(self, path=AppInfo.root_dir):
         # Basic formats.
         self.format = "%(asctime)s | {} | %(levelname)s: %(message)s"
         self.date = "%m/%d/%Y %I:%M:%S %p"
 
+        logging.basicConfig(filename=os.path.join(path, "ocsysinfo.log"))
         # Adding the base log handlers.
         self.handler = logging.getLogger()
-        self.rotating = RotatingFileHandler("ocsysinfo.log", mode="a", maxBytes=2 ** 13)
+        self.rotating = RotatingFileHandler(os.path.join(path, "ocsysinfo.log"), mode="a", maxBytes=2 ** 13)
 
         # Add the RotatingFileHandler to the default logger.
         self.handler.addHandler(self.rotating)
