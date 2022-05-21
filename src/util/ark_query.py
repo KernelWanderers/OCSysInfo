@@ -37,8 +37,8 @@ def quick_search(search_term):
     )
 
     try:
-        r = requests.get(url.format(search_term))
-        return r.json()
+        r = requests.get(url.format(search_term)).json()
+        return r
     except Exception as e:
         if isinstance(e, requests.ConnectionError):
             return
@@ -46,7 +46,7 @@ def quick_search(search_term):
             raise e
 
 
-def get_codename(ark_url):
+def get_codename(ark_url, tried=False):
     """
     We get the ARK URL from the quick search results,
     and obtain the HTML data.
@@ -61,10 +61,16 @@ def get_codename(ark_url):
             raise e
             
     lines = text_thing.split("\n")
-    actual_line = {"a": {}}
+    actual_line = {"a":{}}
+
     for line_index in range(len(lines)):
         if 'data-key="CodeNameText"' in lines[line_index]:
             actual_line = lines[line_index + 1].strip()
+
+    if type(actual_line) != str and not tried:
+        return get_codename(ark_url.replace('/us', '/fr').replace('/en', '/fr'), True)
+    elif type(actual_line) != str and tried:
+        return ""
 
     # We only need to parse the one line.
     line_json = xmltodict.parse(actual_line)
@@ -72,7 +78,7 @@ def get_codename(ark_url):
     # The codename is wrapped in an <a> tag.
     codename = line_json.get("a").get("#text")
 
-    return codename if codename else None
+    return codename if codename else ""
 
 
 def iark_search(search_term):
