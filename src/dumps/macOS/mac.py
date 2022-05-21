@@ -21,7 +21,7 @@ class MacHardwareManager:
         self.logger = parent.logger
         self.offline = parent.offline
         self.off_data = parent.off_data
-        self.vendor = None
+        self.vendor = ""
         self.cpu = {}
 
         self.STORAGE = {
@@ -66,7 +66,7 @@ class MacHardwareManager:
         if ".vendor" in subprocess.check_output(["sysctl", "machdep.cpu"]).decode():
             try:
                 # Manufacturer/Vendor of this CPU
-                vendor = (
+                self.vendor = (
                     "intel"
                     if "intel"
                     in subprocess.check_output(["sysctl", "machdep.cpu.vendor"])
@@ -76,8 +76,6 @@ class MacHardwareManager:
                     .lower()
                     else "amd"
                 )
-
-                self.vendor = vendor
 
                 # Full list of features for this CPU.
                 features = (
@@ -90,7 +88,7 @@ class MacHardwareManager:
                     f"Failed to access CPUID instruction – ({model})\n\t^^^^^^^^^{str(e)}",
                     __file__,
                 )
-                vendor = None
+                self.vendor = None
                 features = None
         else:
             self.vendor = "apple"
@@ -134,7 +132,7 @@ class MacHardwareManager:
             )
 
         if not self.offline:
-            self.cnm = CodenameManager(model, vendor)
+            self.cnm = CodenameManager(model, self.vendor)
 
             if self.cnm.codename:
                 data["Codename"] = self.cnm.codename
@@ -142,6 +140,9 @@ class MacHardwareManager:
         self.info["CPU"].append({model: data})
 
     def gpu_info(self, default=True):
+
+        if not default and self.vendor.lower() != "apple":
+            return
 
         if default:
             device = {
@@ -161,7 +162,6 @@ class MacHardwareManager:
 
         # Loop through the generator returned from `ioiterator_to_list()`
         for i in interface:
-
             # Obtain CFDictionaryRef of the current PCI/AppleARM device.
             device = corefoundation_to_native(
                 IORegistryEntryCreateCFProperties(
@@ -169,9 +169,11 @@ class MacHardwareManager:
                 )
             )[1]
 
+            # I don't know why there needs to be
+            # a try clause here, but it does.
             try:
                 # For Apple's M1 iGFX
-                if not default and not "gpu" in device.get("IONameMatched").lower():
+                if not default and not "gpu" in device.get("IONameMatched", "").lower():
                     continue
             except Exception:
                 continue
@@ -182,9 +184,8 @@ class MacHardwareManager:
                 if not model:
                     continue
 
-                if default:
-                    model = bytes(model).decode()
-                    model = model[0: len(model) - 1]
+                model = bytes(model).decode()
+                model = model[0: len(model) - 1]
             except Exception as e:
                 self.logger.error(
                     "Failed to obtain GPU device model (IOKit)"
@@ -201,19 +202,16 @@ class MacHardwareManager:
                             bytes(reversed(device.get("device-id")))
                         ).decode()[4:]
                     )
-                else:
-                    dev = "UNKNOWN"
 
-                # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
-                ven = "0x" + (
-                    binascii.b2a_hex(bytes(reversed(device.get("vendor-id")))).decode()[
-                        4:
-                    ]
-                )
+                    # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
+                    ven = "0x" + (
+                        binascii.b2a_hex(bytes(reversed(device.get("vendor-id")))).decode()[
+                            4:
+                        ]
+                    )
 
-                data = {"Device ID": dev, "Vendor": ven}
+                    data = {"Device ID": dev, "Vendor": ven}
 
-                if default:
                     path = construct_pcip_osx(
                         i, device.get("acpi-path", ""), self.logger)
 
@@ -244,7 +242,7 @@ class MacHardwareManager:
 
             IOObjectRelease(i)
 
-        if default and self.vendor == "apple":
+        if default:
             self.gpu_info(default=False)
 
     def mem_info(self):
@@ -302,7 +300,7 @@ class MacHardwareManager:
                             if type(x) == bytes and x.decode().strip()
                         ]
                     except Exception as e:
-                        self.logger.warn(
+                        self.logger.warning(
                             f"Failed to decode bytes for RAM module (IOKit/MemInfo)\n\t^^^^^^^^^{str(e)}",
                             __file__,
                         )
