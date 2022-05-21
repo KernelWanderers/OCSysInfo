@@ -147,3 +147,4 @@ del_*.ps1
 # MacOS bundling tests
 *.dmg
 *.app
+build_osx.sh
