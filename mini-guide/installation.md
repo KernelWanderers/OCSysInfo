@@ -131,4 +131,4 @@ Voila! OCSysInfo should be up and running.
 
 ![OCSysInfo Example](Images/OCSysInfo-example-py.png)
 
-You can now move onto the next section — [OCSysInfo Usage](/usage.md)
+You can now move onto the next section — [OCSysInfo Usage](/mini-guide/usage.md)
