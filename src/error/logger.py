@@ -16,9 +16,6 @@ class Logger:
         self.format = "%(asctime)s | {} | %(levelname)s: %(message)s"
         self.date = "%m/%d/%Y %I:%M:%S %p"
 
-        # Sane directory handling
-        AppInfo.avoid_inaccessibility(__file__, True)
-
         # Adding the base log handlers.
         self.handler = logging.getLogger()
         self.rotating = RotatingFileHandler(os.path.join(AppInfo.root_dir, "ocsysinfo.log"), mode="a", maxBytes=2 ** 13)
