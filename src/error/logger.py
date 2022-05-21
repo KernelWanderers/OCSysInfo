@@ -32,27 +32,27 @@ class Logger:
     def critical(self, message, file="UNKNOWN"):
         self.handler.setLevel(logging.CRITICAL)
         self.rotating.setFormatter(
-            logging.Formatter(self.format.format(os.path.basename(file)))
+            logging.Formatter(self.format.format(os.path.join(AppInfo.root_dir, os.path.basename(file))))
         )
         self.handler.critical(message)
 
     def error(self, message, file="UNKNOWN"):
         self.handler.setLevel(logging.ERROR)
         self.rotating.setFormatter(
-            logging.Formatter(self.format.format(os.path.basename(file)))
+            logging.Formatter(self.format.format(os.path.join(AppInfo.root_dir, os.path.basename(file))))
         )
         self.handler.error(message)
 
     def info(self, message, file="UNKNOWN"):
         self.handler.setLevel(logging.INFO)
         self.rotating.setFormatter(
-            logging.Formatter(self.format.format(os.path.basename(file)))
+            logging.Formatter(self.format.format(os.path.join(AppInfo.root_dir, os.path.basename(file))))
         )
         self.handler.info(message)
 
     def warning(self, message, file="UNKNOWN"):
         self.handler.setLevel(logging.WARNING)
         self.rotating.setFormatter(
-            logging.Formatter(self.format.format(os.path.basename(file)))
+            logging.Formatter(self.format.format(os.path.join(AppInfo.root_dir, os.path.basename(file))))
         )
         self.handler.warning(message)

@@ -143,3 +143,8 @@ del_*.ps1
 
 # VSCode stuff.
 .vscode
+
+# MacOS bundling tests
+*.dmg
+*.app
+build_osx.sh
