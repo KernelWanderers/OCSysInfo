@@ -140,10 +140,6 @@ class MacHardwareManager:
         self.info["CPU"].append({model: data})
 
     def gpu_info(self, default=True):
-
-        if not default and self.vendor.lower() != "apple":
-            return
-
         if default:
             device = {
                 "IOProviderClass": "IOPCIDevice",
@@ -151,7 +147,7 @@ class MacHardwareManager:
                 "IOPCIClassMatch": "0x03000000&0xff000000",
             }
         else:
-            device = {"IONameMatched": "gpu,*"}
+            device = {"IONameMatched": "gpu*"}
 
         # Obtain generator instance, whose values are `CFDictionary`-ies
         interface = ioiterator_to_list(
@@ -162,6 +158,8 @@ class MacHardwareManager:
 
         # Loop through the generator returned from `ioiterator_to_list()`
         for i in interface:
+            data = {}
+
             # Obtain CFDictionaryRef of the current PCI/AppleARM device.
             device = corefoundation_to_native(
                 IORegistryEntryCreateCFProperties(
@@ -173,7 +171,14 @@ class MacHardwareManager:
             # a try clause here, but it does.
             try:
                 # For Apple's M1 iGFX
-                if not default and not "gpu" in device.get("IONameMatched", "").lower():
+                if (
+                    not default and
+
+                    # If both return true, that means
+                    # we aren't dealing with a GPU device.
+                    not "gpu" in device.get("IONameMatched", "").lower() and
+                    not "AGX" in device.get("CFBundleIdentifierKernel", "")
+                ):
                     continue
             except Exception:
                 continue
@@ -184,8 +189,9 @@ class MacHardwareManager:
                 if not model:
                     continue
 
-                model = bytes(model).decode()
-                model = model[0: len(model) - 1]
+                if default:
+                    model = bytes(model).decode()
+                    model = model[0: len(model) - 1]
             except Exception as e:
                 self.logger.error(
                     "Failed to obtain GPU device model (IOKit)"
@@ -195,23 +201,37 @@ class MacHardwareManager:
                 continue
 
             try:
-                # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
                 if default:
+                    # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
                     dev = "0x" + (
                         binascii.b2a_hex(
                             bytes(reversed(device.get("device-id")))
                         ).decode()[4:]
                     )
+                else:
+                    gpuconf = device.get("GPUConfigurationVariable", {})
+                    dev = ""
 
-                    # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
-                    ven = "0x" + (
-                        binascii.b2a_hex(bytes(reversed(device.get("vendor-id")))).decode()[
-                            4:
-                        ]
-                    )
+                    data["Cores"] = (
+                        str(gpuconf.get("num_cores")) + " Cores")
+                    data["NE Cores"] = (str(gpuconf.get(
+                        "num_gps")) + " Neural Engine Cores") if gpuconf.get("num_mgpus") else None
+                    data["Generation"] = (
+                        "Generation " + str(gpuconf.get("gpu_gen"))) if gpuconf.get("gpu_gen") else None
 
-                    data = {"Device ID": dev, "Vendor": ven}
+                # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
+                ven = "0x" + (
+                    binascii.b2a_hex(bytes(reversed(device.get("vendor-id")))).decode()[
+                        4:
+                    ]
+                )
 
+                data["Vendor ID"] = ven
+
+                if dev:
+                    data["Device ID"] = dev
+
+                if default:
                     path = construct_pcip_osx(
                         i, device.get("acpi-path", ""), self.logger)
 
@@ -242,7 +262,7 @@ class MacHardwareManager:
 
             IOObjectRelease(i)
 
-        if default:
+        if default and self.vendor == "apple":
             self.gpu_info(default=False)
 
     def mem_info(self):
@@ -362,13 +382,16 @@ class MacHardwareManager:
 
         self.info["Memory"] = modules
 
-    def net_info(self):
+    def net_info(self, default=True):
 
-        device = {
-            "IOProviderClass": "IOPCIDevice",
-            # Bit mask matching, ensuring that the 3rd byte is one of the network controller (0x02).
-            "IOPCIClassMatch": "0x02000000&0xff000000",
-        }
+        if default:
+            device = {
+                "IOProviderClass": "IOPCIDevice",
+                # Bit mask matching, ensuring that the 3rd byte is one of the network controller (0x02).
+                "IOPCIClassMatch": "0x02000000&0xff000000",
+            }
+        else:
+            device = {"IOProviderClass": "IOPlatformDevice"}
 
         # Obtain generator instance, whose values are `CFDictionary`-ies
         interface = ioiterator_to_list(
@@ -379,6 +402,8 @@ class MacHardwareManager:
 
         # Loop through the generator returned from `ioiterator_to_list()`
         for i in interface:
+            data = {}
+            model = {}
 
             # Obtain CFDictionaryRef of the current PCI device.
             device = corefoundation_to_native(
@@ -388,36 +413,45 @@ class MacHardwareManager:
             )[1]
 
             try:
-                dev = "0x" + (
-                    binascii.b2a_hex(bytes(reversed(device.get("device-id")))).decode()[
-                        4:
-                    ]
-                )
-                ven = "0x" + (
-                    binascii.b2a_hex(bytes(reversed(device.get("vendor-id")))).decode()[
-                        4:
-                    ]
-                )
+                if default:
+                    dev = "0x" + (
+                        binascii.b2a_hex(bytes(reversed(device.get("device-id")))).decode()[
+                            4:
+                        ]
+                    )
+                    ven = "0x" + (
+                        binascii.b2a_hex(bytes(reversed(device.get("vendor-id")))).decode()[
+                            4:
+                        ]
+                    )
 
-                path = construct_pcip_osx(
-                    i, device.get("acpi-path", ""), self.logger)
+                    path = construct_pcip_osx(
+                        i, device.get("acpi-path", ""), self.logger)
 
-                data = {
-                    # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
-                    "Device ID": dev,
+                    pcip = path.get("PCI Path", "")
+                    acpi = path.get("ACPI Path", "")
 
-                    # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
-                    "Vendor": ven,
-                }
+                    if pcip:
+                        data["PCI Path"] = pcip
 
-                pcip = path.get("PCI Path", "")
-                acpi = path.get("ACPI Path", "")
+                    if acpi:
+                        data["ACPI Path"] = acpi
 
-                if pcip:
-                    data["PCI Path"] = pcip
+                    data = {
+                        # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
+                        "Device ID": dev,
 
-                if acpi:
-                    data["ACPI Path"] = acpi
+                        # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
+                        "Vendor": ven,
+                    }
+                else:
+                    if IOObjectConformsTo(i, b'IO80211Controller'):
+                        model = { "device": device.get("IOModel") }
+
+                        data = {
+                            "IOClass": device.get("IOClass"),
+                            "Vendor": device.get("IOVendor")
+                        }
             except Exception as e:
                 self.logger.critical(
                     f"Failed to obtain vendor/device id for Network controller (IOKit)\n\t^^^^^^^^^{str(e)}",
@@ -425,18 +459,19 @@ class MacHardwareManager:
                 )
                 continue
 
-            if self.offline:
+            if self.offline and not model.get("device"):
                 model = {"device": "Unknown Network Controller"}
             else:
-                try:
-                    model = self.pci.get_item(dev[2:], ven[2:])
-                except Exception:
-                    model = {"device": "Unknown Network Controller"}
+                if default:
+                    try:
+                        model = self.pci.get_item(dev[2:], ven[2:])
+                    except Exception:
+                        model = {"device": "Unknown Network Controller"}
 
-                    self.logger.warning(
-                        f"Failed to obtain model for Network controller (IOKit) – Non-critical, ignoring",
-                        __file__,
-                    )
+                        self.logger.warning(
+                            f"Failed to obtain model for Network controller (IOKit) – Non-critical, ignoring",
+                            __file__,
+                        )
 
             if model:
                 model = model.get("device")
@@ -445,7 +480,15 @@ class MacHardwareManager:
 
             IOObjectRelease(i)
 
+        if default and self.vendor == "apple":
+            return self.net_info(False)
+
     def audio_info(self, default=False):
+
+        # TODO: implementation for Apple ARM64
+        #       audio controllers.
+        if self.vendor == "apple":
+            return
 
         if default:
             _device = {
@@ -475,7 +518,7 @@ class MacHardwareManager:
 
             data = {}
 
-            if default == False:
+            if not default:
                 # Ensure it's the AppleHDACodec device
                 if device.get("DigitalAudioCapabilities"):
                     continue
@@ -567,7 +610,7 @@ class MacHardwareManager:
         #
         # See: https://en.wikipedia.org/wiki/Intel_High_Definition_Audio#Host_controller
         if not default:
-            self.audio_info(default=True)
+            self.audio_info(True)
 
     def storage_info(self):
 
