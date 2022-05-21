@@ -27,12 +27,18 @@ if __name__ == "__main__":
     # the program throwing an error if there are missing dependencies
     # at the initial start-up phase of the program.
     import requests
-    import os
-    from src.info import color_text, AppInfo
+    from platform import system
+    from sys import exit
     from src.cli.ui import clear as clear_screen
+    from src.info import color_text, AppInfo
+    from src.util.create_log import create_log
 
-    # Hopefully fix some issues
-    AppInfo.set_root_dir(os.path.dirname(__file__))
+    log_tmp = [None, None]
+
+    # Hopefully fix path-related issues in app bundles.
+    if system().lower() == "darwin":
+        log_tmp = create_log(create_dump=True)
+        AppInfo.root_dir = log_tmp[1] or AppInfo.sanitise_dir(__file__)
 
     try:
         from src.error.logger import Logger
@@ -42,14 +48,14 @@ if __name__ == "__main__":
         raise e
 
     try:
-        logger = Logger()
+        logger = Logger(log_tmp[0] or AppInfo.root_dir)
         print("Launching OCSysInfo...")
         logger.info("Launching OCSysInfo...", __file__)
         try:
             print("Initializing FlagParser...")
             flag_parser = FlagParser(logger)
             print("Initializing UI...")
-            ui = UI(flag_parser.dm, logger)
+            ui = UI(flag_parser.dm, logger, log_tmp[1] or AppInfo.root_dir)
             
             print("Done! Launching UI...")
             clear_screen()

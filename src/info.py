@@ -9,6 +9,8 @@ import os
 import sys
 from platform import system
 
+dir_delim = "\\" if platform.system().lower() == "windows" else "/"
+
 class AppInfo:
     name = "OCSysInfo"
     version = "v1.0.5"
@@ -20,13 +22,14 @@ class AppInfo:
         if not os.path.isdir(new_dir):
             return
 
-        AppInfo.root_dir = AppInfo.sanitise_dir(new_dir)
+        try:
+            AppInfo.root_dir = AppInfo.sanitise_dir(new_dir)
+        except Exception:
+            return
 
         return AppInfo.root_dir
 
     def sanitise_dir(dir):
-        dir_delim = "\\" if platform.system().lower() == "windows" else "/"
-
         if getattr(sys, 'frozen', False):
             dir = os.path.dirname(sys.executable)
             os.chdir(dir)
@@ -37,28 +40,6 @@ class AppInfo:
             dir = dir_delim.join(dir.split(dir_delim)[:-1])
 
         return dir
-
-    def avoid_inaccessibility(file, log=False):
-        if file == "UNKNOWN":
-            return file
-
-        paths = file.lower().split("/" if system().lower() != "windows" else "\\")[:-1]
- 
-        if os.path.expanduser("~").split("/" if system().lower() != "windows" else "\\") == paths:
-            return file
-
-        if "private" in paths or \
-            "var" in paths:
-            # Switch root directory to $HOME
-            # in case it's an inaccessible directory.
-            new_dir = AppInfo.set_root_dir(os.path.expanduser("~"))
-
-            if log:
-                print(f"[IMPORTANT]: Switched default directory, for logging and dumps, to '{new_dir}'!")
-            
-            return new_dir
-
-        return file
 
 # Colours!
 pink = "\033[95m"

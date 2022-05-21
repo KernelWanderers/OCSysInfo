@@ -65,10 +65,10 @@ class UI:
     and handling specific CLI commands.
     """
 
-    def __init__(self, dm, logger):
+    def __init__(self, dm, logger, dump_dir=AppInfo.root_dir):
         self.dm = dm
         self.logger = logger
-        self.dump_dir = AppInfo.root_dir
+        self.dump_dir = dump_dir
         self.state = "menu"
 
     def handle_cmd(self, options=[]):
