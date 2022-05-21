@@ -37,7 +37,7 @@ class CodenameManager:
         ark_url = ark_query.get_full_ark_url(
             found_term.get("prodUrl")
         )
-        value = ark_query.get_codename(ark_url).replace("Products formerly ", "")
+        value = ark_query.get_codename(ark_url).replace("Products formerly", "").replace("Produits anciennement", "").strip()
 
         self.codename = value
         return value
@@ -52,4 +52,4 @@ class CodenameManager:
             return data
 
     def codename_apple_arm(self):
-        raise NotImplementedError
+        return
