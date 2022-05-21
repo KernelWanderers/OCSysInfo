@@ -148,3 +148,7 @@ del_*.ps1
 *.dmg
 *.app
 build_osx.sh
+
+# Compressed files/archives
+*.zip
+*.tar.*
