@@ -2,8 +2,7 @@ import os
 import subprocess
 import sys
 from sys import exit
-from src.info import name, version, arch, color_text, format_text, surprise
-from src.info import root_dir as root
+from src.info import AppInfo, color_text, format_text, surprise
 from src.util.os_version import os_ver
 from src.util.dump_functions.text import dump_txt
 from src.util.dump_functions.json import dump_json
@@ -37,10 +36,10 @@ def hack_disclaimer():
 
 
 def title():
-    spaces = " " * int((53 - len(name)) / 2)
+    spaces = " " * int((53 - len(AppInfo.name)) / 2)
 
     print(color_text(" " * 2 + "#" * 55, "cyan"))
-    print(color_text(" #" + spaces + name + spaces + "#", "cyan"))
+    print(color_text(" #" + spaces + AppInfo.name + spaces + "#", "cyan"))
     print(color_text("#" * 55 + "\n" * 2, "cyan"))
 
 
@@ -69,7 +68,7 @@ class UI:
     def __init__(self, dm, logger):
         self.dm = dm
         self.logger = logger
-        self.dump_dir = root
+        self.dump_dir = AppInfo.root_dir
         self.state = "menu"
 
     def handle_cmd(self, options=[]):
@@ -309,10 +308,10 @@ class UI:
                 if hack:
                     print(f"{hack}\n")
 
-            print(f"Program      :  {color_text(name, 'green')}")
-            print(f"Version      :  {color_text(version, 'green')}")
+            print(f"Program      :  {color_text(AppInfo.name, 'green')}")
+            print(f"Version      :  {color_text(AppInfo.version, 'green')}")
             print(f"Platform     :  {color_text(os_ver, 'green')}")
-            print(f"Architecture :  {color_text(arch, 'green')}")
+            print(f"Architecture :  {color_text(AppInfo.arch, 'green')}")
             print(f"Current dump :  {color_text(self.dump_dir, 'cyan')}")
 
             print("\n")

@@ -1,6 +1,3 @@
-from src.info import root_dir as root
-
-
 def gpu(dev, ven):
     """
     Extracts µarches matching the provided data,

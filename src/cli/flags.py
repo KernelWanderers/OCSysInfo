@@ -1,8 +1,7 @@
 import os
-import sys
-from sys import exit
+from sys import exit, argv
 from src.cli.ui import clear
-from src.info import color_text
+from src.info import color_text, AppInfo
 from src.util.dump_functions.text import dump_txt
 from src.util.dump_functions.json import dump_json
 from src.util.dump_functions.xml import dump_xml
@@ -17,12 +16,16 @@ class FlagParser:
     """
 
     def __init__(self, logger, dm=None, offline=False):
-        self.args = sys.argv[1:]
+        self.args = argv[1:]
         self.dm = dm
         self.offline = offline or "--offline" in self.args
         self.toggled_off = []
 
         if "--off-data" in self.args:
+            if len(self.args) == (self.args.index("--off-data") + 1):
+                print(color_text("No data for '--off-data'!", "red"))
+                exit(0)
+
             self.off_data(self.args[self.args.index("--off-data") + 1])
 
         if not self.dm and not list(filter(lambda x: "-h" in x.lower(), self.args)):
@@ -214,6 +217,9 @@ class FlagParser:
         exit(0)
 
     def off_data(self, arr):
+        del self.args[self.args.index("--off-data")]
+        del self.args[self.args.index(orig)]
+
         orig = arr
         arr = arr.replace("{", "").replace("}", "").split(", ")
 
@@ -235,9 +241,6 @@ class FlagParser:
             val = repl[val.lower()]
 
         self.toggled_off = arr
-
-        del self.args[self.args.index("--off-data")]
-        del self.args[self.args.index(orig)]
 
     def parse_flags(self, args):
         if list(filter(lambda x: "-h" in x.lower(), args)):
