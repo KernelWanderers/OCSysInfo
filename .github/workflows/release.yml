@@ -25,6 +25,9 @@ jobs:
       - name: Install pyinstaller
         run: pip3 install pyinstaller
 
+      - name: Install create-dmg
+        run: brew install create-dmg
+
       - name: Build app bundle & binaries for OSX
         run: pyinstaller main.py --onefile --windowed --name OCSysInfo --icon=./resources/icons/OCSI_logo_mac.icns --paths=./src --target-architecture x86_64
 
