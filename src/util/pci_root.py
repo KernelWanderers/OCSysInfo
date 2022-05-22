@@ -161,6 +161,8 @@ def pci_from_acpi_win(wmi, instance_id, logger):
 
 def pci_from_acpi_linux(device_path, logger):
     data = {}
+    acpi = ""
+    pci = ""
 
     try:
         acpi = open(f"{device_path}/firmware_node/path", "r").read().strip()
@@ -171,6 +173,9 @@ def pci_from_acpi_linux(device_path, logger):
         logger.error(
             f"Failed to construct ACPI/PATH of anonymous device (SYS_FS)\n\t^^^^^^^^^{str(e)}"
         )
+
+    if not acpi or not pci:
+        return ""
 
     # Path to be yielded in the end.
     # E.g: PciRoot(0x0)/Pci(0x2,0x0)
