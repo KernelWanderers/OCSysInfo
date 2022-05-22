@@ -1,4 +1,3 @@
-import distro
 import platform
 
 from src.info import color_text
@@ -47,4 +46,5 @@ if _platform == "darwin":
 elif _platform == "windows":
     os_ver = f"{platform.system()} ({platform.version()})"
 elif _platform == "linux":
+    import distro
     os_ver = f"{distro.name()} ({distro.version()})"
