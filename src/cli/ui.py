@@ -65,11 +65,12 @@ class UI:
     and handling specific CLI commands.
     """
 
-    def __init__(self, dm, logger, dump_dir=AppInfo.root_dir):
+    def __init__(self, dm, logger, dump_dir=AppInfo.root_dir, latest_version=AppInfo.version):
         self.dm = dm
         self.logger = logger
         self.dump_dir = dump_dir
         self.state = "menu"
+        self.latest_version = latest_version
 
     def handle_cmd(self, options=[]):
         cmd = input("\n\nPlease select an option: ")
@@ -274,6 +275,13 @@ class UI:
         self.logger.info("Successfully exited.\n\n")
         exit(0)
 
+    def version_disclaimer(self):
+        if self.latest_version != AppInfo.version:
+            return color_text(
+                format_text("WARNING:\n", "bold+underline"), "red") + \
+                   color_text(f"THIS VERSION OF OCSYSINFO IS OUTDATED. PLEASE UPDATE TO THE NEWER VERSION AT\n", "red", ) + \
+                   color_text("https://github.com/KernelWanderers/OCSysInfo", "cyan")
+
     def create_ui(self):
         options = [
             (color_text("D. ", "yellow"), "Discover hardware"),
@@ -302,6 +310,10 @@ class UI:
         try:
             clear()
             title()
+
+            version_disclaimer = self.version_disclaimer()
+            if version_disclaimer:
+                print(f"{version_disclaimer}\n")
 
             if sys.platform.lower() == "darwin":
                 hack = hack_disclaimer()

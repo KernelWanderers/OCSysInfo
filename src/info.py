@@ -7,12 +7,18 @@ import json
 import platform
 import os
 import sys
-from platform import system
+import requests
 
 dir_delim = "\\" if platform.system().lower() == "windows" else "/"
+verion_json_url = r"https://raw.githubusercontent.com/KernelWanderers/OCSysInfo/main/src/util/version.json"
 
 with open(os.path.join("src", "util", "version.json")) as version_json:
     version = json.load(version_json).get("version", "0.0.0")
+
+
+def get_latest_version():
+    json_response = requests.get(verion_json_url).json()
+    return json_response.get("version", "0.0.0")
 
 
 class AppInfo:

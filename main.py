@@ -2,6 +2,8 @@
 
 if __name__ == "__main__":
     from sys import exit, version_info, version
+    from threading import Thread
+    import queue
     from src.util.missing_dep import Requirements, REQUIRED
     if version_info < (3, 8, 0):
         print("OCSysInfo requires Python 3.8, while Python " + str(
@@ -30,7 +32,7 @@ if __name__ == "__main__":
     from platform import system
     from sys import exit
     from src.cli.ui import clear as clear_screen
-    from src.info import color_text, AppInfo
+    from src.info import color_text, AppInfo, get_latest_version
     from src.util.create_log import create_log
 
     # Hopefully fix path-related issues in app bundles.
@@ -50,10 +52,21 @@ if __name__ == "__main__":
         print("Launching OCSysInfo...")
         logger.info("Launching OCSysInfo...", __file__)
         try:
+            # Get info for latest version
+            que = queue.Queue()
+            thread = Thread(target=lambda q: q.put(get_latest_version()), args=(que,))
+            # We start the thread while the script is discovering the data
+            thread.start()
+
             print("Initializing FlagParser...")
             flag_parser = FlagParser(logger)
+
+            thread.join()
+            latest_version = que.get()
+            # we have the latest version!
+
             print("Initializing UI...")
-            ui = UI(flag_parser.dm, logger, log_tmp[1] or AppInfo.root_dir)
+            ui = UI(flag_parser.dm, logger, log_tmp[1] or AppInfo.root_dir, latest_version=latest_version)
             
             print("Done! Launching UI...")
             clear_screen()
