@@ -13,7 +13,7 @@ dir_delim = "\\" if platform.system().lower() == "windows" else "/"
 
 class AppInfo:
     name = "OCSysInfo"
-    version = "v1.0.7"
+    version = "v1.0.7-beta"
     os_ver = ""
     arch = platform.machine()
     root_dir = ""
