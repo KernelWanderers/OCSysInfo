@@ -13,6 +13,9 @@ A basic, high-level and efficient CLI for discovering hardware information about
 <a href="https://github.com/KernelWanderers/OCSysInfo/blob/main/LICENSE"><img src="https://img.shields.io/github/license/KernelWanderers/OCSysInfo?color=%232885D7&style=for-the-badge"></a>
 <a href="https://github.com/KernelWanderers/OCSysInfo/releases/"><img src="https://img.shields.io/github/downloads/KernelWanderers/OCSysInfo/total?color=%231DE2D0&style=for-the-badge" /></a>
 <img src="https://img.shields.io/github/workflow/status/KernelWanderers/OCSysInfo/Compile%20and%20publish%20binaries?style=for-the-badge" />
+
+<img src="resources/icons/macstadium.png" width=200/>
+
 </div>
 
 <br />
@@ -241,6 +244,10 @@ OCSysInfo takes advantage of each platform's native interaction protocol, except
 ## Issues
 
 When opening up issues, please list all hardware information relevant, and the issue you're encountering. Show real outputs, and the expected output, etc.
+
+## Special thanks
+
+We want to give a special thank you to [MacStadium](https://www.macstadium.com/) for allowing us to use one of their Mac Minis to host our macOS runners. 
 
 ## Credits
 
