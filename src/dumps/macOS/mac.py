@@ -1,6 +1,6 @@
 import binascii
-from src.dumps.macOS.ioreg import *
 import subprocess
+from src.dumps.macOS.ioreg import *
 from src.error.cpu_err import cpu_err
 from src.util.codename import gpu
 from src.util.codename_manager import CodenameManager
