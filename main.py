@@ -9,13 +9,15 @@ if __name__ == "__main__":
     from sys import exit
     from src.cli.ui import clear as clear_screen
     from src.info import color_text, AppInfo
-    from src.util.create_log import create_log
+    from src.util.create_log import create_log_osx, create_log_win
 
-    log_tmp = [None, None]
+    log_tmp = ["", ""]
 
     # Hopefully fix path-related issues in app bundles.
     if system().lower() == "darwin":
-        log_tmp = create_log(create_dump=True)
+        log_tmp = create_log_osx(True)
+    elif system().lower() == "windows":
+        log_tmp = create_log_win(True)
 
     AppInfo.root_dir = log_tmp[1] or AppInfo.sanitise_dir(__file__)
 
