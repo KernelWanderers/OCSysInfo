@@ -40,11 +40,11 @@ jobs:
       - name: Pack app into DMG image
         run: create-dmg \
               --volname "OCSysInfo" \
-              --volicon "resources/icons/OCSI_logo_mac.icns" \
               --window-pos 200 120 \
-              --icon "OCSysInfo.app" 300 202 \
+              --icon "dist/OCSysInfo.app" 300 202 \
               --window-size 800 400 \
-              --app-drop-link 600 200 "OCSysInfo_macOS.dmg" "dist/"
+              --app-drop-link 600 200 "OCSysInfo_macOS.dmg" "dist/" \
+              --no-internet-enable
 
       - name: Upload to Artifacts
         uses: actions/upload-artifact@v2
