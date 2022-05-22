@@ -2,8 +2,6 @@
 
 if __name__ == "__main__":
     from sys import exit, version_info, version
-    from threading import Thread
-    import queue
     from src.util.missing_dep import Requirements, REQUIRED
     if version_info < (3, 8, 0):
         print("OCSysInfo requires Python 3.8, while Python " + str(
@@ -29,11 +27,12 @@ if __name__ == "__main__":
     # the program throwing an error if there are missing dependencies
     # at the initial start-up phase of the program.
     import requests
-    from platform import system
+    import queue
     from sys import exit
     from src.cli.ui import clear as clear_screen
     from src.info import color_text, AppInfo, get_latest_version
     from src.util.create_log import create_log
+    from threading import Thread
 
     # Hopefully fix path-related issues in app bundles.
     log_tmp = create_log(True)
