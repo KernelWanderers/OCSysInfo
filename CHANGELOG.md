@@ -20,7 +20,7 @@
 * Fix PCI Path issues
     - Sometimes ACPI and/or PCI values aren't available (affected Linux)
 
-## v1.0.7
+## v1.0.7 (BETA)
 
 * Fix M1 iGPU detection
     - Previous iteration wasn't able to properly identify Apple's M1 integrated graphics. This is the following information it now specifies:
