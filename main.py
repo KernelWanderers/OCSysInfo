@@ -38,8 +38,9 @@ if __name__ == "__main__":
     # Hopefully fix path-related issues in app bundles.
     if system().lower() == "darwin":
         log_tmp = create_log(create_dump=True)
-        AppInfo.root_dir = log_tmp[1] or AppInfo.sanitise_dir(__file__)
 
+    AppInfo.root_dir = log_tmp[1] or AppInfo.sanitise_dir(__file__)
+    
     try:
         from src.error.logger import Logger
         from src.cli.ui import UI
