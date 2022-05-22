@@ -41,8 +41,9 @@ jobs:
         run: create-dmg \
               --volname "OCSysInfo" \
               --window-pos 200 120 \
-              --icon "dist/OCSysInfo.app" 300 202 \
+              --icon "OCSysInfo.app" 300 202 \
               --window-size 800 400 \
+              --hide-extension "OCSysInfo.app" \
               --app-drop-link 600 200 "OCSysInfo_macOS.dmg" "dist/" \
               --no-internet-enable
 
