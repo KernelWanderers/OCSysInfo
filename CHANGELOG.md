@@ -11,10 +11,10 @@
         - Windows: 
             - `%LOCALAPPDATA%\OCSysInfo\Logs`
             - `%LOCALAPPDATA%\OCSysInfo\Data`
-        - Linux: `~/.ocsysinfo/`
+        - Linux:
             - `~/.ocsysinfo/logs`
             - `~/.ocsysinfo/data`
-        - macOS: `~/Library/`
+        - macOS:
             - `~/Library/Logs/OCSysInfo`
             - `~/Library/Application Support/OCSysInfo`
 * Fix PCI Path issues
