@@ -3,7 +3,7 @@ The only purpose for this file is to hold metadata
 for OCSysInfo, and is not used by anything other than
 the UI functions.
 """
-
+import json
 import platform
 import os
 import sys
@@ -11,9 +11,13 @@ from platform import system
 
 dir_delim = "\\" if platform.system().lower() == "windows" else "/"
 
+with open(os.path.join("src", "util", "version.json")) as version_json:
+    version = json.load(version_json).get("version", "0.0.0")
+
+
 class AppInfo:
     name = "OCSysInfo"
-    version = "v1.0.7"
+    version = version
     os_ver = ""
     arch = platform.machine()
     root_dir = ""
