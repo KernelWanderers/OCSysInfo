@@ -1,12 +1,21 @@
 import os.path
 from unittest import TestCase
 from pkg_resources import require, DistributionNotFound
+from platform import system
 from subprocess import call
 from sys import platform, executable, exit
-from src.info import AppInfo
+
+dir_delim = "\\" if system().lower() == "windows" else "/"
 
 try:
-    REQUIRED = open(os.path.join(AppInfo.root_dir, "requirements.txt")).read()
+    REQUIRED = open(
+        os.path.join(
+            dir_delim.join(
+                os.path.dirname(__file__).split(dir_delim)[:-2]
+            ), 
+            "requirements.txt"
+        )
+    ).read()
 except Exception as e:
     raise Exception(
         f"Failed to locate requirements file. Maybe it was deleted?\n\n{str(e)}"
