@@ -3,10 +3,10 @@ name: Compile and publish binaries
 on:
   release:
     types:
-      - published
-      - released
+      - created
       - prereleased
       - edited
+      - published
 
 jobs:
   macOS:
