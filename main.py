@@ -2,7 +2,7 @@
 
 if __name__ == "__main__":
     from sys import exit, version_info, version
-    from src.util.missing_dep import Requirements, REQUIRED
+    from src.util.missing_dep import Requirements
     if version_info < (3, 9, 0):
         print("OCSysInfo requires Python 3.9, while Python " + str(
             version.partition(" ")[0]) + " was detected. Terminating... ")
