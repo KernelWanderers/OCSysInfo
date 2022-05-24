@@ -17,7 +17,10 @@ class OCSIUpdater:
 
     def run(self):
         self.obtain_updated()
-        self.obtain_relative()
+
+        for path in ["main.py", "src", "update"]:
+            self.obtain_relative(path)
+
         self.handle_diffs()
 
     def handle_diffs(self):
@@ -33,7 +36,6 @@ class OCSIUpdater:
             found = False
             abs_lcl = os.path.join(self.root, value.get("path"))
 
-
             for cmp in to_cmp:
                 conditions = {
                     "contents": cmp.get("contents", "x") == value.get("contents", "y"),
@@ -44,7 +46,8 @@ class OCSIUpdater:
 
                 match_found = list(
                     filter(
-                        lambda x: x.get("name", "x") == cmp.get("name", "y") and x.get("path", "/x/z") == cmp.get("path", "/y/q"),
+                        lambda x: x.get("name", "x") == cmp.get("name", "y") and x.get(
+                            "path", "/x/z") == cmp.get("path", "/y/q"),
                         matched
                     )
                 )
@@ -54,7 +57,7 @@ class OCSIUpdater:
                 if (
                     not conditions["contents"] and
                     conditions["name"] and
-                    conditions["path"]
+                    conditions["dir"]
                 ):
                     found = True
 
@@ -164,7 +167,8 @@ class OCSIUpdater:
                         file.write(match.get('contents'))
                         file.close()
 
-                    print(f"Successfully created '{match.get('name')}' at '{match.get('path')}'!")
+                    print(
+                        f"Successfully created '{match.get('name')}' at '{match.get('path')}'!")
                 except Exception as e:
                     print(
                         f"Failed to create '{match.get('name')}'!\n\t^^^^^^^{str(e)}")
@@ -177,12 +181,26 @@ class OCSIUpdater:
         ):
             return
 
-        dir = os.listdir(
-            os.path.join(
-                self.root,
-                path
-            )
+        pp = os.path.join(
+            self.root,
+            path
         )
+
+        if os.path.isfile(pp):
+            data = {
+                "name": path.split(self.delim)[-1],
+                "path": pp.split(f"OCSysInfo{self.delim}")[-1].split(f"OCSysInfo-main{self.delim}")[-1],
+                "contents": open(pp, "r").read()
+            }
+
+            if o_type == "github":
+                self.data.append(data)
+            else:
+                self.local.append(data)
+
+            return
+
+        dir = os.listdir(pp)
 
         for item in dir:
             abs_path = os.path.join(
@@ -200,9 +218,11 @@ class OCSIUpdater:
             ):
                 continue
 
+            to_split = f"src{self.delim}" if f"{self.delim}src{self.delim}" in abs_path else f"update{self.delim}"
+
             data = {
                 "name": item,
-                "path": f"src{self.delim}" + abs_path.split(f"src{self.delim}")[1],
+                "path": to_split + abs_path.split(to_split)[1],
                 "contents": open(abs_path, "r").read()
             }
 
@@ -248,15 +268,18 @@ class OCSIUpdater:
             self.data = []
             return
 
-        self.obtain_relative(
-            path=os.path.join(
-                "UpdateTemp",
-                name,
-                "src"
-            ),
-            o_type="github"
-        )
+        for path in ["main.py", "src", "update"]:
+            self.obtain_relative(
+                path=os.path.join(
+                    "UpdateTemp",
+                    name,
+                    path
+                ),
+                o_type="github"
+            )
 
+        # Remove temporary update directory
+        # after we're finished.
         shutil.rmtree(
             os.path.join(
                 self.root,
