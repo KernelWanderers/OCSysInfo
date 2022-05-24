@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 if __name__ == "__main__":
     from sys import exit, version_info, version
     from src.util.missing_dep import Requirements
@@ -23,16 +22,53 @@ if __name__ == "__main__":
         except KeyboardInterrupt:
             exit(0)
 
+    import queue
+    from threading import Thread
+    from update.updater import OCSIUpdater
+    from src.info import get_latest_version, format_text, AppInfo, color_text
+    from sys import exit
+
+    # Get info for latest version
+    que = queue.Queue()
+    thread = Thread(target=lambda q: q.put(get_latest_version()), args=(que,))
+
+    # We start the thread while the script is discovering the data
+    thread.start()
+    thread.join()
+
+    # We have the latest version!
+    latest_version = que.get()
+
+    if latest_version != AppInfo.version:
+        import os
+        import sys
+
+        # Formatted 'n coloured
+        fnc = color_text(
+            format_text(
+                f"NEW VERSION ({latest_version}) AVAILABLE!\nInstall? (y/n): ",
+                "bold+underline"
+            ),
+            "red"
+        )
+        res = input(fnc)
+
+        if "y" in res.lower():
+            update = OCSIUpdater()
+
+            update.run()
+
+            print("\nRunning OCSysInfo after update...")
+
+            # Restart with the updated version
+            os.execv(sys.executable, ['python'] + [sys.argv[0]])
+
     # requests, clear_screen and color_text are being imported here due to
     # the program throwing an error if there are missing dependencies
     # at the initial start-up phase of the program.
     import requests
-    import queue
-    from sys import exit
     from src.cli.ui import clear as clear_screen
-    from src.info import color_text, AppInfo, get_latest_version
     from src.util.create_log import create_log
-    from threading import Thread
 
     # Hopefully fix path-related issues in app bundles.
     log_tmp = create_log(True)
@@ -51,18 +87,8 @@ if __name__ == "__main__":
         print("Launching OCSysInfo...")
         logger.info("Launching OCSysInfo...", __file__)
         try:
-            # Get info for latest version
-            que = queue.Queue()
-            thread = Thread(target=lambda q: q.put(get_latest_version()), args=(que,))
-            # We start the thread while the script is discovering the data
-            thread.start()
-
             print("Initializing FlagParser...")
             flag_parser = FlagParser(logger)
-
-            thread.join()
-            latest_version = que.get()
-            # we have the latest version!
 
             print("Initializing UI...")
             ui = UI(flag_parser.dm, logger, log_tmp[1] or AppInfo.root_dir, latest_version=latest_version)
