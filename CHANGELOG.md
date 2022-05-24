@@ -7,7 +7,10 @@
 ## v1.0.7 (BETA)
 
 * Added self-updater module (not for binaries yet)
-    - Only updates scripts that are on the `main` branch.
+    - Only updates scripts that are on the `main` branch. Targets only:
+        - `src/`
+        - `update/`
+        - `main.py`
 * Fix M1 iGPU detection
     - Previous iteration wasn't able to properly identify Apple's M1 integrated graphics. This is the following information it now specifies:
         - Model name
