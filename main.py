@@ -91,7 +91,7 @@ if __name__ == "__main__":
             flag_parser = FlagParser(logger)
 
             print("Initializing UI...")
-            ui = UI(flag_parser.dm, logger, log_tmp[1] or AppInfo.root_dir, latest_version=latest_version)
+            ui = UI(flag_parser.dm, logger, log_tmp[1] or AppInfo.root_dir)
             
             print("Done! Launching UI...")
             clear_screen()
