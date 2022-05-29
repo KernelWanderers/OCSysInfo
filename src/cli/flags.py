@@ -18,7 +18,6 @@ class FlagParser:
     def __init__(self, logger, dm=None, offline=False):
         self.args = argv[1:]
         self.dm = dm
-        self.offline = offline or "--offline" in self.args
         self.toggled_off = []
 
         if "--off-data" in self.args:
@@ -31,7 +30,7 @@ class FlagParser:
         if not self.dm and not list(filter(lambda x: "-h" in x.lower(), self.args)):
             print(color_text(
                 "Analyzing hardware... (this might take a while, don't panic)", "red"))
-            self.dm = DeviceManager(logger, off_data=self.toggled_off, offline="--offline" in self.args)
+            self.dm = DeviceManager(logger, off_data=self.toggled_off, offline=offline)
             self.dm.info = {
                 k: v
                 for (k, v) in self.dm.info.items()
@@ -45,10 +44,10 @@ class FlagParser:
 
         if not self.interactive or "--offline" in self.args:
             for i in range(len(self.args)):
-                if "--no-interactive" in self.args[i].lower():
-                    del self.args[i]
-
-                if "--offline" in self.args[i].lower():
+                if (
+                    "--no-interactive" in self.args[i].lower() or
+                    "--offline" in self.args[i].lower()
+                ):
                     del self.args[i]
 
         self.flags = [
