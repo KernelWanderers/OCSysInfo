@@ -33,3 +33,6 @@
             - `~/Library/Application Support/OCSysInfo`
 * Fix PCI Path issues
     - Sometimes ACPI and/or PCI values aren't available (affected Linux)
+* Fix ACPI and PCI paths being overwritten
+    - Happened on macOS, for Network controllers
+* Better handle offline detection
