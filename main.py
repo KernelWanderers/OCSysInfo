@@ -23,52 +23,63 @@ if __name__ == "__main__":
             exit(0)
 
     import queue
+    import requests
     from threading import Thread
     from update.updater import OCSIUpdater
     from src.info import get_latest_version, format_text, AppInfo, color_text
-    from sys import exit
-
-    # Get info for latest version
-    que = queue.Queue()
-    thread = Thread(target=lambda q: q.put(get_latest_version()), args=(que,))
-
-    # We start the thread while the script is discovering the data
-    thread.start()
-    thread.join()
-
-    # We have the latest version!
-    latest_version = que.get()
-
-    if latest_version != AppInfo.version:
-        import os
-        import sys
-
-        # Formatted 'n coloured
-        fnc = color_text(
-            format_text(
-                f"NEW VERSION ({latest_version}) AVAILABLE!\nInstall? (y/n): ",
-                "bold+underline"
-            ),
-            "red"
-        )
-        res = input(fnc)
-
-        if "y" in res.lower():
-            update = OCSIUpdater()
-
-            update.run()
-
-            print("\nRunning OCSysInfo after update...")
-
-            # Restart with the updated version
-            os.execv(sys.executable, ['python'] + [sys.argv[0]])
-
-    # requests, clear_screen and color_text are being imported here due to
-    # the program throwing an error if there are missing dependencies
-    # at the initial start-up phase of the program.
-    import requests
+    from sys import exit, argv
     from src.cli.ui import clear as clear_screen
     from src.util.create_log import create_log
+
+    # Preliminary check for internet availability.
+    if "--offline" not in argv:
+        try:
+            print("Testing internet connection...")
+            requests.get("https://www.google.com")
+            offline = False
+            print("Machine has an available connection!")
+        except Exception:
+            offline = True
+            print("Internet connection not available!")
+    else:
+        offline = True
+
+    if not offline:
+        # Get info for latest version
+        que = queue.Queue()
+        thread = Thread(target=lambda q: q.put(get_latest_version()), args=(que,))
+
+        # We start the thread while the script is discovering the data
+        thread.start()
+        thread.join()
+
+        # We have the latest version!
+        latest_version = que.get()
+
+        if latest_version != AppInfo.version:
+            import os
+            import sys
+
+            # Formatted 'n coloured
+            fnc = color_text(
+                format_text(
+                    f"NEW VERSION ({latest_version}) AVAILABLE!\nInstall? (y/n): ",
+                    "bold+underline"
+                ),
+                "red"
+            )
+            res = input(fnc)
+
+            if "y" in res.lower():
+                update = OCSIUpdater()
+
+                update.run()
+
+                print("\nRunning OCSysInfo after update...")
+
+                # Restart with the updated version
+                os.execv(sys.executable, ['python'] + [sys.argv[0]])
+
 
     # Hopefully fix path-related issues in app bundles.
     log_tmp = create_log(True)
@@ -86,19 +97,21 @@ if __name__ == "__main__":
         logger = Logger(log_tmp[0] or AppInfo.root_dir)
         print("Launching OCSysInfo...")
         logger.info("Launching OCSysInfo...", __file__)
+        
         try:
             print("Initializing FlagParser...")
-            flag_parser = FlagParser(logger)
+            flag_parser = FlagParser(logger, None, offline=offline)
 
             print("Initializing UI...")
-            ui = UI(flag_parser.dm, logger, log_tmp[1] or AppInfo.root_dir, latest_version=latest_version)
+            ui = UI(flag_parser.dm, logger, log_tmp[1] or AppInfo.root_dir)
             
             print("Done! Launching UI...")
             clear_screen()
             ui.create_ui()
         except Exception as e:
-            if isinstance(e, requests.ConnectionError):
-                flag_parser.offline = True
+            if isinstance(e, KeyboardInterrupt):
+                exit(0)
+
             if isinstance(e, PermissionError):
                 print(color_text("Could not access the required data. "
                                     "Try running this program using elevated privileges.", "red"))
