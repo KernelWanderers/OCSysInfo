@@ -431,12 +431,6 @@ class MacHardwareManager:
                     pcip = path.get("PCI Path", "")
                     acpi = path.get("ACPI Path", "")
 
-                    if pcip:
-                        data["PCI Path"] = pcip
-
-                    if acpi:
-                        data["ACPI Path"] = acpi
-
                     data = {
                         # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
                         "Device ID": dev,
@@ -444,6 +438,13 @@ class MacHardwareManager:
                         # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
                         "Vendor": ven,
                     }
+
+                    if pcip:
+                        data["PCI Path"] = pcip
+
+                    if acpi:
+                        data["ACPI Path"] = acpi
+
                 else:
                     if IOObjectConformsTo(i, b'IO80211Controller'):
                         model = { "device": device.get("IOModel") }
