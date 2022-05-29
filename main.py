@@ -11,6 +11,15 @@ if __name__ == "__main__":
     from src.info import color_text, AppInfo
     from src.util.create_log import create_log
 
+    try:
+        print("Testing internet connection...")
+        requests.get("https://www.google.com")
+        offline = False
+        print("Machine has an available internet connection!")
+    except Exception:
+        offline = True
+        print("No internet connection available!")
+
     # Hopefully fix path-related issues in app bundles.
     log_tmp = create_log(True)
 
@@ -25,6 +34,7 @@ if __name__ == "__main__":
 
     try:
         logger = Logger(log_tmp[0] or AppInfo.root_dir)
+
         print("Launching OCSysInfo...")
         logger.info("Launching OCSysInfo...", __file__)
         try:
@@ -37,8 +47,6 @@ if __name__ == "__main__":
             clear_screen()
             ui.create_ui()
         except Exception as e:
-            if isinstance(e, requests.ConnectionError):
-                flag_parser.offline = True
             if isinstance(e, PermissionError):
                 print(color_text("Could not access the required data. "
                                  "Try running this program using elevated privileges.", "red"))
