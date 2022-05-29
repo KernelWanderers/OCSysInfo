@@ -428,6 +428,14 @@ class MacHardwareManager:
                     path = construct_pcip_osx(
                         i, device.get("acpi-path", ""), self.logger)
 
+                    data = {
+                        # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
+                        "Device ID": dev,
+
+                        # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
+                        "Vendor": ven,
+                    }
+                    
                     pcip = path.get("PCI Path", "")
                     acpi = path.get("ACPI Path", "")
 
@@ -437,13 +445,6 @@ class MacHardwareManager:
                     if acpi:
                         data["ACPI Path"] = acpi
 
-                    data = {
-                        # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
-                        "Device ID": dev,
-
-                        # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
-                        "Vendor": ven,
-                    }
                 else:
                     if IOObjectConformsTo(i, b'IO80211Controller'):
                         model = { "device": device.get("IOModel") }
