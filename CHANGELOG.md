@@ -36,3 +36,7 @@
 * Fix ACPI and PCI paths being overwritten
     - Happened on macOS, for Network controllers
 * Better handle offline detection
+* Fix `tree.py` module visual bug
+    - Use `2` as default value if `parent` isn't available
+* Refactor hardware manager
+    - Assign dictionary keys in each method, if everything goes according to logic
