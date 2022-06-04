@@ -4,7 +4,7 @@
 
 </div>
 
-## v1.0.7 (BETA)
+## v1.0.7 (ALPHA)
 
 * Added self-updater module (not for binaries yet)
     - Only updates scripts that are on the `main` branch. Targets only:
