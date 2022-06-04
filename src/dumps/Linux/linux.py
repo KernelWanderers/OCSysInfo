@@ -52,6 +52,8 @@ class LinuxHardwareManager:
             )
             cpu_err(e)
 
+        self.info["CPU"] = []
+
         architecture = subprocess.run(
             ['uname', '-m'], capture_output=True, text=True)
 
@@ -156,6 +158,8 @@ class LinuxHardwareManager:
         if not os.path.exists("/sys/class/drm"):
             return
 
+        self.info["GPU"] = []
+
         for file in os.listdir("/sys/class/drm/"):
 
             # DRM devices (not FBDev) are enumerated with the format `cardX`
@@ -213,7 +217,7 @@ class LinuxHardwareManager:
                 if gpucname:
                     data["Codename"] = gpucname
 
-                self.info.get("GPU").append({model: data})
+                self.info["GPU"].append({model: data})
 
     # Special thanks to the following individuals:
     #
@@ -241,6 +245,8 @@ class LinuxHardwareManager:
         if "n" in response.lower():
             print("Cancelled, bailing memory detection...")
             return
+
+        self.info["Memory"] = []
 
         # DMI table dump of memory slot entries.
         #
@@ -393,6 +399,11 @@ class LinuxHardwareManager:
             self.info["Memory"].append(data)
 
     def net_info(self):
+        if not os.path.isdir("/sys/class/net"):
+            return
+
+        self.info["Network"] = []
+
         for file in os.listdir("/sys/class/net"):
             path = f"/sys/class/net/{file}/device"
             data = {}
@@ -445,9 +456,14 @@ class LinuxHardwareManager:
                         f"Failed during ACPI/PCI path construction (SYS_FS/NET)\n\t^^^^^^^^^{str(e)}"
                     )
 
-                self.info.get("Network").append({model: data})
+                self.info["Network"].append({model: data})
 
     def audio_info(self):
+        if not os.path.isabs("/sys/class/sound"):
+            return
+
+        self.info["Audio"] = []
+        
         for file in os.listdir("/sys/class/sound"):
 
             # Sound devices are enumerated similarly to DRM devices,
@@ -526,6 +542,7 @@ class LinuxHardwareManager:
         # `board_vendor` to extract its model name,
         # and its vendor's name.
         try:
+            self.info["Motherboard"] = {}
             path = "/sys/devices/virtual/dmi/id"
 
             model = open(f"{path}/board_name", "r").read().strip()
@@ -548,6 +565,11 @@ class LinuxHardwareManager:
         self.info["Motherboard"] = data
 
     def input_info(self):
+
+        if not os.path.isdir("/proc/bus/input/devices"):
+            return
+        
+        self.info["Input"] = []
 
         # This is the simplest way of reliably
         # obtaining the path of the input devices
@@ -705,11 +727,15 @@ class LinuxHardwareManager:
                     )
 
     def block_info(self):
+        if not os.path.isdir("/sys/block"):
+            return
+
+        self.info["Storage"] = []
+        
         # Block devices are found under /sys/block/
         # For each device, we check its
         # `model`, `rotational`, device file name, and `removable`
         # to report its Model, Type, Connector and Location
-
         for folder in os.listdir("/sys/block"):
             path = f"/sys/block/{folder}"  # folder of the block device
 

@@ -59,6 +59,7 @@ class WindowsHardwareManager:
         # See: https://github.com/flababah/cpuid.py
         cpu = CPUID()
         data = {}
+        self.info["CPU"] = []
 
         try:
             CPU = self.c.instances("Win32_Processor")[0]
@@ -83,6 +84,7 @@ class WindowsHardwareManager:
                 __file__,
             )
             cpu_err(e)
+
 
         else:
             SSE = ["sse", "sse2", "sse3", "sse4.1", "sse4.2"]
@@ -128,6 +130,8 @@ class WindowsHardwareManager:
                 __file__,
             )
             return
+
+        self.info["GPU"] = []
 
         for GPU in GPUS:
             try:
@@ -195,6 +199,8 @@ class WindowsHardwareManager:
             )
             return
 
+        self.info["Memory"] = []
+
         for module in RAM:
             try:
                 bank = module.wmi_property("BankLabel").value
@@ -232,6 +238,8 @@ class WindowsHardwareManager:
                 __file__,
             )
             return
+        
+        self.info["Network"] = []
 
         for NIC in NICS:
             try:
@@ -324,6 +332,8 @@ class WindowsHardwareManager:
             )
             return
 
+        self.info["Audio"] = []
+
         for AUDIO in HDA:
             try:
                 path = AUDIO.wmi_property("PNPDeviceID").value
@@ -407,6 +417,8 @@ class WindowsHardwareManager:
 
     def mobo_info(self):
         try:
+            self.info["Motherboard"] = {}
+
             MOBO = self.c.instances("Win32_BaseBoard")[0]
             model = MOBO.wmi_property("Product").value
             manufacturer = MOBO.wmi_property("Manufacturer").value
@@ -433,6 +445,8 @@ class WindowsHardwareManager:
                 __file__,
             )
             return
+
+        self.info["Storage"] = []
 
         for STORAGE in STORAGE_DEV:
             try:
@@ -477,6 +491,8 @@ class WindowsHardwareManager:
                 __file__,
             )
             return
+
+        self.info["Input"] = []
 
         _kbs = self.get_kbpd(KBS)
         _pds = self.get_kbpd(PDS)

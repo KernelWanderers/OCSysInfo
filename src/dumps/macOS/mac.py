@@ -32,6 +32,12 @@ class MacHardwareManager:
     def dump(self):
         if not "CPU" in self.off_data and not self.info.get("CPU", []):
             self.cpu_info()
+        if (
+            (not "Vendor" in self.off_data or
+             not "Motherboard" in self.off_data) and
+            not self.info.get("Vendor", {})
+        ):
+            self.vendor_info()
         if not "GPU" in self.off_data and not self.info.get("GPU", []):
             self.gpu_info()
         if not "Memory" in self.off_data and not self.info.get("Memory", []):
@@ -62,6 +68,8 @@ class MacHardwareManager:
                 __file__,
             )
             cpu_err(e)
+
+        self.info["CPU"] = []
 
         if ".vendor" in subprocess.check_output(["sysctl", "machdep.cpu"]).decode():
             try:
@@ -139,6 +147,39 @@ class MacHardwareManager:
 
         self.info["CPU"].append({model: data})
 
+    def vendor_info(self):
+        try:
+            VENDOR = corefoundation_to_native(
+                IORegistryEntryCreateCFProperties(
+                    next(
+                        ioiterator_to_list(
+                            IOServiceGetMatchingServices(
+                                kIOMasterPortDefault,
+                                IOServiceMatching(b"IOPlatformExpertDevice"),
+                                None
+                            )[1]
+                        )
+                    ),
+                    None,
+                    kCFAllocatorDefault,
+                    kNilOptions
+                )
+            )[1]
+
+            model = VENDOR.get("model").decode().replace("\x00", "")
+            manuf = VENDOR.get("manufacturer").decode().replace("\x00", "")
+
+            self.info["Vendor"] = {
+                "Model": model,
+                "Manufacturer": manuf
+            }
+        except Exception:
+            self.logger.warning(
+                f"Failed to obtain vendor model/manufacturer for machine – Non-critical, ignoring.",
+                __file__
+            )
+            return
+
     def gpu_info(self, default=True):
         if default:
             device = {
@@ -155,6 +196,7 @@ class MacHardwareManager:
                 kIOMasterPortDefault, device, None
             )[1]
         )
+        self.info["GPU"] = []
 
         # Loop through the generator returned from `ioiterator_to_list()`
         for i in interface:
@@ -284,6 +326,7 @@ class MacHardwareManager:
             )[1]
         )
 
+        self.info["Memory"] = []
         modules = []
         part_no = []
         sizes = []
@@ -399,6 +442,7 @@ class MacHardwareManager:
                 kIOMasterPortDefault, device, None
             )[1]
         )
+        self.info["Network"] = []
 
         # Loop through the generator returned from `ioiterator_to_list()`
         for i in interface:
@@ -447,7 +491,7 @@ class MacHardwareManager:
 
                 else:
                     if IOObjectConformsTo(i, b'IO80211Controller'):
-                        model = { "device": device.get("IOModel") }
+                        model = {"device": device.get("IOModel")}
 
                         data = {
                             "IOClass": device.get("IOClass"),
@@ -506,6 +550,7 @@ class MacHardwareManager:
                 kIOMasterPortDefault, _device, None
             )[1]
         )
+        self.info["Audio"] = []
 
         # Loop through the generator returned from `ioiterator_to_list()`
         for i in interface:
@@ -622,6 +667,7 @@ class MacHardwareManager:
                 kIOMasterPortDefault, device, None
             )[1]
         )
+        self.info["Storage"] = []
 
         for i in interface:
 
@@ -675,6 +721,7 @@ class MacHardwareManager:
                 kIOMasterPortDefault, device, None
             )[1]
         )
+        self.info["Input"] = []
 
         for i in interface:
 
