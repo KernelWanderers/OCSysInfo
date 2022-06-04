@@ -9,7 +9,7 @@ from src.util.dump_functions.text import dump_txt
 from src.util.dump_functions.json import dump_json
 from src.util.dump_functions.xml import dump_xml
 from src.util.dump_functions.plist import dump_plist
-from src.managers.tree import tree
+from src.util.tree import tree
 
 
 def hack_disclaimer():
