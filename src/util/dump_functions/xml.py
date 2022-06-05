@@ -5,10 +5,6 @@ from src.managers.devicemanager import DeviceManager
 from src.error.logger import Logger
 
 def dump_xml(dm, dir, logger):
-    # Temporary fix.
-    import collections
-    collections.Iterable = collections.abc.Iterable
-
     data = None
 
     if not isinstance(dm, DeviceManager):

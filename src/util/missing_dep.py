@@ -33,7 +33,7 @@ class Requirements(TestCase):
         requirements = self.extract_req(REQUIRED)
 
         for _requirement in requirements:
-            _requirement = str(_requirement).strip()
+            _requirement = str(_requirement[0]).strip()
 
             with self.subTest(requirement=_requirement):
                 try:
@@ -97,14 +97,18 @@ class Requirements(TestCase):
         ]:
             # Requirement, conditions
             r, c = requirement.split(";")
+            name = r
             sys_platform = ""
 
+            if "git+" in r.lower():
+                name = r.split("/")[-1].split("-")[0]
+                
             if "sys_platform" in c.lower():
                 sys_platform = c.split("sys_platform == ")[1][:-1].split("'")[1]
 
             if sys_platform and not platform.lower() == sys_platform:
                 continue
 
-            deps.append(r)
+            deps.append(( name, r ))
 
         return deps
