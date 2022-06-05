@@ -1,6 +1,6 @@
 # Cross-platform
 requests; python_version >= '3.9'
-dicttoxml; python_version >= '3.9'
+xmltodict; python_version >= '3.9'
 git+https://github.com/kernel-dev/dicttoxml-collections-fix@main; python_version >= '3.9'
 
 # macOS

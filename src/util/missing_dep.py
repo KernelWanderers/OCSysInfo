@@ -33,12 +33,13 @@ class Requirements(TestCase):
         requirements = self.extract_req(REQUIRED)
 
         for _requirement in requirements:
-            _requirement = str(_requirement[0]).strip()
+            _req = str(_requirement[0]).strip()
 
-            with self.subTest(requirement=_requirement):
+            with self.subTest(requirement=_req):
                 try:
-                    require(_requirement)
+                    require(_req)
                 except DistributionNotFound:
+                    print(_requirement)
                     missing.append(_requirement)
 
         return missing
@@ -65,12 +66,12 @@ class Requirements(TestCase):
             heading = "\033[4m\033[91mNOTE: This is not an optional package."
 
         ans = input(
-            f'{heading}\033[0m\033[96m\nAre you sure you want to install "{requirement}"? [y/n]:\033[0m '
+            f'{heading}\033[0m\033[96m\nAre you sure you want to install "{requirement[0]}"? [y/n]:\033[0m '
         )
 
         if ans.lower() in acceptable:
             if "y" in ans.lower():
-                call([executable, "-m", "pip", "install", requirement])
+                call([executable, "-m", "pip", "install", requirement[1].split("@")[0]])
                 print("\n\n")
             else:
                 print("\n")

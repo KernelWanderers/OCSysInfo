@@ -15,7 +15,7 @@ if __name__ == "__main__":
     # list them and exit.
     if missing:
         for missed in missing:
-            print(f'\033[1m\033[4m\033[91mPackage "{missed}" is not installed!\033[0m')
+            print(f'\033[1m\033[4m\033[91mPackage "{missed[0]}" is not installed!\033[0m')
 
         try:
             requirements.install_reqs(missing)
