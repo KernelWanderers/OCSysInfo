@@ -87,7 +87,7 @@ jobs:
 
       - name: Upgrade pip
         # `--user` flag provided just in case of a permissions conflict.
-        run: pip3 install --upgrade pip --user
+        run: python -m pip install --upgrade pip --user
 
       - name: Install dependencies
         run: pip3 install -r requirements.txt
