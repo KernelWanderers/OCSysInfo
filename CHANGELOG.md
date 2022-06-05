@@ -40,3 +40,5 @@
     - Use `2` as default value if `parent` isn't available
 * Refactor hardware manager
     - Assign dictionary keys in each method, if everything goes according to logic
+* Fix XML dump functionality
+    - Use custom fork of `dicttoxml`, where the `collections` issue was fixed.
