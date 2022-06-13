@@ -257,9 +257,11 @@ The following contains credits to all the people who helped assist in the making
 
 - @[Flagers](https://github.com/flagersgit) — for general guidance, documentation reference, implementation ideas, general support, documentation, help in fixing the source code's faulty logic, and much, much more.
 
+- @[vzwGrey](https://github.com/vzwGrey) — for major assistance in incorporating Rust bindings for Python. 
+
 - @[Acidanthera](https://github.com/Acidanthera) — for the OpenCore bootloader (its community is what drew inspiration for this project.)
 
-- @[Rusty-bits](https://github.com/rusty-bits) — for inspiring the idea of parsing the PCI IDs from the pci.ids list and layout for implementing a search functionality. _Though sadly, this idea never reached production._
+- @[Rusty-bits](https://github.com/rusty-bits) — for inspiring the idea of parsing the PCI IDs from the pci.ids list and layout for implementing a search functionality. _Though sadly, this idea never reached production;_ also major thank you to them for suggesting we use Rust for our interops.
 
 - @[Rvstry](https://github.com/rvstry) — for extensive help in research regarding identifying various devices on Linux platforms, & testing the application in its various stages.
 
