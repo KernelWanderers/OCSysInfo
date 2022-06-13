@@ -39,7 +39,6 @@ class Requirements(TestCase):
                 try:
                     require(_req)
                 except DistributionNotFound:
-                    print(_requirement)
                     missing.append(_requirement)
 
         return missing
