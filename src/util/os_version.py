@@ -19,6 +19,7 @@ version_dict = {
     19: f"macOS 10.15 {color_text('(Catalina)', 'cyan')}",
     20: f"macOS 11 {color_text('(Big Sur)', 'cyan')}",
     21: f"macOS 12 {color_text('(Monterey)', 'cyan')}",
+    22: f"macOS 13 {color_text('(Ventura)', 'cyan')}"
 }
 
 _platform = platform.system().lower()
