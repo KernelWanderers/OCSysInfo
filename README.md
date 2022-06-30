@@ -136,8 +136,9 @@ If you need any help or have any questions, please feel free to let us know over
 
 ## Installation
 
-Firstly, we do not support `Python 2` – the only support provided is for `Python 3.9` and greater. <br />
-So please ensure you have `Python 3.9` or greater installed.
+> **Warning**
+> Firstly, we do not support `Python 2` – the only support provided is for `Python 3.9` and greater. <br />
+> So please ensure you have `Python 3.9` or greater installed.
 
 In order to install `OCSysInfo`, you can either download the repository manually via GitHub, or via Git.
 <br />
