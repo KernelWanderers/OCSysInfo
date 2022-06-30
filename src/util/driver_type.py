@@ -6,11 +6,33 @@ from src.cfgmgr32.util.get_info import get_info
 
 cm32 = CM32()
 
-PS2_compatible = [
+PS2_KEYBOARD_IDS = [
+    "PNP0303",
+    "PNP030B",
+    "PNP0320",
+]
+
+PS2_MOUSE_IDS = [
     "PNP0F03",
+    "PNP0F0B",
+    "PNP0F0E",
     "PNP0F12",
     "PNP0F13",
 ]
+
+def __is_ps2_keyboard(ids):
+    for id in PS2_KEYBOARD_IDS:
+        if id in ids:
+            return True
+
+    return False
+
+def __is_ps2_mouse(ids):
+    for id in PS2_MOUSE_IDS:
+        if id in ids:
+            return True
+
+    return False
 
 
 def protocol(pnp_id, logger, _wmi=wmi.WMI()):
@@ -45,42 +67,59 @@ def protocol(pnp_id, logger, _wmi=wmi.WMI()):
     device_data = get_info(pdnDevInst, cm32)
     parent_data = get_info(parent, cm32)
 
-    con_type = "UNKNOWN"
+    dev_name = device_data.get("name", "")
+    prt_name = parent_data.get("name", "")
 
-    if "i2c" in device_data.get("name", "").lower() \
-            or "i2c" in parent_data.get("name").lower():
-        con_type = "I2C"
+    dev_driver = device_data.get("driver_desc", "")
+    prt_driver = parent_data.get("dirver_desc", "")
 
-    elif "usb" in device_data.get("driver_desc", "").lower() \
-            or "usb" in parent_data.get("driver_desc", "").lower():
-        con_type = "USB"
+    if (
+        "i2c" in dev_name.lower() or 
+        "i2c" in prt_name.lower()
+    ):
+        return "I2C"
 
-    else:
-        compatible_ids = device_data.get("compatible_ids", "").lower()
+    elif (
+        "usb" in dev_driver.lower() or 
+        "usb" in prt_driver.lower()
+    ):
+        return "USB"
 
-        for id in PS2_compatible:
-            if id.lower() in compatible_ids:
-                compatible_ids = compatible_ids.replace(id.lower(), "")
+    compatible_ids = device_data.get("compatible_ids", "").lower()
 
-        smbus_driver = None
+    if __is_ps2_keyboard(compatible_ids):
+        return "PS/2"
 
-        for entity in _wmi.instances("Win32_PnPEntity"):
-            compat_id = entity.wmi_property("CompatibleID").value
+    if not __is_ps2_mouse(compatible_ids):
+        return
 
-            if compat_id and \
-                    type(compat_id) != str and \
-                    "PCI\\CC_0C0500" in compat_id:
+    smbus_driver = None
 
-                smbus_driver = entity
-                break
+    for entity in _wmi.instances("Win32_PnPEntity"):
+        compat_id = entity.wmi_property("CompatibleID").value
 
-        if smbus_driver:
-            name = smbus_driver.wmi_property("Name").value
+        if (
+            compat_id and
+            type(compat_id) != str and
+            "PCI\\CC_0C0500" in compat_id
+        ):
 
-            if "synaptics" in name.lower() \
-                    or "elans" in name.lower():
-                return "SMBus"
+            smbus_driver = entity
+            break
 
-        con_type = "PS/2"
+    if smbus_driver:
+        name = smbus_driver.wmi_property("Name").value
 
-    return con_type
+        if (
+            (
+                "synaptics" in name.lower() and
+                "synaptics" in dev_name.lower()
+            ) or
+            (
+                "elans" in name.lower() and
+                "elans" in dev_name.lower()
+            )
+        ):
+            return "SMBus"
+
+    return "PS/2"
