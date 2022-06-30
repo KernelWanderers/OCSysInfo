@@ -20,10 +20,9 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem (remove this section entirely if not applicable.)
 
-**Desktop (please complete the following information):**
+**Platform (please complete the following information):**
  - OS: [e.g. macOS]
  - Version [e.g. Ventura]
-
 
 **Additional context**
 Add any other context about the problem here.
