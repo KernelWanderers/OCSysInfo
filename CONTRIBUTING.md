@@ -1,4 +1,5 @@
-> **NOTE**: If you do not have a great understanding of OOP concepts, 
+> **NOTE**
+> If you do not have a great understanding of OOP concepts, 
 > or aren't familiar with Python - please ground yourself in the aforementioned before contributing to this project.
 
 
