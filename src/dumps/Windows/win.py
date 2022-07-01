@@ -510,14 +510,19 @@ class WindowsHardwareManager:
             try:
                 description = item.wmi_property("Description").value
                 pnp_id = item.wmi_property("PNPDeviceID").value
+                ven, prod = [x[2] for x in re.findall(r"(?<=(PID_)|(VID_))((\d|\w){4})", pnp_id)]
 
                 d_type = protocol(pnp_id, self.logger, _wmi=self.c)
 
                 if d_type:
                     description += f" ({d_type})"
 
-                _items.append(
-                    {description: {}})
+                _items.append({
+                    description: {
+                        "Product ID": "0x" + prod,
+                        "Vendor ID": "0x" + ven
+                    }
+                })
             except Exception as e:
                 self.logger.error(
                     f"Failed to obtain information about keyboard/pointing device (WMI)\n\t^^^^^^^^^{str(e)}",
