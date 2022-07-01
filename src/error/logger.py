@@ -16,7 +16,6 @@ class Logger:
         self.format = "%(asctime)s | {} | %(levelname)s: %(message)s"
         self.date = "%m/%d/%Y %I:%M:%S %p"
 
-        logging.basicConfig(filename=os.path.join(path, "ocsysinfo.log"))
         # Adding the base log handlers.
         self.handler = logging.getLogger()
         self.rotating = RotatingFileHandler(os.path.join(path, "ocsysinfo.log"), mode="a", maxBytes=2 ** 13)
