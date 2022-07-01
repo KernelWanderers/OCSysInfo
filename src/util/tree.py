@@ -38,7 +38,7 @@ def tree(name, data, nest=1, parent="", looped={}, value="", color=True):
                     + (f if i < l else s)
                 )
             else:
-                sp = " " * len(parent if len(parent) else spacing) + (f if i < l else s)
+                sp = " " * (len(parent) if parent else 2) + (f if i < l else s)
 
             if len(key) and isinstance(data[key], dict):
                 value += f"{sp}{key}\n"
