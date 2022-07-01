@@ -19,18 +19,16 @@ class CM32:
             ulFlags,
         )
 
-        # Something went wrong.
-        if status != 0x0:
-            return {
-                "status": "failure",
-                "code": status,
-                "reason": "error"
-            }
-        else:
-            return {
-                "status": "success",
-                "code": 0x0
-            }
+        return {
+            "status": "success",
+            "code": status
+        } if status == 0x0 \
+        else {
+            # Something went wrong.
+            "status": "failure",
+            "code": status,
+            "reason": "error"
+        }
 
     def CM_Get_Parent(
         self,
@@ -43,18 +41,16 @@ class CM32:
             c_ulong(0),
         )
 
-        # Something went wrong.
-        if status != 0x0:
-            return {
-                "status": "failure",
-                "code": status,
-                "reason": "error"
-            }
-        else:
-            return {
-                "status": "success",
-                "code": 0x0
-            }
+        return {
+            "status": "success",
+            "code": status
+        } if status == 0x0 \
+        else {
+            # Something went wrong.
+            "status": "failure",
+            "code": status,
+            "reason": "error"
+        }
 
     def CM_Get_DevNode_PropertyW(
         self,
@@ -64,7 +60,7 @@ class CM32:
         propBuff=None,
         propBuffSize=c_ulong(0)
     ):
-        if propKey == None:
+        if propKey is None:
             return {}
 
         status = cfgmgr.CM_Get_DevNode_PropertyW(
@@ -88,7 +84,7 @@ class CM32:
         # we can just iterate again with a fixed-length buffer.
         #
         # More error codes here: https://github.com/tpn/winsdk-10/blob/master/Include/10.0.10240.0/um/cfgmgr32.h#L4508
-        if status == 0x1A or propBuff == None:
+        if status == 0x1A or propBuff is None:
             return self.CM_Get_DevNode_PropertyW(
                 dnDevInst,
                 propKey,
@@ -97,22 +93,19 @@ class CM32:
                 propBuffSize=propBuffSize,
             )
 
-        # Something went wrong.
-        elif status != 0x0:
-            return {
-                "status": "failure",
-                "code": status,
-                "reason": "error"
-            }
-
-        else:
-            return {
-                "status": "success",
-                "data": {
-                    "type": propType,
-                    "buff": propBuff,
-                    "size": propBuffSize
-                },
-                "devInst": dnDevInst,
-                "code": 0x0
-            }
+        return {
+            "status": "success",
+            "data": {
+                "type": propType,
+                "buff": propBuff,
+                "size": propBuffSize
+            },
+            "devInst": dnDevInst,
+            "code": status
+        }  if status == 0x0 \
+        else {
+            # Something went wrong.
+            "status": "failure",
+            "code": status,
+            "reason": "error"
+        }
