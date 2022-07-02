@@ -43,7 +43,6 @@ jobs:
           cp ./patches/launcher.sh dist/OCSysInfo.app/Contents/MacOS/Launcher
           chmod +x dist/OCSysInfo.app/Contents/MacOS/Launcher
           python3 ./patches/patch_plist.py
-
       - name: Pack app into DMG image
         run: |
           rm -rf dist/OCSysInfo
@@ -55,7 +54,6 @@ jobs:
               --window-size 800 400 \
               --app-drop-link 600 200 "ocsysinfo_osx_x86_64.dmg" "dist/" \
               --no-internet-enable
-
       - name: Upload to Artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -122,8 +120,10 @@ jobs:
         with:
           ref: releases-source
       
-      - name: Install python3 and pip3
-        run: sudo apt-get install python3 python3-pip
+      - name: Set up Python 3
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10.x"
 
       - name: Update pip (just in case)
         run: pip3 install --upgrade pip
