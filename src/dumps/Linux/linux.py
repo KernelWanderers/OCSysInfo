@@ -760,6 +760,7 @@ class LinuxHardwareManager:
 
                 if "nvme" in folder:
                     connector = "PCIe"
+                    drive_type = "Non-Volatile Memory Express (NVMe)"
 
                     # Uses PCI vendor & device ids to get a vendor for the NVMe block device
                     dev = open(f"{path}/device/device/device",
