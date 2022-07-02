@@ -202,7 +202,6 @@ def pci_from_acpi_linux(device_path, logger):
 
         for path in os.listdir("/sys/bus/pci/devices"):
             if slot in os.listdir(f"/sys/bus/pci/devices/{path}"):
-                print(path)
                 children.append(path)
 
         for child in children:
