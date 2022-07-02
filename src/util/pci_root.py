@@ -7,9 +7,13 @@ if platform.system().lower() == "darwin":
 
 def _get_valid(slot):
     try:
-        return [hex(int(n, 16)) for n in slot.split(":")[2].split(".")]
+        return tuple([
+            hex(
+                int(n, 16)) for n 
+                in slot.split(":")[-1].split(".")
+        ])
     except Exception:
-        return [None, None]
+        return (None, None)
 
 # Original source:
 # https://github.com/dortania/OpenCore-Legacy-Patcher/blob/ca859c7ad7ac2225af3b50626d88f3bfe014eaa8/resources/device_probe.py#L67-L93
@@ -158,7 +162,6 @@ def pci_from_acpi_win(wmi, instance_id, logger):
 
     return data
 
-
 def pci_from_acpi_linux(device_path, logger):
     data = {}
     acpi = ""
@@ -186,73 +189,28 @@ def pci_from_acpi_linux(device_path, logger):
     # <domain>:<bus>:<slot>.<function>
     slot = ""
 
-    # Whether or not there's 1 or 2 components
-    # of the entire PCI path.
-    #
-    # Examples of this:
-    # 1 - PciRoot(0x0)/Pci(0x2,0x0)
-    # 2 - PciRoot(0x0)/Pci(0x1,0x0)/Pci(0x0,0x0)
-    amount = 1 if len(acpi.split(".")) < 4 else 2
-
-    # Whether or not we found what we were looking for.
-    found = False
-
     for line in pci.split("\n"):
         if "pci_slot_name" in line.lower():
             slot = line.split("=")[1]
             break
 
     if slot:
-        paths = os.listdir(f"/sys/bus/pci/devices/")
+        # Domain
+        pcip += f"PciRoot({hex(int(slot.split(':')[0], 16))})"
+        children = []
+        paths = [",".join(_get_valid(slot))]
 
-        for path in paths:
-            nested = os.listdir(f"/sys/bus/pci/devices/{path}")
+        for path in os.listdir("/sys/bus/pci/devices"):
+            if slot in os.listdir(f"/sys/bus/pci/devices/{path}"):
+                children.append(path)
 
-            if found:
-                break
+        for child in children:
+            paths.append(",".join(_get_valid(child)))
 
-            if slot in nested:
+        for comp in sorted(paths, reverse=True):
+            pcip += f"/Pci({comp})"
 
-                for nest in nested:
-                    if found:
-                        break
-
-                    if "pcie" in nest and not slot in nest:
-                        # Add PCIROOT (bus id)
-                        pcip += "PciRoot({})".format(
-                            hex(int(path.split(":")[1], 16)))
-
-                        """
-                        slotc - Child slot
-                        funcc - Child function
-                        slotp - Parent slot
-                        funcp - Parent function
-                        """
-                        slotc, funcc = _get_valid(path)
-                        slotp, funcp = _get_valid(slot)
-
-                        pcip += f"/Pci({slotc},{funcc})"
-
-                        if amount == 2:
-                            pcip += f"/Pci({slotp},{funcp})"
-
-                        found = True
-
-        # In some cases, there won't
-        # be an accommodating directory in
-        # /sys/bus/pci/devices/* which will have
-        # the current slot name.
-        #
-        # So, we format the current one, and use that.
-        # This should, by default,
-        # only have a single PCI path component.
-        if not pcip:
-            domain = hex(int(slot.split(":")[1], 16))
-            slot, func = _get_valid(slot)
-
-            pcip += f"PciRoot({domain})/Pci({slot},{func})"
-
-        if pcip:
-            data["PCI Path"] = pcip
+    if pcip:
+        data["PCI Path"] = pcip
 
     return data
