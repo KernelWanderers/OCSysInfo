@@ -11,6 +11,7 @@
       At that point, if it's not a PS/2 keyboard, but is a PS/2 device, we can check for the SMBus driver; if it's present, the device
       is SMBus, otherwise, it's PS/2. If it's not a PS/2 keyboard, nor a PS/2 pointing device, then it's unknown.
 * Added `product` and `vendor` id extraction for Input devices on Windows (macOS is still TODO)
+* Fixed logic for extracting PCI paths on Linux.
 
 
 ## v1.0.7
