@@ -14,6 +14,7 @@
 * Fixed logic for extracting PCI paths on Linux.
 * Fixed logic for storage devices on Linux.
     - Explicitly specify drive type for NVMe devices as `NVMe`, instead of just `SSD`
+* Fixed Intel's ARK page not sending data back due to broken User-Agent 
 
 
 ## v1.0.7

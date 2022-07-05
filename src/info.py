@@ -17,7 +17,7 @@ with open(os.path.join("src", "util", "version.json")) as version_json:
 
 
 def get_latest_version():
-    json_response = requests.get(verion_json_url).json()
+    json_response = requests.get(verion_json_url, timeout=requests_timeout, headers=useragent_header).json()
     return json_response.get("version", "0.0.0")
 
 
@@ -102,3 +102,10 @@ surprise = f"""{cyan}
 ⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀⠀⠀⠈⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⣿⣿
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿{end_formatting}
 """
+
+useragent_header = {
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                      "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15"
+    }
+
+requests_timeout = 5

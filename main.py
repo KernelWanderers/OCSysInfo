@@ -27,7 +27,7 @@ if __name__ == "__main__":
     import requests
     from threading import Thread
     from update.updater import OCSIUpdater
-    from src.info import get_latest_version, format_text, AppInfo, color_text
+    from src.info import get_latest_version, format_text, AppInfo, color_text, requests_timeout, useragent_header
     from sys import exit, argv
     from src.cli.ui import clear as clear_screen
     from src.util.create_log import create_log
@@ -36,7 +36,7 @@ if __name__ == "__main__":
     if "--offline" not in argv:
         try:
             print("Testing internet connection...")
-            requests.get("https://www.google.com")
+            requests.get("https://www.google.com", timeout=requests_timeout, headers=useragent_header)
             offline = False
             print("Machine has an available connection!")
         except Exception:

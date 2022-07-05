@@ -1,5 +1,6 @@
 import requests
 
+from src import info
 
 class PCIIDs:
     """
@@ -22,7 +23,7 @@ class PCIIDs:
         content = requests.get(
             "https://devicehunt.com/search/type/{}/vendor/{}/device/{}".format(
                 types, ven.upper(), dev.upper()
-            )
+            ), timeout=info.requests_timeout, headers=info.useragent_header
         )
 
         if content.status_code != 200:
@@ -43,7 +44,9 @@ class PCIIDs:
         return device or None
 
     def get_item_pi(self, dev: str, ven: str = "any") -> dict or None:
-        content = requests.get("https://pci-ids.ucw.cz/read/PC/{}/{}".format(ven, dev))
+        content = requests.get("https://pci-ids.ucw.cz/read/PC/{}/{}".format(ven, dev),
+                               timeout=info.requests_timeout,
+                               headers=info.useragent_header)
 
         if content.status_code != 200:
             return None
