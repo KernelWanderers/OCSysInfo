@@ -17,6 +17,8 @@ import requests
 import xmltodict
 
 from src import info
+from src.info import color_text
+from src.util.debugger import Debugger as debugger
 
 
 def get_full_ark_url(prod_url):
@@ -26,7 +28,7 @@ def get_full_ark_url(prod_url):
     """
 
     full_url = "https://ark.intel.com{0}".format(prod_url)
-    
+
     return full_url
 
 
@@ -71,6 +73,13 @@ def get_codename(ark_url, tried=False):
     except Exception as e:
         if isinstance(e, requests.ConnectionError):
             return
+        elif isinstance(e, requests.ReadTimeout):
+            debugger.log_dbg(color_text(
+                "--> [iARK]: Intel's ARK page returned no data – aborting!\n",
+                "red"
+            ))
+
+            return
         else:
             raise e
             
@@ -96,6 +105,11 @@ def get_codename(ark_url, tried=False):
 
 
 def iark_search(search_term):
+    debugger.log_dbg(color_text(
+        f"--> [CodenameManager]: Attempting to fetch codename for '{search_term}'...",
+        "yellow"
+    ))
+
     results = quick_search(search_term)
 
     return results[0] if results else None
@@ -111,10 +125,20 @@ def simplified_name(cpu_name):
         "CPU": "",
     }
 
+    debugger.log_dbg(color_text(
+        "--> [CodenameManager]: Adjusting CPU name for query...",
+        "yellow"
+    ))
+
     result_name = cpu_name.split("@")[0].strip()
 
     for key, value in replace_dict.items():
         if key in result_name:
-            result_name = result_name.replace(key, value)
+            result_name = result_name.replace(key, value).strip()
+
+    debugger.log_dbg(color_text(
+        f"--> [CodenameManager]: Modified '{cpu_name}' to '{result_name}' for query...",
+        "yellow"
+    ))
 
     return result_name

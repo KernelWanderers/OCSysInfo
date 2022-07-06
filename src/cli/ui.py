@@ -75,6 +75,7 @@ class UI:
     def handle_cmd(self, options=[]):
         cmd = input("\n\nPlease select an option: ")
         valid = False
+
         if cmd.lower() == "yee":
             clear()
             print(surprise)
@@ -83,6 +84,7 @@ class UI:
             self.enter()
             clear()
             self.create_ui()
+
         for option in options:
             if any(type(c) == str and cmd.upper() == c.upper() for c in option):
                 clear()
@@ -112,7 +114,7 @@ class UI:
         data_options = [
             ("C", "CPU"),
             ("G", "GPU"),
-            ("B", "Motherboard"),
+            ("B", "Motherboard" if system().lower() != "darwin" else "Vendor"),
             ("M", "Memory"),
             ("N", "Network"),
             ("A", "Audio"),
@@ -136,25 +138,69 @@ class UI:
 
             print(color_text("Please wait while we adjust settings...\n", "green"))
 
-            asyncs = []
+            deletions = []
+            asyncs    = []
 
             for opt in data_options:
-                if not opt[1] in self.dm.off_data and \
-                        not self.dm.info.get(opt[1]):
+                if (
+                    not opt[1] in self.dm.off_data and 
+                    not self.dm.info.get(opt[1])
+                ):
                     asyncs.append(opt[1])
 
-            asyncs = ", ".join(asyncs)
+                if (
+                    opt[1] in self.dm.off_data and
+                    self.dm.info.get(opt[1])
+                ):
+                    deletions.append(opt[1])
 
-            print(f"Attempting to retrieve dumps for: {asyncs}...\n")
+            if asyncs:
+                print(f"Attempting to retrieve dumps for: {', '.join(asyncs)}...\n")
 
-            try:
-                self.dm.manager.dump()
-                self.dm.info = self.dm.manager.info
+                try:
+                    self.dm.manager.dump()
+                    self.dm.info = self.dm.manager.info
 
-                if input(color_text("[   OK   ] Successfully retrieved additional dumps.", "green") + " Press [enter] to return...") is not None:
-                    pass
-            except Exception:
-                if input(color_text("[ FAILED ] Unable to retrieve dumps.", "red") + " Press [enter] to return...") is not None:
+                    if (
+                        not deletions and
+                        input(color_text("[   OK   ] Successfully retrieved additional dumps.\n", "green") + 
+                        " Press [enter] to return...") is not None
+                    ):
+                        pass
+                except Exception:
+                    if (
+                        asyncs and 
+                        input(color_text("[ FAILED ] Unable to retrieve dumps.", "red") + 
+                        " Press [enter] to return...") is not None
+                    ):
+                        pass
+                    elif not asyncs:
+                        self.logger.error(
+                            f"[UI]: UNKNOWN ERROR\n\t^^^^^^^{str(e)}",
+                            __file__
+                        )
+
+            if deletions:
+                print(f"Attempting to delete info for: {', '.join(deletions)}...\n")
+
+                for delete in deletions:
+                    if self.dm.info.pop(delete):
+                        self.dm.off_data.append(delete)
+
+                        print(color_text(
+                            f"[   OK   ] Successfully deleted info for '{delete}'!",
+                            "green"
+                        ))
+                    else:
+                        print(color_text(
+                            f"[  ERROR  ] Failed to delete info for '{delete}'!\n\t^^^^^^^{str(e)}",
+                            "red"
+                        ))
+
+                if (
+                    input(color_text("[   OK   ] Successfully deleted selected info.\n", "green") + 
+                    " Press [enter] to return...") is not None
+                ):
                     pass
 
             if self.state == "discovery":
@@ -162,8 +208,10 @@ class UI:
             else:
                 return self.create_ui()
 
-        if not selected.upper() in opts and \
-                input(color_text("Invalid option! Press [enter] to retry...", "red")) is not None:
+        if (
+            not selected.upper() in opts and
+            input(color_text("Invalid option! Press [enter] to retry...", "red")) is not None
+        ):
             self.toggle_data()
 
         option = data_options[opts.index(selected.upper())][1]

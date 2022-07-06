@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 if __name__ == "__main__":
-    from sys import exit, version_info, version
+    from sys import exit, version_info, version, argv
     from src.util.missing_dep import Requirements
     
     if version_info < (3, 9, 0):
@@ -28,20 +28,34 @@ if __name__ == "__main__":
     from threading import Thread
     from update.updater import OCSIUpdater
     from src.info import get_latest_version, format_text, AppInfo, color_text, requests_timeout, useragent_header
-    from sys import exit, argv
     from src.cli.ui import clear as clear_screen
     from src.util.create_log import create_log
+    from src.util.debugger import Debugger as debugger
+
+    args_lower = [x.lower() for x in argv]
+
+    # Whether or not to run the application
+    # in DEBUG mode.
+    if (
+        "-dbg" in args_lower or
+        "--debug" in args_lower or
+        "-debug" in args_lower
+    ):
+        debugger.toggle(True)
+        print("=" * 25 + " BEGIN OF DEBUG " + "=" * 25)
 
     # Preliminary check for internet availability.
     if "--offline" not in argv:
         try:
-            print("Testing internet connection...")
+            debugger.log_dbg("--> [INTERNET]: Testing connection...")
             requests.get("https://www.google.com", timeout=requests_timeout, headers=useragent_header)
+
             offline = False
-            print("Machine has an available connection!")
+
+            debugger.log_dbg("--> [INTERNET]: Available!\n")
         except Exception:
             offline = True
-            print("Internet connection not available!")
+            debugger.log_dbg("--> [INTERNET]: Not available!\n")
     else:
         offline = True
 
@@ -76,7 +90,7 @@ if __name__ == "__main__":
 
                 update.run()
 
-                print("\nRunning OCSysInfo after update...")
+                debugger.log_dbg("--> Running OCSysInfo after update...\n")
 
                 # Restart with the updated version
                 os.execv(sys.executable, ['python'] + [sys.argv[0]])
@@ -96,17 +110,21 @@ if __name__ == "__main__":
 
     try:
         logger = Logger(log_tmp[0] or AppInfo.root_dir)
-        print("Launching OCSysInfo...")
+
+        debugger.log_dbg(color_text("--> [OCSysInfo]: Launching...", "yellow"))
+
         logger.info("Launching OCSysInfo...", __file__)
         
         try:
-            print("Initializing FlagParser...")
+            debugger.log_dbg(color_text("--> [FlagParser]: Initialising...", "yellow"))
             flag_parser = FlagParser(logger, None, offline=offline)
+            debugger.log_dbg(color_text("--> [FlagParser]: Success!\n", "green"))
 
-            print("Initializing UI...")
+            debugger.log_dbg(color_text("--> [UI]: Initialising...", "yellow"))
             ui = UI(flag_parser.dm, logger, log_tmp[1] or AppInfo.root_dir)
+            debugger.log_dbg(color_text("--> [UI]: Successfully initialised!\n", "green"))
             
-            print("Done! Launching UI...")
+            debugger.log_dbg(color_text("--> [UI]: Spawning...\n", "yellow"))
             clear_screen()
             ui.create_ui()
         except Exception as e:

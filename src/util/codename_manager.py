@@ -1,12 +1,14 @@
 import src.util.ark_query as ark_query
 from src.util.wc_amd_query import parse_codename
+from src.info import color_text
+from src.util.debugger import Debugger as debugger
 
 
 class CodenameManager:
     """
     A WIP manager to obtain the codename value of the current CPU.
 
-    Currently, this is only for Intel CPUs.
+    Currently, this is only for Intel and AMD CPUs.
     """
 
     def __init__(self, name, vendor):
@@ -25,6 +27,11 @@ class CodenameManager:
         elif "apple" in self.vendor.lower():
             self.codename_apple_arm()
         else:
+            debugger.log_dbg(color_text(
+                f"--> [CpuCodenameManager]: Failed to match against supported CPU vendors – aborting!\n",
+                "red"
+            ))
+
             return
 
     def codename_intel(self):
@@ -39,7 +46,13 @@ class CodenameManager:
         )
         value = ark_query.get_codename(ark_url).replace("Products formerly", "").replace("Produits anciennement", "").strip()
 
+        debugger.log_dbg(color_text(
+            f"--> [CpuCodenameManager]: Successfully located codename '{value}' for provided '{self.name}'!\n",
+            "green"
+        ))
+
         self.codename = value
+        
         return value
 
     def codename_amd(self):

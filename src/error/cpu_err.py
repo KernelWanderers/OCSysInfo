@@ -6,4 +6,4 @@ def cpu_err(e):
         "This should not happen. Please open an issue at https://github.com/KernelWanderers/OCSysInfo/issues\n"
     )
     print(f"Error logs:\n\n{str(e)}")
-    exit(0)
+    exit(1)

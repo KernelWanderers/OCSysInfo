@@ -1,6 +1,8 @@
 import requests
 
 from src import info
+from src.info import color_text
+from src.util.debugger import Debugger as debugger
 
 class PCIIDs:
     """
@@ -20,6 +22,13 @@ class PCIIDs:
         return data or {}
 
     def get_item_dh(self, dev: str, ven: str = "any", types="pci") -> dict or None:
+        debugger.log_dbg(color_text(
+            f"--> [DH/PID]: Attempting to find a match for:" +
+            f"\n\t* Device ID: {dev}" +
+            f"\n\t* Vendor ID: {ven}", 
+            "yellow"
+        ))
+
         content = requests.get(
             "https://devicehunt.com/search/type/{}/vendor/{}/device/{}".format(
                 types, ven.upper(), dev.upper()
@@ -27,6 +36,11 @@ class PCIIDs:
         )
 
         if content.status_code != 200:
+            debugger.log_dbg(color_text(
+                "--> [DH/PID]: Failed to fetch device with provided data – ignoring!\n",
+                "red"
+            ))
+
             return None
 
         lines = content.text.split("\n")
@@ -41,14 +55,37 @@ class PCIIDs:
                 ].split("<")[0]
                 caught = device
 
-        return device or None
+        if device:
+            debugger.log_dbg(color_text(
+                f"--> [DH/PID]: Obtained device '{device.get('device')}' using the following data:" +
+                f"\n\t* Device ID: {dev}" +
+                f"\n\t* Vendor ID: {ven}" +
+                f"\n\t* Type: {types}\n",
+                "green"
+            ))
+
+            return device
 
     def get_item_pi(self, dev: str, ven: str = "any") -> dict or None:
-        content = requests.get("https://pci-ids.ucw.cz/read/PC/{}/{}".format(ven, dev),
-                               timeout=info.requests_timeout,
-                               headers=info.useragent_header)
+        debugger.log_dbg(color_text(
+            f"--> [DH/PID]: Attempting to find a match for:" +
+            f"\n\t* Device ID: {dev}" +
+            f"\n\t* Vendor ID: {ven}", 
+            "yellow"
+        ))
+
+        content = requests.get(
+            "https://pci-ids.ucw.cz/read/PC/{}/{}".format(ven, dev),
+            timeout=info.requests_timeout,
+            headers=info.useragent_header
+        )
 
         if content.status_code != 200:
+            debugger.log_dbg(color_text(
+                "--> [DH/PID]: Failed to fetch device with provided data – ignoring!\n",
+                "red"
+            ))
+
             return None
 
         device = ""
@@ -57,4 +94,13 @@ class PCIIDs:
             if "itemname" in line.lower() and ">name" in line.lower():
                 device = line.split("Name: ")[1]
 
-        return {"device": device} if device else None
+        if device:
+            debugger.log_dbg(color_text(
+                f"--> [DH/PID]: Obtained device '{device}' using the following data:" +
+                f"\n\t* Device ID: {dev}" +
+                f"\n\t* Vendor ID: {ven}" +
+                f"\n\t* Type: PCI\n",
+                "green"
+            ))
+
+            return { "device": device }

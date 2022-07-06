@@ -1,5 +1,7 @@
 import os
 import platform
+from src.info import color_text
+from src.util.debugger import Debugger as debugger
 
 if platform.system().lower() == "darwin":
     from src.dumps.macOS.ioreg import *
@@ -42,6 +44,10 @@ def construct_pcip_osx(parent_entry, acpi, logger):
                     f'Pci({bus},{func})'
                 )
             except ValueError:
+                debugger.log_dbg(color_text(
+                    "--> [PCI/ACPI]: Failed! Ignoring! — (IOKit)", 
+                    "red"
+                ))
                 logger.warning(
                     "Failed to construct PCI path for ambiguous PCI device (IOKit) – Non-critical, ignoring.",
                     __file__,
@@ -58,6 +64,10 @@ def construct_pcip_osx(parent_entry, acpi, logger):
 
         else:
             paths = []
+            debugger.log_dbg(color_text(
+                "--> [PCI/ACPI]: Invalid! Unable to construct path! — (IOKit)", 
+                "red"
+            ))
             logger.warning(
                 "Invalid PCI device – unable to construct PCI path (IOKit)",
                 __file__,
@@ -78,10 +88,19 @@ def construct_pcip_osx(parent_entry, acpi, logger):
         data['ACPI Path'] = ''.join([("\\" if "sb" in a.lower(
         ) else ".") + a.split("@")[0] for a in acpi.split(':')[1].split('/')[1:]])
 
+    debugger.log_dbg(color_text(
+        "--> [PCI/ACPI]: Successfully constructed PCI/ACPI path(s)! — (IOKit)", 
+        "green"
+    ))
     return data
 
 
 def pci_from_acpi_win(wmi, instance_id, logger):
+
+    debugger.log_dbg(color_text(
+        "--> [PCI/ACPI]: Attempting to construct PCI/ACPI paths...",
+        "yellow"
+    ))
 
     try:
         # Thank you to DhinakG for this.
@@ -94,9 +113,15 @@ def pci_from_acpi_win(wmi, instance_id, logger):
             .Data
         )
     except Exception as e:
+        debugger.log_dbg(color_text(
+            "--> [PCI/ACPI]: Failed to retrieve path of anonymous device! — (WMI)\n",
+            "red"
+        ))
+
         logger.error(
             f"Failed to retrieve ACPI/PCI path of anonymous device (WMI)\n\t^^^^^^^^^{str(e)}"
         )
+
         return {}
 
     if not raw_path:
@@ -110,6 +135,10 @@ def pci_from_acpi_win(wmi, instance_id, logger):
         # A valid ACPI/PCI path shouldn't have
         # `USB(...)` as any argument.
         if "usb" in device.lower():
+            debugger.log_dbg(color_text(
+                "--> [PCI/ACPI]: 'USB' component present in path - non-constructable! — (WMI)\n", 
+                "red"
+            ))
             logger.warning(
                 "[USB WARNING]: Non-constructable ACPI/PCI path - ignoring.. (WMI)"
             )
@@ -127,9 +156,15 @@ def pci_from_acpi_win(wmi, instance_id, logger):
                     # Thank you to DhinakG for this.
                     _acpi, val = arg[:-1].split("(")
                 except Exception as e:
+                    debugger.log_dbg(color_text(
+                        "--> [PCI/ACPI]: Failed to parse path of anonymous device! — (WMI)\n",
+                        "red"
+                    ))
+
                     logger.error(
                         f"Failed to parse ACPI/PCI path of anonymous device (WMI)\n\t^^^^^^^^^{str(e)}"
                     )
+
                     path = None
                     break
 
@@ -160,6 +195,11 @@ def pci_from_acpi_win(wmi, instance_id, logger):
 
             data["PCI Path"] = path
 
+    debugger.log_dbg(color_text(
+        "--> [PCI/ACPI]: Successfully constructed PCI/ACPI path(s)! — (WMI)\n", 
+        "green"
+    ))
+
     return data
 
 def pci_from_acpi_linux(device_path, logger):
@@ -173,9 +213,16 @@ def pci_from_acpi_linux(device_path, logger):
 
         data["ACPI Path"] = acpi
     except Exception as e:
+        debugger.log_dbg(color_text(
+            "--> [PCI/ACPI]: Failed to construct paths of anonymous device! — (SYS_FS)",
+            "red"
+        ))
+
         logger.error(
             f"Failed to construct ACPI/PATH of anonymous device (SYS_FS)\n\t^^^^^^^^^{str(e)}"
         )
+
+        return ""
 
     if not acpi or not pci:
         return ""
@@ -213,4 +260,9 @@ def pci_from_acpi_linux(device_path, logger):
     if pcip:
         data["PCI Path"] = pcip
 
+    debugger.log_dbg(color_text(
+        "--> [PCI/ACPI]: Successfully constructed PCI/ACPI path(s)! — (SYS_FS)",
+        "green"
+    ))
+    
     return data

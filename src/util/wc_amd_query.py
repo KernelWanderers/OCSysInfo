@@ -2,6 +2,7 @@ import requests
 import re
 
 from src import info
+from src.info import color_text
 
 BASE_URL = "https://en.wikichip.org/wiki/amd"
 

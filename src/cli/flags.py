@@ -2,6 +2,7 @@ import os
 from sys import exit, argv
 from src.cli.ui import clear
 from src.info import color_text, AppInfo
+from src.util.debugger import Debugger as debugger
 from src.util.dump_functions.text import dump_txt
 from src.util.dump_functions.json import dump_json
 from src.util.dump_functions.xml import dump_xml
@@ -22,14 +23,14 @@ class FlagParser:
 
         if "--off-data" in self.args:
             if len(self.args) == (self.args.index("--off-data") + 1):
-                print(color_text("No data for '--off-data'!", "red"))
-                exit(0)
+                debugger.log_dbg(color_text("--> No data for '--off-data'!", "red"))
+                exit(1)
 
             self.off_data(self.args[self.args.index("--off-data") + 1])
 
         if not self.dm and not list(filter(lambda x: "-h" in x.lower(), self.args)):
             print(color_text(
-                "Analyzing hardware... (this might take a while, don't panic)", "red"))
+                "--> Analyzing hardware... (this might take a while, don't panic)", "red"))
             self.dm = DeviceManager(logger, off_data=self.toggled_off, offline=offline)
             self.dm.info = {
                 k: v
@@ -44,12 +45,19 @@ class FlagParser:
 
         if (
             not self.interactive or 
-            "--offline" in self.args
+            "--offline" in self.args or
+            (
+                "-dbg"    in self.args or 
+                "-debug"  in self.args or
+                "--debug" in self.args
+            )
         ):
             for i in range(len(self.args)):
+                print("ARGS: ", self.args[i])
                 if (
                     "--no-interactive" in self.args[i].lower() or
-                    "--offline" in self.args[i].lower()
+                    "--offline" in self.args[i].lower() or
+                    self.args[i].lower() in ["-dbg", "--debug", "-debug"]
                 ):
                     del self.args[i]
 
@@ -135,6 +143,10 @@ class FlagParser:
                 (
                     "[--offline]",
                     "runs the application in OFFLINE mode, regardless of whether or not an internet connection is available"
+                ),
+                (
+                    "[-dbg/-debug/--debug]",
+                    "runs the application in DEBUG mode."
                 )
             ]
 

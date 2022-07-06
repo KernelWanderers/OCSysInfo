@@ -1,6 +1,7 @@
 import platform
 from src.managers.pciids import PCIIDs
-
+from src.info import color_text
+from src.util.debugger import Debugger as debugger
 
 class DeviceManager:
     """Instance responsible for exposing all important information about the current system's hardware."""
@@ -13,6 +14,11 @@ class DeviceManager:
         self.offline = offline
         self.off_data = off_data
 
+        debugger.log_dbg(color_text(
+            f"--> [DeviceManager]: Instantiating device manager for {platform.system()}...",
+            "yellow"
+        ))
+
         if self.platform == "darwin":
             from src.dumps.macOS.mac import MacHardwareManager
             self.manager = MacHardwareManager(self)
@@ -24,5 +30,10 @@ class DeviceManager:
         elif self.platform == "windows":
             from src.dumps.Windows.win import WindowsHardwareManager
             self.manager = WindowsHardwareManager(self)
+
+        debugger.log_dbg(color_text(
+            "--> [DeviceManager]: Successfully instantiated device manager!\n",
+            "green"
+        ))
 
         self.manager.dump()
