@@ -65,4 +65,26 @@ class CodenameManager:
             return data
 
     def codename_apple_arm(self):
-        return
+        from src.util.data.arm_cpu import ARM_CPU
+
+        for key in ARM_CPU.keys():
+            if key.lower() in self.name.lower():
+                self.codename = (
+                    f"{ARM_CPU[key].get('performance_core')}/" +
+                    f"{ARM_CPU[key].get('efficiency_core')} " +
+                    f"({ARM_CPU[key].get('codename')}) - " +
+                    f"{ARM_CPU[key].get('part_no')}"
+                )
+
+                break
+
+        if self.codename:
+            debugger.log_dbg(color_text(
+                f"--> [CpuCodenameManager]: Successfully located codename '{self.codename}' for '{self.name}'!\n",
+                "green"
+            ))
+        else:
+            debugger.log_dbg(color_text(
+                f"--> [CpuCodenameManager]: Failed to locate codename for '{self.name}'!\n",
+                "red"
+            ))
