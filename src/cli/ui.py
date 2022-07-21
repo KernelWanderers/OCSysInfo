@@ -362,6 +362,7 @@ class UI:
             print(f"Platform     :  {color_text(os_ver, 'green')}")
             print(f"Architecture :  {color_text(AppInfo.arch, 'green')}")
             print(f"Current dump :  {color_text(self.dump_dir, 'cyan')}")
+            # todo: programmatically make the uniform `:` marks to support localization
 
             print("\n")
 
