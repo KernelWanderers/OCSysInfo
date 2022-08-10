@@ -11,8 +11,24 @@
 import json
 import re
 import os
+from platform import system
+import sys
 
-from src.cli.ui import clear
+
+def clear():
+    # copied from src.cli.ui to avoid importing the module, as it has external dependencies we don't need in this case.
+    if system().lower() == "windows":
+        os.system("cls")
+    elif system().lower() == "linux":
+        os.system("clear")
+    elif sys.platform == "darwin":
+        # Special thanks to [A.J Uppal](https://stackoverflow.com/users/3113477/a-j-uppal) for this!
+        # Original comment: https://stackoverflow.com/a/29887659/13120761
+
+        # But, with more cursed bullshit!
+        print("\033c", end="")
+        print("\033[3J", end="")
+        print("\033c", end="")
 
 
 def check_for_braces(string: str):
@@ -25,62 +41,37 @@ def check_for_braces(string: str):
 
 class Localization:
     def __init__(self):
-        pass
-        self.options = {
-            "Add Language": self.create_language,
-            "Modify Entries For Language": self.modify_language,
-            "View Languages": self.view_languages,
-            "Exit": self.exit_loop
-        }
         self.english_path = os.path.join("localization", "english.json")
         self.localizations_path = "localization"
         with open(self.english_path, "r") as file:
             self.english = json.load(file)
-        self.localizations = []
-        self.load_localizations()
-        self.lang_names = [x["name"] for x in self.localizations]
-        self.exit = False
-        while not self.exit:
-            clear()
-            self.print_menu()
-
-    def print_menu(self):
-        for i, entry in enumerate(self.options):
-            print(f"{i + 1}: {entry}")
-        choice = input("\nEnter your choice: ")
-
-        # the choice needs to be a digit, and needs to be between 1 and the length of the options
-        if not choice.isdigit():
-            print("Invalid choice!")
-            input("Press any key to continue...")
-            return self.print_menu()
-        choice = int(choice)
-        if choice not in range(1, len(self.options) + 1):
-            print("Invalid choice!")
-            input("Press any key to continue...")
-            return self.print_menu()
-
-        # we have the choice - get the corresponding function and run it
-        self.options[list(self.options.keys())[choice - 1]]()
+        self.create_language()
 
     def create_language(self):
-        pass
         clear()
         eng_keys = self.english.get("localizations")
-        new_lang_entries = {}
+        new_lang = {
+            "name": "",
+            "localizations": {}
+        }
+
         disclaimer = "Note: You will be asked to enter the name of the language " \
                      "as both the localized version, and the ASCII version.\nFor example:\n\t" \
                      "ASCII: Spanish\n\t" \
                      "Localized : Español"
         print(disclaimer)
         lang_name = input("Enter the name of the language (Localized): ").strip()
-        if lang_name in self.lang_names:
-            print("Language already exists!")
-            input("Press any key to continue...")
-            return
+        new_lang["name"] = lang_name
         lang_name_ascii = input("Enter the name of the language (ASCII): ").strip()
         count = 1
         total_count = len(eng_keys)
+        if os.path.exists(os.path.join(self.localizations_path, lang_name_ascii + ".json")):
+            overwrite_choice = input("Language already exists! Overwrite? (y/n): ")
+            if overwrite_choice.lower() == "y":
+                os.remove(os.path.join(self.localizations_path, lang_name_ascii + ".json"))
+            else:
+                return
+
         for key in eng_keys:
             braces_count = len(check_for_braces(eng_keys[key]))
             success = False
@@ -97,49 +88,11 @@ class Localization:
                     input("\nPress any key to continue...")
                 else:
                     success = True
+                    new_lang["localizations"][key] = translation
+                    with open(os.path.join(self.localizations_path, lang_name_ascii + ".json"), "w") as out_file:
+                        json.dump(new_lang, out_file, indent=4)
                     count += 1
-        input("Press any key to continue...")
-
-    def modify_language(self):
-        pass
-
-    def view_languages(self):
-        lang_names = []
-        for json_obj in self.localizations:
-            lang_names.append(json_obj.get("name"))
-        clear()
-        print("Languages Currently Loaded:")
-        print("\n".join(lang_names))
-        input("Press any key to continue...")
-
-    def exit_loop(self):
-        self.exit = True
-
-    def load_localizations(self):
-        files = [x for x in os.listdir(self.localizations_path) if x.lower().endswith(".json")]
-        format = {}
-        for k, v in self.english.items():
-            format[k] = type(v)
-        # we make a new object for comparing the localization structure.
-        # we only take it as a valid localization if it matches the english structure.
-
-        for file in files:
-            with open(os.path.join(self.localizations_path, file), "r") as f:
-                valid = True
-                localization_file = json.load(f)
-                if type(localization_file) != dict:
-                    print(f"{file} is not a valid localization file.")
-                    valid = False
-                    continue
-                for k, v in localization_file.items():
-                    if k in format:
-                        if type(v) != format[k]:
-                            print(f"{file} is not a valid localization file.")
-                            valid = False
-                            break
-                # it has passed all tests
-                if valid:
-                    self.localizations.append(localization_file)
-
+        out_file.close()
+        input("Done! Press any key to continue...")
 
 localization = Localization()
