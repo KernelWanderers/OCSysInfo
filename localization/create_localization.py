@@ -63,6 +63,10 @@ class Localization:
         lang_name = input("Enter the name of the language (Localized): ").strip()
         new_lang["name"] = lang_name
         lang_name_ascii = input("Enter the name of the language (ASCII): ").strip()
+        if lang_name_ascii.lower() == "english":
+            print("the English localization is the default and cannot be altered. Exiting...")
+            return
+
         count = 1
         total_count = len(eng_keys)
         if os.path.exists(os.path.join(self.localizations_path, lang_name_ascii + ".json")):
@@ -94,5 +98,6 @@ class Localization:
                     count += 1
         out_file.close()
         input("Done! Press any key to continue...")
+
 
 localization = Localization()
