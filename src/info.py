@@ -51,6 +51,7 @@ class AppInfo:
 
         return dir
 
+
 # Colours!
 pink = "\033[95m"
 blue = "\033[94m"
@@ -78,6 +79,7 @@ def format_text(text, formatting):
     final_string += end_formatting
     return final_string
 
+
 surprise = f"""{cyan}
  __     __            ______                    _    _____ _   
  \ \   / /           |  ____|                  | |  |_   _| |  
@@ -104,8 +106,8 @@ surprise = f"""{cyan}
 """
 
 useragent_header = {
-        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-                      "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15"
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                  "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15"
 }
 
 requests_timeout = 5
