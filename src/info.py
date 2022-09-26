@@ -12,9 +12,7 @@ import requests
 dir_delim = "\\" if platform.system().lower() == "windows" else "/"
 verion_json_url = r"https://raw.githubusercontent.com/KernelWanderers/OCSysInfo/main/src/util/version.json"
 
-with requests.get("https://raw.githubusercontent.com/KernelWanderers/OCSysInfo/main/src/util/version.json") as r:
-    version = json.load(r.json()).get("version", "v0.0.0-bugged")
-
+version = requests.get("https://raw.githubusercontent.com/KernelWanderers/OCSysInfo/main/src/util/version.json").json().get("version", "v0.0.0-bugged")
 
 def get_latest_version():
     json_response = requests.get(verion_json_url, timeout=requests_timeout, headers=useragent_header).json()
