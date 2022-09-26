@@ -8,26 +8,8 @@ if __name__ == "__main__":
             version.partition(" ")[0]) + " was detected. Terminating... ")
         exit(1)
 
-    # Check if there are missing dependencies
-    requirements = Requirements()
-    missing = requirements.test_req()
-
-    # If there are missing dependencies,
-    # list them and exit.
-    if missing:
-        for missed in missing:
-            print(f'\033[1m\033[4m\033[91mPackage "{missed[0]}" is not installed!\033[0m')
-
-        try:
-            requirements.install_reqs(missing)
-        except KeyboardInterrupt:
-            exit(0)
-
-    import queue
     import requests
-    from threading import Thread
-    from update.updater import OCSIUpdater
-    from src.info import get_latest_version, format_text, AppInfo, color_text, requests_timeout, useragent_header
+    from src.info import format_text, AppInfo, color_text, requests_timeout, useragent_header
     from src.cli.ui import clear as clear_screen
     from src.util.create_log import create_log
     from src.util.debugger import Debugger as debugger
@@ -58,43 +40,6 @@ if __name__ == "__main__":
             debugger.log_dbg("--> [INTERNET]: Not available!\n")
     else:
         offline = True
-
-    if not offline:
-        # Get info for latest version
-        que = queue.Queue()
-        thread = Thread(target=lambda q: q.put(get_latest_version()), args=(que,))
-
-        # We start the thread while the script is discovering the data
-        thread.start()
-        thread.join()
-
-        # We have the latest version!
-        latest_version = que.get()
-
-        if latest_version != AppInfo.version:
-            import os
-            import sys
-
-            # Formatted 'n coloured
-            fnc = color_text(
-                format_text(
-                    f"NEW VERSION ({latest_version}) AVAILABLE!\nInstall? (y/n): ",
-                    "bold+underline"
-                ),
-                "red"
-            )
-            res = input(fnc)
-
-            if "y" in res.lower():
-                update = OCSIUpdater()
-
-                update.run()
-
-                debugger.log_dbg("--> Running OCSysInfo after update...\n")
-
-                # Restart with the updated version
-                os.execv(sys.executable, ['python'] + [sys.argv[0]])
-
 
     # Hopefully fix path-related issues in app bundles.
     log_tmp = create_log(True)
