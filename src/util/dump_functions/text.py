@@ -1,5 +1,5 @@
 import os
-from src.managers.tree import tree
+from src.util.tree import tree
 from src.managers.devicemanager import DeviceManager
 from src.error.logger import Logger
 

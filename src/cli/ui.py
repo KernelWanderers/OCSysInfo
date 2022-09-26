@@ -1,14 +1,15 @@
 import os
 import subprocess
 import sys
-from src.info import name, version, arch, color_text, format_text, surprise
-from src.info import root_dir as root
+from platform import system
+from sys import exit
+from src.info import AppInfo, color_text, format_text, surprise
 from src.util.os_version import os_ver
 from src.util.dump_functions.text import dump_txt
 from src.util.dump_functions.json import dump_json
 from src.util.dump_functions.xml import dump_xml
 from src.util.dump_functions.plist import dump_plist
-from src.managers.tree import tree
+from src.util.tree import tree
 
 
 def hack_disclaimer():
@@ -36,16 +37,18 @@ def hack_disclaimer():
 
 
 def title():
-    spaces = " " * int((53 - len(name)) / 2)
+    spaces = " " * int((53 - len(AppInfo.name)) / 2)
 
     print(color_text(" " * 2 + "#" * 55, "cyan"))
-    print(color_text(" #" + spaces + name + spaces + "#", "cyan"))
+    print(color_text(" #" + spaces + AppInfo.name + spaces + "#", "cyan"))
     print(color_text("#" * 55 + "\n" * 2, "cyan"))
 
 
 def clear():
-    if sys.platform == "win32":
+    if system().lower() == "windows":
         os.system("cls")
+    elif system().lower() == "linux":
+        os.system("clear")
     elif sys.platform == "darwin":
         # Special thanks to [A.J Uppal](https://stackoverflow.com/users/3113477/a-j-uppal) for this!
         # Original comment: https://stackoverflow.com/a/29887659/13120761
@@ -54,8 +57,6 @@ def clear():
         print("\033c", end="")
         print("\033[3J", end="")
         print("\033c", end="")
-    elif sys.platform == "linux":
-        os.system("clear")
 
 
 class UI:
@@ -65,14 +66,16 @@ class UI:
     and handling specific CLI commands.
     """
 
-    def __init__(self, dm, logger):
+    def __init__(self, dm, logger, dump_dir=AppInfo.root_dir):
         self.dm = dm
         self.logger = logger
-        self.dump_dir = root
+        self.dump_dir = dump_dir
+        self.state = "menu"
 
     def handle_cmd(self, options=[]):
         cmd = input("\n\nPlease select an option: ")
         valid = False
+
         if cmd.lower() == "yee":
             clear()
             print(surprise)
@@ -81,6 +84,7 @@ class UI:
             self.enter()
             clear()
             self.create_ui()
+
         for option in options:
             if any(type(c) == str and cmd.upper() == c.upper() for c in option):
                 clear()
@@ -102,6 +106,123 @@ class UI:
             clear()
             self.create_ui()
 
+    def toggle_data(self):
+        # Sanitise the UI
+        clear()
+        title()
+
+        data_options = [
+            ("C", "CPU"),
+            ("G", "GPU"),
+            ("B", "Motherboard" if system().lower() != "darwin" else "Vendor"),
+            ("M", "Memory"),
+            ("N", "Network"),
+            ("A", "Audio"),
+            ("I", "Input"),
+            ("S", "Storage"),
+        ]
+
+        opts = ["C", "G", "B", "M", "N", "A", "I", "S"]
+
+        for opt in data_options:
+            toggled = " " if opt[1] in self.dm.off_data else "X"
+
+            print(f"[{toggled}] ({opt[0]}) - {opt[1]}")
+
+        selected = input(
+            "Please select an option to toggle (or 'R'/'Q' to return): ")
+
+        if selected.lower() == "q" or selected.lower() == "r":
+            clear()
+            title()
+
+            print(color_text("Please wait while we adjust settings...\n", "green"))
+
+            deletions = []
+            asyncs    = []
+
+            for opt in data_options:
+                if (
+                    not opt[1] in self.dm.off_data and 
+                    not self.dm.info.get(opt[1])
+                ):
+                    asyncs.append(opt[1])
+
+                if (
+                    opt[1] in self.dm.off_data and
+                    self.dm.info.get(opt[1])
+                ):
+                    deletions.append(opt[1])
+
+            if asyncs:
+                print(f"Attempting to retrieve dumps for: {', '.join(asyncs)}...\n")
+
+                try:
+                    self.dm.manager.dump()
+                    self.dm.info = self.dm.manager.info
+
+                    if (
+                        not deletions and
+                        input(color_text("[   OK   ] Successfully retrieved additional dumps.\n", "green") + 
+                        " Press [enter] to return...") is not None
+                    ):
+                        pass
+                except Exception:
+                    if (
+                        asyncs and 
+                        input(color_text("[ FAILED ] Unable to retrieve dumps.", "red") + 
+                        " Press [enter] to return...") is not None
+                    ):
+                        pass
+                    elif not asyncs:
+                        self.logger.error(
+                            f"[UI]: UNKNOWN ERROR\n\t^^^^^^^{str(e)}",
+                            __file__
+                        )
+
+            if deletions:
+                print(f"Attempting to delete info for: {', '.join(deletions)}...\n")
+
+                for delete in deletions:
+                    if self.dm.info.pop(delete):
+                        self.dm.off_data.append(delete)
+
+                        print(color_text(
+                            f"[   OK   ] Successfully deleted info for '{delete}'!",
+                            "green"
+                        ))
+                    else:
+                        print(color_text(
+                            f"[  ERROR  ] Failed to delete info for '{delete}'!\n\t^^^^^^^{str(e)}",
+                            "red"
+                        ))
+
+                if (
+                    input(color_text("[   OK   ] Successfully deleted selected info.\n", "green") + 
+                    " Press [enter] to return...") is not None
+                ):
+                    pass
+
+            if self.state == "discovery":
+                return self.discover()
+            else:
+                return self.create_ui()
+
+        if (
+            not selected.upper() in opts and
+            input(color_text("Invalid option! Press [enter] to retry...", "red")) is not None
+        ):
+            self.toggle_data()
+
+        option = data_options[opts.index(selected.upper())][1]
+
+        if option in self.dm.off_data:
+            del self.dm.off_data[self.dm.off_data.index(option)]
+        else:
+            self.dm.off_data.append(option)
+
+        return self.toggle_data()
+
     def change_dump_dir(self):
         # Sanitise the UI
         clear()
@@ -109,6 +230,9 @@ class UI:
 
         dump_dir = input("Please enter the directory (or 'Q' to exit.): ").strip().replace(
             '"', '').replace("'", "")
+
+        if "~" in dump_dir:
+            dump_dir = dump_dir.replace("~", os.path.expanduser("~"))
 
         if not len(dump_dir):
             clear()
@@ -139,7 +263,7 @@ class UI:
                     else self.dm.info[key] == {}
                 )
 
-                if key and not is_empty:
+                if key and not is_empty and not key in self.dm.off_data:
                     val = tree(key, self.dm.info[key])
                     print(val)
             except Exception as e:
@@ -158,6 +282,7 @@ class UI:
             (color_text("X. ", "yellow"), "Dump as XML"),
             (color_text("P. ", "yellow"), "Dump as Plist"),
             (color_text("C. ", "yellow"), "Change dump directory"),
+            (color_text("A. ", "yellow"), "Toggle data"),
             (color_text("Q. ", "yellow"), "Quit"),
         ]
 
@@ -168,6 +293,7 @@ class UI:
             ("X", "X.", self.dump_xml),
             ("P", "P.", self.dump_plist),
             ("C", "C.", self.change_dump_dir),
+            ("A", "A.", self.toggle_data),
             ("Q", "Q.", self.quit),
         ]
 
@@ -176,6 +302,8 @@ class UI:
 
         self.logger.info("Successfully ran 'discovery'.", __file__)
 
+        self.state = "discovery"
+
         self.handle_cmd(cmd_options)
 
     def dump_txt(self):
@@ -183,7 +311,7 @@ class UI:
 
     def dump_json(self):
         return dump_json(self.dm, self.dump_dir, self.logger)
-    
+
     def dump_xml(self):
         return dump_xml(self.dm, self.dump_dir, self.logger)
 
@@ -193,7 +321,7 @@ class UI:
     def quit(self):
         clear()
         self.logger.info("Successfully exited.\n\n")
-        sys.exit(0)
+        exit(0)
 
     def create_ui(self):
         options = [
@@ -203,6 +331,7 @@ class UI:
             (color_text("X. ", "yellow"), "Dump as XML"),
             (color_text("P. ", "yellow"), "Dump as Plist"),
             (color_text("C. ", "yellow"), "Change dump directory"),
+            (color_text("A. ", "yellow"), "Toggle data"),
             ("\n\n", color_text("Q. ", "yellow"), "Quit"),
         ]
 
@@ -213,6 +342,7 @@ class UI:
             ("X", "X.", self.dump_xml),
             ("P", "P.", self.dump_plist),
             ("C", "C.", self.change_dump_dir),
+            ("A", "A.", self.toggle_data),
             ("Q", "Q.", self.quit),
         ]
 
@@ -227,10 +357,10 @@ class UI:
                 if hack:
                     print(f"{hack}\n")
 
-            print(f"Program      :  {color_text(name, 'green')}")
-            print(f"Version      :  {color_text(version, 'green')}")
+            print(f"Program      :  {color_text(AppInfo.name, 'green')}")
+            print(f"Version      :  {color_text(AppInfo.version, 'green')}")
             print(f"Platform     :  {color_text(os_ver, 'green')}")
-            print(f"Architecture :  {color_text(arch, 'green')}")
+            print(f"Architecture :  {color_text(AppInfo.arch, 'green')}")
             print(f"Current dump :  {color_text(self.dump_dir, 'cyan')}")
 
             print("\n")
@@ -239,6 +369,8 @@ class UI:
                 print("".join(option))
 
             self.logger.info("UI creation ran successfully.", __file__)
+
+            self.state = "menu"
 
             self.handle_cmd(cmd_options)
         except Exception as e:

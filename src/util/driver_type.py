@@ -1,48 +1,169 @@
+import wmi
 import subprocess
+from src.info import color_text
+from ctypes import c_ulong
+from src.cfgmgr32.core.cfgmgr32 import CM32
+from src.cfgmgr32.util.get_info import get_info
+from src.util.debugger import Debugger as debugger
 
-smbus_driver = subprocess.check_output(["powershell", "Get-WmiObject", "-Class", "Win32_PnPEntity", "|", "Where",
-                                        "-Property", "CompatibleID", "-Contains", "-Value", '"PCI\CC_0C0500"', "|", "Select", "Name"]).decode().lower()
+cm32 = CM32()
 
-smbus_elan = len(smbus_driver) > 0 and "elans" in smbus_driver
-smbus_syna = len(smbus_driver) > 0 and "synaptics" in smbus_driver
+PS2_KEYBOARD_IDS = [
+    "PNP0303",
+    "PNP030B",
+    "PNP0320",
+]
 
-def is_usb(inf, service):
-    return inf.split(".")[0] in ("msmouse", "keyboard", "input") and service in ("mouhid", "kbdhid", "hidusb")
+PS2_MOUSE_IDS = [
+    "PNP0F03",
+    "PNP0F0B",
+    "PNP0F0E",
+    "PNP0F12",
+    "PNP0F13",
+]
+
+def __is_ps2_keyboard(ids):
+    for id in PS2_KEYBOARD_IDS:
+        if id in ids:
+            return True
+
+    return False
+
+def __is_ps2_mouse(ids):
+    for id in PS2_MOUSE_IDS:
+        if id in ids:
+            return True
+
+    return False
 
 
-def is_i2c(inf, service):
-    return "hidi2c" in inf and service == "hidi2c"
+def protocol(pnp_id, logger, _wmi=wmi.WMI()):
+    debugger.log_dbg(color_text(
+        "--> [WINDOWS]: Attempting to determine connection protocol...",
+        "yellow"
+    ))
 
+    pdnDevInst = c_ulong()
 
-def is_smbus(desc):
-    return ("synaptics" in desc and smbus_syna) or ("elans" in desc and smbus_elan)
+    status = cm32.CM_Locate_DevNodeA(
+        pdnDevInst,
+        pnp_id.encode("UTF8")
+    ).get("code")
 
+    if status != 0x0:
+        debugger.log_dbg(color_text(
+            f"--> [WINDOWS]: Failed to determine connection protocol! Status code: {status}. — (WMI)\n",
+            "red"
+        ))
 
-def is_ps2(service):
-    return "i8042" in service.lower()
+        logger.warning(
+            f"Failed to determine connection protocol of ambiguous device at status code {status} (WMI) - Non-critical, ignoring",
+            __file__,
+        )
 
+        return status
 
-def driver_type(pnp_id, desc, w):
-    pnp_entity = w.query(f"SELECT * FROM Win32_PnPEntity WHERE PNPDeviceID = '{pnp_id}'")[
-        0].GetDeviceProperties(["DEVPKEY_Device_DriverInfPath", "DEVPKEY_Device_Service", "DEVPKEY_Device_Stack"])
+    parent = c_ulong()
 
-    protocol = None
+    stat = cm32.CM_Get_Parent(
+        parent,
+        pdnDevInst,
+    ).get("code")
 
-    for instances in pnp_entity:
-        if type(instances) == int:
-            continue
+    if stat != 0x0:
+        debugger.log_dbg(color_text(
+            f"--> [WINDOWS]: Failed to determine connection protocol! Status code: {status}. — (WMI)\n",
+            "red"
+        ))
 
-        inf = instances[0].Data.lower()
-        service = instances[1].Data.lower()
+        logger.warning(
+            f"Failed to determine connection protocol of ambiguous device (at parent) at status code {stat} (WMI) - Non-critical, ignoring",
+            __file__,
+        )
 
-        if is_usb(inf, service):
-            protocol = "USB"
-        elif is_i2c(inf, service):
-            protocol = "I2C"
-        elif is_ps2(service):
-            if is_smbus(desc.lower()):
-                protocol = "SMBus"
-            else:
-                protocol = "PS/2"
+        return stat
 
-    return protocol
+    device_data = get_info(pdnDevInst, cm32)
+    parent_data = get_info(parent, cm32)
+
+    dev_name = device_data.get("name", "")
+    prt_name = parent_data.get("name", "")
+
+    dev_driver = device_data.get("driver_desc", "")
+    prt_driver = parent_data.get("dirver_desc", "")
+
+    if (
+        "i2c" in dev_name.lower() or 
+        "i2c" in prt_name.lower()
+    ):
+        debugger.log_dbg(color_text(
+            f"--> [WINDOWS]: Returned I2C for {dev_name}!\n",
+            "green"
+        ))
+
+        return "I2C"
+
+    elif (
+        "usb" in dev_driver.lower() or 
+        "usb" in prt_driver.lower()
+    ):
+        debugger.log_dbg(color_text(
+            f"--> [WINDOWS]: Returned USB for {dev_name}!\n",
+            "green"
+        ))
+
+        return "USB"
+
+    compatible_ids = device_data.get("compatible_ids", "").lower()
+
+    if __is_ps2_keyboard(compatible_ids):
+        debugger.log_dbg(color_text(
+            f"--> [WINDOWS]: Returned PS/2 for {dev_name}!\n",
+            "green"
+        ))
+
+        return "PS/2"
+
+    if not __is_ps2_mouse(compatible_ids):
+        return
+
+    smbus_driver = None
+
+    for entity in _wmi.instances("Win32_PnPEntity"):
+        compat_id = entity.wmi_property("CompatibleID").value
+
+        if (
+            compat_id and
+            type(compat_id) != str and
+            "PCI\\CC_0C0500" in compat_id
+        ):
+
+            smbus_driver = entity
+            break
+
+    if smbus_driver:
+        name = smbus_driver.wmi_property("Name").value
+
+        if (
+            (
+                "synaptics" in name.lower() and
+                "synaptics" in dev_name.lower()
+            ) or
+            (
+                "elans" in name.lower() and
+                "elans" in dev_name.lower()
+            )
+        ):
+            debugger.log_dbg(color_text(
+                f"--> [WINDOWS]: Returned SMBus for {dev_name}!\n",
+                "green"
+            ))
+
+            return "SMBus"
+
+    debugger.log_dbg(color_text(
+        f"--> [WINDOWS]: Returned PS/2 for {dev_name}!\n",
+        "green"
+    ))
+
+    return "PS/2"

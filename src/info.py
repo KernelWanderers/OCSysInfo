@@ -3,15 +3,53 @@ The only purpose for this file is to hold metadata
 for OCSysInfo, and is not used by anything other than
 the UI functions.
 """
-
+import json
 import platform
 import os
 import sys
+import requests
 
-name = "OCSysInfo"
-version = "v1.0.4"
-os_ver = ""
-arch = platform.machine()
+dir_delim = "\\" if platform.system().lower() == "windows" else "/"
+verion_json_url = r"https://raw.githubusercontent.com/KernelWanderers/OCSysInfo/main/src/util/version.json"
+
+with open(os.path.join("src", "util", "version.json")) as version_json:
+    version = json.load(version_json).get("version", "0.0.0")
+
+
+def get_latest_version():
+    json_response = requests.get(verion_json_url, timeout=requests_timeout, headers=useragent_header).json()
+    return json_response.get("version", "0.0.0")
+
+
+class AppInfo:
+    name = "OCSysInfo"
+    version = version
+    os_ver = ""
+    arch = platform.machine()
+    root_dir = ""
+
+    def set_root_dir(new_dir):
+        if not os.path.isdir(new_dir):
+            return
+
+        try:
+            AppInfo.root_dir = AppInfo.sanitise_dir(new_dir)
+        except Exception:
+            return
+
+        return AppInfo.root_dir
+
+    def sanitise_dir(dir):
+        if getattr(sys, 'frozen', False):
+            dir = os.path.dirname(sys.executable)
+            os.chdir(dir)
+        else:
+            dir = os.path.dirname(os.path.abspath(__file__))
+
+        if "src" in dir.split(dir_delim):
+            dir = dir_delim.join(dir.split(dir_delim)[:-1])
+
+        return dir
 
 # Colours!
 pink = "\033[95m"
@@ -47,8 +85,6 @@ surprise = f"""{cyan}
    \   / _ \| | | |  |  __/ _ \| | | | '_ \ / _` |    | | | __|
     | | (_) | |_| |  | | | (_) | |_| | | | | (_| |   _| |_| |_ 
     |_|\___/ \__,_|  |_|  \___/ \__,_|_| |_|\__,_|  |_____|\__|
-
-
 {yellow}⢀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⣠⣤⣶⣶
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⢰⣿⣿⣿⣿
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⣀⣀⣾⣿⣿⣿⣿
@@ -65,13 +101,9 @@ surprise = f"""{cyan}
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿{end_formatting}
 """
 
-dir_delim = "\\" if platform.system().lower() == "windows" else "/"
+useragent_header = {
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                      "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15"
+}
 
-if getattr(sys, 'frozen', False):
-    root_dir = os.path.dirname(sys.executable)
-    os.chdir(root_dir)
-else:
-    root_dir = os.path.dirname(os.path.abspath(__file__))
-
-if "src" in root_dir.split(dir_delim):
-    root_dir = dir_delim.join(root_dir.split(dir_delim)[:-1])
+requests_timeout = 5
