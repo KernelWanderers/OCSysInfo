@@ -4,7 +4,7 @@
 
 </div>
 
-## v1.0.8 (ALPHA)
+## v1.0.8
 
 * Fixed `driver_type.py` logic for PS/2 / SMBus detection
     - Previously, it wouldn't have preliminary checks for PS/2 devices, which is required to ensure that it's a PS/2 altogether.
