@@ -2,10 +2,15 @@ name: Compile and publish binaries
 
 on:
   release:
-    types: [published]
+    types:
+      - created
+      - prereleased
+      - edited
+      - published
 
 jobs:
   macOS:
+    permissions: write-all
     name: Build OSX binaries
     runs-on: macos-latest
     steps:
@@ -14,7 +19,12 @@ jobs:
           ref: releases-source
 
       - name: Set up Python 3
-        run: brew install python3
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10.x"
+
+      - name: Update pip
+        run: pip3 install --upgrade pip
 
       - name: Install dependencies
         run: pip3 install -r requirements.txt
@@ -22,25 +32,45 @@ jobs:
       - name: Install pyinstaller
         run: pip3 install pyinstaller
 
-      - name: Build binaries for OSX
-        run: pyinstaller main.py --onefile --name ocsysinfo_osx_x86_64 --paths=./src --target-architecture x86_64
+      - name: Install create-dmg
+        run: brew install create-dmg
 
+      - name: Build app bundle & binaries for OSX
+        run: pyinstaller main.py --onefile --windowed --name OCSysInfo --icon=./resources/icons/OCSI_logo_mac.icns --paths=./src --target-architecture x86_64
+
+      - name: Apply app bundle patch
+        run: |
+          cp ./patches/launcher.sh dist/OCSysInfo.app/Contents/MacOS/Launcher
+          chmod +x dist/OCSysInfo.app/Contents/MacOS/Launcher
+          python3 ./patches/patch_plist.py
+      - name: Pack app into DMG image
+        run: |
+          rm -rf dist/OCSysInfo
+          create-dmg \
+              --volname "OCSysInfo" \
+              --volicon "resources/icons/OCSI_logo_mac.icns" \
+              --window-pos 200 120 \
+              --icon "OCSysInfo.app" 300 202 \
+              --window-size 800 400 \
+              --app-drop-link 600 200 "ocsysinfo_osx_x86_64.dmg" "dist/" \
+              --no-internet-enable
       - name: Upload to Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: Artifacts OSX
-          path: dist/ocsysinfo_osx_x86_64
+          path: ocsysinfo_osx_x86_64.dmg
 
       - name: Upload to Release
         if: github.event_name == 'release'
         uses: svenstaro/upload-release-action@e74ff71f7d8a4c4745b560a485cc5fdb9b5b999d
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/ocsysinfo_osx_*
+          file: ocsysinfo_osx_x86_64.dmg
           tag: ${{ github.ref }}
           file_glob: true
 
   windows:
+    permissions: write-all
     name: Build Windows binaries
     runs-on: windows-latest
     steps:
@@ -51,7 +81,11 @@ jobs:
       - name: Set up Python 3
         uses: actions/setup-python@v2
         with:
-          python-version: "3.x"
+          python-version: "3.10.x"
+
+      - name: Upgrade pip
+        # `--user` flag provided just in case of a permissions conflict.
+        run: pip3 install --upgrade pip --user
 
       - name: Install dependencies
         run: pip3 install -r requirements.txt
@@ -60,7 +94,7 @@ jobs:
         run: pip3 install pyinstaller
 
       - name: Build binaries for Windows
-        run: pyinstaller main.py --onefile --name ocsysinfo_win --paths=./src
+        run: pyinstaller main.py --onefile --name ocsysinfo_win --paths=./src --icon=./resources/icons/OCSI_logo_win.ico
 
       - name: Upload to Artifacts
         uses: actions/upload-artifact@v2
@@ -78,6 +112,7 @@ jobs:
           file_glob: true
 
   linux_x64:
+    permissions: write-all
     name: Build Linux x86_64 binaries
     runs-on: ubuntu-latest
     steps:
@@ -85,8 +120,13 @@ jobs:
         with:
           ref: releases-source
       
-      - name: Install python3 and pip3
-        run: sudo apt-get install python3 python3-pip
+      - name: Set up Python 3
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10.x"
+
+      - name: Update pip (just in case)
+        run: pip3 install --upgrade pip
 
       - name: Install dependencies
         run: pip3 install -r requirements.txt
@@ -100,7 +140,7 @@ jobs:
       - name: Upload to Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: Artifacts Linux ARM64
+          name: Artifacts Linux
           path: dist/ocsysinfo_linux_x86_64
         
       - name: Upload to Release
