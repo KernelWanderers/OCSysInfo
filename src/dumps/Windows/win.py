@@ -16,7 +16,6 @@ class WindowsHardwareManager:
     """
     Instance, implementing `DeviceManager`, for extracting system information
     from Windows systems using the `WMI` infrastructure.
-
     https://docs.microsoft.com/en-us/windows/win32/wmisdk/wmi-start-page
     """
 
@@ -346,19 +345,6 @@ class WindowsHardwareManager:
                     f"Failed to obtain information about RAM module (WMI)\n\t^^^^^^^^^{str(e)}",
                     __file__,
                 )
-                continue
-
-            self.info["Memory"].append(
-                {
-                    f"{part_no} (Part-Number)": {
-                        "Type": MEMORY_TYPE.get(type) or "Unknown",
-                        "Slot": {"Bank": bank, "Channel": channel},
-                        "Frequency (MHz)": f"{spid} MHz",
-                        "Manufacturer": manufacturer,
-                        "Capacity": f"{round(int(capacity) / 0x100000)}MB",
-                    }
-                }
-            )
 
                 continue
 
@@ -417,78 +403,6 @@ class WindowsHardwareManager:
 
                 data = {}
                 model = {}
-            except Exception as e:
-                self.logger.warning(
-                    f"Failed to obtain Network controller (WMI)\n\t^^^^^^^^^{str(e)}",
-                    __file__,
-                )
-                continue
-
-            usb = False
-            match = re.search(
-                "((VEN_(\d|\w){4})\&(DEV_(\d|\w){4}))|((VID_(\d|\w){4})\&(PID_(\d|\w){4}))",
-                path,
-            )
-
-            ven, dev = "Unable to detect.", "Unable to detect."
-
-            if match:
-                ven, dev = [
-                    "0x" + x.split("_")[1] for x in match.group(0).split("&")
-                ]
-            else:
-                self.logger.warning(
-                    "[POST]: Failed to obtain Network controller (WMI)",
-                    __file__,
-                )
-                continue
-
-            if self.offline:
-                model = { "device": "Unknown Network Controller" }
-            else:
-                try:
-                    model = (
-                        self.pci.get_item(
-                            dev[2:], ven[2:], types="pci" if not usb else "usb"
-                        )
-                        or {}
-                    )
-                except Exception:
-                    model = { "device": "Unknown Network Controller" }
-
-                    self.logger.warning(
-                        f"Failed to obtain model for Network controller (WMI) – Non-critical, ignoring",
-                        __file__,
-                    )
-
-            data = {"Device ID": dev, "Vendor": ven}
-
-            try:
-                paths = pci_from_acpi_win(self.c, path, self.logger)
-
-                if paths:
-                    pcip = paths.get("PCI Path", "")
-                    acpi = paths.get("ACPI Path", "")
-
-                    if pcip:
-                        data["PCI Path"] = pcip
-
-                    if acpi:
-                        data["ACPI Path"] = acpi
-            except Exception as e:
-                self.logger.warning(
-                    f"Failed to construct PCI/ACPI paths for Network controller\n\t^^^^^^^^^{str(e)}",
-                    __file__,
-                )
-
-            if not model and "unable to" in data["Device ID"].lower():
-                continue
-
-            self.info["Network"].append(
-                {model.get("device", "Unknown Network Controller"): data}
-            )
-
-            model = {}
 
                 debugger.log_dbg(color_text(
                     "--> [Network]: Successfully obtained identifier of current NIC! — (WMI)",
