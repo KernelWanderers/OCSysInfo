@@ -57,7 +57,7 @@ def quick_search(
             return
         elif (
             isinstance(e, requests.exceptions.JSONDecodeError) and
-            "fr_fr" in url
+            "fr_fr" not in url
         ):
             return quick_search(search_term, url.replace('en_us', 'fr_fr').replace('%2Fus', '%2Ffr').replace('%2Fen', '%2Ffr'))
         else:
