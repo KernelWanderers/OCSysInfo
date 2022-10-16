@@ -55,10 +55,13 @@ def quick_search(
     except Exception as e:
         if isinstance(e, requests.ConnectionError):
             return
-        elif isinstance(e, requests.exceptions.JSONDecodeError):
+        elif (
+            isinstance(e, requests.exceptions.JSONDecodeError) and
+            "fr_fr" not in url
+        ):
             return quick_search(search_term, url.replace('en_us', 'fr_fr').replace('%2Fus', '%2Ffr').replace('%2Fen', '%2Ffr'))
         else:
-            raise e
+            return
 
 
 def get_codename(ark_url, tried=False):
