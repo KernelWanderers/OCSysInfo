@@ -27,6 +27,16 @@ if __name__ == "__main__":
         debugger.toggle(True)
         print("=" * 25 + " BEGIN OF DEBUG " + "=" * 25)
 
+    # Fix ANSI escape codes not being registered
+    # in Windows's Command Prompt.
+    #
+    # Massive thank you to CorpNewt for pointing this out.
+    import os
+    import platform
+
+    if platform.system() == "windows":
+        os.system("color")
+
     # Preliminary check for internet availability.
     if "--offline" not in argv:
         try:
