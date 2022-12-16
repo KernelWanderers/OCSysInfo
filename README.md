@@ -248,10 +248,6 @@ OCSysInfo takes advantage of each platform's native interaction protocol, except
 
 When opening up issues, please list all hardware information relevant, and the issue you're encountering. Show real outputs, and the expected output, etc.
 
-## Special thanks
-
-We want to give a special thank you to [MacStadium](https://www.macstadium.com/) for allowing us to use one of their Mac Minis to host our macOS runners. 
-
 ## Credits
 
 The following contains credits to all the people who helped assist in the making, testing, and polishing of this project. This project would be nothing without them.
