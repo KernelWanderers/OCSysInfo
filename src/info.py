@@ -10,18 +10,21 @@ import sys
 import requests
 
 dir_delim = "\\" if platform.system().lower() == "windows" else "/"
-verion_json_url = r"https://raw.githubusercontent.com/KernelWanderers/OCSysInfo/main/src/util/version.json"
-
-version = requests.get("https://raw.githubusercontent.com/KernelWanderers/OCSysInfo/main/src/util/version.json").json().get("version", "v0.0.0-bugged")
 
 def get_latest_version():
-    json_response = requests.get(verion_json_url, timeout=requests_timeout, headers=useragent_header).json()
-    return json_response.get("version", "v0.0.0-bugged")
+    with open(os.path.dirname(__file__) + "{0}util{0}version.json".format(dir_delim), "r") as version_file:
+        data = version_file.read()
+
+        version = json.loads(data).get("version", "v0.0.0-bugged")
+
+        version_file.close()
+
+        return version
 
 
 class AppInfo:
     name = "OCSysInfo"
-    version = version
+    version = get_latest_version()
     os_ver = ""
     arch = platform.machine()
     root_dir = ""
