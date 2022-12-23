@@ -73,6 +73,7 @@ if __name__ == "__main__":
             debugger.log_dbg(color_text("--> [UI]: Spawning...\n", "yellow"))
             clear_screen()
             ui.create_ui()
+
         except Exception as e:
             if isinstance(e, KeyboardInterrupt):
                 exit(0)
@@ -85,9 +86,10 @@ if __name__ == "__main__":
                 exit(0)
             else:
                 raise e
+                
         finally:
-            print(" " * 25, end="\r")
             # clearing out the "Launching OCSysInfo..." line
+            print(" " * 25, end="\r")
 
         logger.info("Successfully launched OCSysInfo.", __file__)
     except KeyboardInterrupt:
