@@ -17,6 +17,8 @@
 * Fixed Intel's ARK page not sending data back due to broken User-Agent.
 * Fixed Intel's ARK US region not having any JSON payload after an autocomplete query.
     - Thanks, Intel.
+* Fixed issue where, on some machines, it would timeout to get the version data.
+    - Thanks, @Vishal-09-00.
 
 
 ## v1.0.7
