@@ -32,8 +32,9 @@ def get_full_ark_url(prod_url):
     return full_url
 
 
-def quick_search(search_term):
-    # Credits to https://github.com/xiongnemo/arksearch (a fork of major/arksearch) for this.
+# Credits to https://github.com/xiongnemo/arksearch (a fork of major/arksearch) for this.
+def quick_search(
+    search_term,
     url = (
         "https://ark.intel.com/libs/apps/intel/arksearch/autocomplete?"
         + "_charset_=UTF-8"
@@ -41,6 +42,7 @@ def quick_search(search_term):
         + "&currentPageUrl=https%3A%2F%2Fark.intel.com%2Fcontent%2Fwww%2Fus%2Fen%2Fark.html"
         + "&input_query={0}"
     )
+):
 
     try:
         r = requests.get(
@@ -53,8 +55,13 @@ def quick_search(search_term):
     except Exception as e:
         if isinstance(e, requests.ConnectionError):
             return
+        elif (
+            isinstance(e, requests.exceptions.JSONDecodeError) and
+            "fr_fr" not in url
+        ):
+            return quick_search(search_term, url.replace('en_us', 'fr_fr').replace('%2Fus', '%2Ffr').replace('%2Fen', '%2Ffr'))
         else:
-            raise e
+            return
 
 
 def get_codename(ark_url, tried=False):

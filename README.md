@@ -12,8 +12,8 @@ A basic, high-level and efficient CLI for discovering hardware information about
   
 <a href="https://github.com/KernelWanderers/OCSysInfo/blob/main/LICENSE"><img src="https://img.shields.io/github/license/KernelWanderers/OCSysInfo?color=%232885D7&style=for-the-badge"></a>
 <a href="https://github.com/KernelWanderers/OCSysInfo/releases/"><img src="https://img.shields.io/github/downloads/KernelWanderers/OCSysInfo/total?color=%231DE2D0&style=for-the-badge" /></a>
-<img src="https://img.shields.io/github/workflow/status/KernelWanderers/OCSysInfo/Compile%20and%20publish%20binaries?style=for-the-badge" />
-
+<img src="https://img.shields.io/github/actions/workflow/status/KernelWanderers/OCSysInfo/release.yml?branch=main&style=for-the-badge" />
+  
 <br />
 
 If you need any help or have any questions, please feel free to let us know over at our [support server](https://discord.gg/PzDzccyDJA)
@@ -248,10 +248,6 @@ OCSysInfo takes advantage of each platform's native interaction protocol, except
 
 When opening up issues, please list all hardware information relevant, and the issue you're encountering. Show real outputs, and the expected output, etc.
 
-## Special thanks
-
-We want to give a special thank you to [MacStadium](https://www.macstadium.com/) for allowing us to use one of their Mac Minis to host our macOS runners. 
-
 ## Credits
 
 The following contains credits to all the people who helped assist in the making, testing, and polishing of this project. This project would be nothing without them.
@@ -286,7 +282,7 @@ The following contains credits to all the people who helped assist in the making
 
 - @[Emiyl](https://github.com/emiyl) — for providing extensive assistance with testing the application, and debugging it.
 
-- @[ThatsNiceGuy](https://github.com/ThatsNiceGuy) — for extensive amounts of help in regards to testing the application, and debugging it.
+- @[ThatStella7922](https://github.com/ThatStella7922) — for extensive amounts of help in regards to testing the application, and debugging it.
 
 - @[flababah](https://github.com/flababah/) — for https://github.com/flababah/cpuid.py
 
