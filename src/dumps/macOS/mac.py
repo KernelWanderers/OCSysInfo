@@ -1435,14 +1435,6 @@ class MacHardwareManager:
                     )
                 )
 
-            # print(f"-> Horizontal: {horizontal} | Vertical: {vertical}")
-            # print(f"-> Res: {res}")
-            # print(
-            #     f"-> Dimensions (CM): {horizontal} x {vertical} -> {screen_size}\""
-            # )
-            # print(f"-> Resolution mode: {'Portrait' if res[2] else 'Landscape'}")
-            # print(f"-> Resolution (pixels): {res[0]}x{res[1]}")
-
             # Ranges of possible monitor descriptors
             # for EDID v1.3 and EDID v1.4
             #
@@ -1506,7 +1498,7 @@ class MacHardwareManager:
                             "Serial": serial,
                             "Resolution": f"{res[0]}x{res[1]}",
                             "Size (in inches)": f"{screen_size}”",
-                            "Display mode": f"{'Portrait' if res[-1] else 'Landscape'}"
+                            "Display mode": "Portrait" if res[-1] else "Landscape"
                         }
                     }
                 )
