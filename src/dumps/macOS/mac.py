@@ -1,4 +1,5 @@
 import binascii
+import math
 import subprocess
 from src.dumps.macOS.ioreg import *
 from src.error.cpu_err import cpu_err
@@ -7,6 +8,7 @@ from src.util.codename import gpu
 from src.util.codename_manager import CodenameManager
 from src.util.debugger import Debugger as debugger
 from src.util.pci_root import construct_pcip_osx
+
 
 class MacHardwareManager:
     """
@@ -37,10 +39,8 @@ class MacHardwareManager:
             debugger.log_dbg()
 
         if (
-            (not "Vendor" in self.off_data or
-             not "Motherboard" in self.off_data) and
-            not self.info.get("Vendor", {})
-        ):
+            not "Vendor" in self.off_data or not "Motherboard" in self.off_data
+        ) and not self.info.get("Vendor", {}):
             debugger.log_dbg("--> [OSX]: Attempting to fetch Baseboard information...")
             self.vendor_info()
             debugger.log_dbg()
@@ -66,7 +66,9 @@ class MacHardwareManager:
             debugger.log_dbg()
 
         if not "Input" in self.off_data and not self.info.get("Input", []):
-            debugger.log_dbg("--> [OSX]: Attempting to fetch Input device information...")
+            debugger.log_dbg(
+                "--> [OSX]: Attempting to fetch Input device information..."
+            )
             self.input_info()
             debugger.log_dbg()
 
@@ -75,12 +77,19 @@ class MacHardwareManager:
             self.storage_info()
             debugger.log_dbg()
 
+        if not "Display" in self.off_data and not self.info.get("Display", []):
+            debugger.log_dbg("--> [OSX]: Attempting to fetch Display information...")
+            self.display_info()
+            debugger.log_dbg()
+
     def cpu_info(self):
         try:
-            debugger.log_dbg(color_text(
-                "--> [CPU]: Attempting to fetch relevant information of current CPU... — (SYSCTL)",
-                "yellow"
-            ))
+            debugger.log_dbg(
+                color_text(
+                    "--> [CPU]: Attempting to fetch relevant information of current CPU... — (SYSCTL)",
+                    "yellow",
+                )
+            )
 
             # Model of the CPU
             model = (
@@ -92,16 +101,20 @@ class MacHardwareManager:
 
             self.cpu["model"] = model
 
-            debugger.log_dbg(color_text(
-                "--> [CPU]: Successfully obtained relevant information of current CPU! — (SYSCTL)",
-                "green"
-            ))
+            debugger.log_dbg(
+                color_text(
+                    "--> [CPU]: Successfully obtained relevant information of current CPU! — (SYSCTL)",
+                    "green",
+                )
+            )
         except Exception as e:
-            debugger.log_dbg(color_text(
-                "--> [CPU]: Failed to obtain critical information – this should not happen; aborting! — (SYSCTL)" +
-                f"\n\t^^^^^^^{str(e)}",
-                "red"
-            ))
+            debugger.log_dbg(
+                color_text(
+                    "--> [CPU]: Failed to obtain critical information – this should not happen; aborting! — (SYSCTL)"
+                    + f"\n\t^^^^^^^{str(e)}",
+                    "red",
+                )
+            )
 
             self.logger.critical(
                 f"Failed to obtain CPU information. This should not happen. \n\t^^^^^^^^^{str(e)}",
@@ -114,10 +127,12 @@ class MacHardwareManager:
 
         if ".vendor" in subprocess.check_output(["sysctl", "machdep.cpu"]).decode():
             try:
-                debugger.log_dbg(color_text(
-                    "--> [CPU]: Attempting to fetch highest SSE version instruction set and SSSE3 availability... — (SYSCTL)",
-                    "yellow"
-                ))
+                debugger.log_dbg(
+                    color_text(
+                        "--> [CPU]: Attempting to fetch highest SSE version instruction set and SSSE3 availability... — (SYSCTL)",
+                        "yellow",
+                    )
+                )
 
                 # Manufacturer/Vendor of this CPU
                 self.vendor = (
@@ -138,16 +153,20 @@ class MacHardwareManager:
                     .strip()
                 )
 
-                debugger.log_dbg(color_text(
-                    "--> [CPU]: Successfully obtained highest SSE version instruction set! — (SYSCTL)",
-                    "green"
-                ))
+                debugger.log_dbg(
+                    color_text(
+                        "--> [CPU]: Successfully obtained highest SSE version instruction set! — (SYSCTL)",
+                        "green",
+                    )
+                )
             except Exception as e:
-                debugger.log_dbg(color_text(
-                    "--> [CPU]: Successfully obtained highest SSE version instruction set! — (SYSCTL)" +
-                    f"\n\t^^^^^^^{str(e)}",
-                    "red"
-                ))
+                debugger.log_dbg(
+                    color_text(
+                        "--> [CPU]: Successfully obtained highest SSE version instruction set! — (SYSCTL)"
+                        + f"\n\t^^^^^^^{str(e)}",
+                        "red",
+                    )
+                )
 
                 self.logger.warning(
                     f"Failed to access CPUID instruction – ({model})\n\t^^^^^^^^^{str(e)}",
@@ -157,10 +176,12 @@ class MacHardwareManager:
                 self.vendor = None
                 features = None
         else:
-            debugger.log_dbg(color_text(
-                "--> [CPU]: Unable to fetch instruction sets list – Apple ARM64 machine - ignoring! — (SYSCTL)",
-                "red"
-            ))
+            debugger.log_dbg(
+                color_text(
+                    "--> [CPU]: Unable to fetch instruction sets list – Apple ARM64 machine - ignoring! — (SYSCTL)",
+                    "red",
+                )
+            )
 
             self.vendor = "apple"
             features = None
@@ -212,10 +233,12 @@ class MacHardwareManager:
 
     def vendor_info(self):
         try:
-            debugger.log_dbg(color_text(
-                "--> [Motherboard/Vendor]: Attempting to obtain information about motherboard/vendor... — (IOKit)",
-                "yellow"
-            ))
+            debugger.log_dbg(
+                color_text(
+                    "--> [Motherboard/Vendor]: Attempting to obtain information about motherboard/vendor... — (IOKit)",
+                    "yellow",
+                )
+            )
 
             VENDOR = corefoundation_to_native(
                 IORegistryEntryCreateCFProperties(
@@ -224,38 +247,39 @@ class MacHardwareManager:
                             IOServiceGetMatchingServices(
                                 kIOMasterPortDefault,
                                 IOServiceMatching(b"IOPlatformExpertDevice"),
-                                None
+                                None,
                             )[1]
                         )
                     ),
                     None,
                     kCFAllocatorDefault,
-                    kNilOptions
+                    kNilOptions,
                 )
             )[1]
 
             model = VENDOR.get("model").decode().replace("\x00", "")
             manuf = VENDOR.get("manufacturer").decode().replace("\x00", "")
 
-            self.info["Vendor"] = {
-                "Model": model,
-                "Manufacturer": manuf
-            }
+            self.info["Vendor"] = {"Model": model, "Manufacturer": manuf}
 
-            debugger.log_dbg(color_text(
-                "--> [Motherboard/Vendor]: Successfully obtained information about motherboard/vendor! — (IOKit)",
-                "green"
-            ))
+            debugger.log_dbg(
+                color_text(
+                    "--> [Motherboard/Vendor]: Successfully obtained information about motherboard/vendor! — (IOKit)",
+                    "green",
+                )
+            )
         except Exception as e:
-            debugger.log_dbg(color_text(
-                "--> [Motherboard/Vendor]: Failed to obtain information about motherboard/vendor – critical! — (IOKit)" +
-                f"\n\t^^^^^^^{str(e)}",
-                "red"
-            ))
+            debugger.log_dbg(
+                color_text(
+                    "--> [Motherboard/Vendor]: Failed to obtain information about motherboard/vendor – critical! — (IOKit)"
+                    + f"\n\t^^^^^^^{str(e)}",
+                    "red",
+                )
+            )
 
             self.logger.warning(
                 f"Failed to obtain vendor model/manufacturer for machine – Non-critical, ignoring.",
-                __file__
+                __file__,
             )
 
             return
@@ -270,28 +294,32 @@ class MacHardwareManager:
         else:
             device = {"IONameMatched": "gpu*"}
 
-        debugger.log_dbg(color_text(
-            "--> [GPU]: Attempting to fetch list of GPU devices... — (IOKit)",
-            "yellow"
-        ))
+        debugger.log_dbg(
+            color_text(
+                "--> [GPU]: Attempting to fetch list of GPU devices... — (IOKit)",
+                "yellow",
+            )
+        )
 
         # Obtain generator instance, whose values are `CFDictionary`-ies
         interface = ioiterator_to_list(
-            IOServiceGetMatchingServices(
-                kIOMasterPortDefault, device, None
-            )[1]
+            IOServiceGetMatchingServices(kIOMasterPortDefault, device, None)[1]
         )
-        
+
         if interface:
-            debugger.log_dbg(color_text(
-                "--> [GPU]: Successfully obtained list of GPU devices! — (IOKit)",
-                "green"
-            ))
+            debugger.log_dbg(
+                color_text(
+                    "--> [GPU]: Successfully obtained list of GPU devices! — (IOKit)",
+                    "green",
+                )
+            )
         else:
-            debugger.log_dbg(color_text(
-                "--> [GPU]: Failed to obtain list of GPU devices – critical! — (IOKit)",
-                "red"
-            ))
+            debugger.log_dbg(
+                color_text(
+                    "--> [GPU]: Failed to obtain list of GPU devices – critical! — (IOKit)",
+                    "red",
+                )
+            )
 
             return
 
@@ -313,22 +341,24 @@ class MacHardwareManager:
             try:
                 # For Apple's M1 iGFX
                 if (
-                    not default and
-
+                    not default
+                    and
                     # If both return true, that means
                     # we aren't dealing with a GPU device.
-                    not "gpu" in device.get("IONameMatched", "").lower() and
-                    not "AGX" in device.get("CFBundleIdentifierKernel", "")
+                    not "gpu" in device.get("IONameMatched", "").lower()
+                    and not "AGX" in device.get("CFBundleIdentifierKernel", "")
                 ):
                     continue
             except Exception:
                 continue
 
             try:
-                debugger.log_dbg(color_text(
-                    "--> [GPU]: Attempting to fetch GPU device model... — (IOKit)",
-                    "yellow"
-                ))
+                debugger.log_dbg(
+                    color_text(
+                        "--> [GPU]: Attempting to fetch GPU device model... — (IOKit)",
+                        "yellow",
+                    )
+                )
 
                 model = device.get("model", None)
 
@@ -337,18 +367,22 @@ class MacHardwareManager:
 
                 if default:
                     model = bytes(model).decode()
-                    model = model[0: len(model) - 1]
+                    model = model[0 : len(model) - 1]
 
-                debugger.log_dbg(color_text(
-                    "--> [GPU]: Successfully obtained GPU device model! — (IOKit)",
-                    "green"
-                ))
+                debugger.log_dbg(
+                    color_text(
+                        "--> [GPU]: Successfully obtained GPU device model! — (IOKit)",
+                        "green",
+                    )
+                )
             except Exception as e:
-                debugger.log_dbg(color_text(
-                    "--> [GPU]: Failed to obtain GPU device model – critical! — (IOKit)" +
-                    f"\n\t^^^^^^^{str(e)}",
-                    "red"
-                ))
+                debugger.log_dbg(
+                    color_text(
+                        "--> [GPU]: Failed to obtain GPU device model – critical! — (IOKit)"
+                        + f"\n\t^^^^^^^{str(e)}",
+                        "red",
+                    )
+                )
 
                 self.logger.error(
                     "Failed to obtain GPU device model (IOKit)"
@@ -359,10 +393,12 @@ class MacHardwareManager:
                 continue
 
             try:
-                debugger.log_dbg(color_text(
-                    "--> [GPU]: Attempting to fetch other GPU information... — (IOKit)",
-                    "yellow"
-                ))
+                debugger.log_dbg(
+                    color_text(
+                        "--> [GPU]: Attempting to fetch other GPU information... — (IOKit)",
+                        "yellow",
+                    )
+                )
 
                 if default:
                     # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
@@ -375,12 +411,17 @@ class MacHardwareManager:
                     gpuconf = device.get("GPUConfigurationVariable", {})
                     dev = ""
 
-                    data["Cores"] = (
-                        str(gpuconf.get("num_cores")) + " Cores")
-                    data["NE Cores"] = (str(gpuconf.get(
-                        "num_gps")) + " Neural Engine Cores") if gpuconf.get("num_mgpus") else None
+                    data["Cores"] = str(gpuconf.get("num_cores")) + " Cores"
+                    data["NE Cores"] = (
+                        (str(gpuconf.get("num_gps")) + " Neural Engine Cores")
+                        if gpuconf.get("num_mgpus")
+                        else None
+                    )
                     data["Generation"] = (
-                        "Generation " + str(gpuconf.get("gpu_gen"))) if gpuconf.get("gpu_gen") else None
+                        ("Generation " + str(gpuconf.get("gpu_gen")))
+                        if gpuconf.get("gpu_gen")
+                        else None
+                    )
 
                 # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
                 ven = "0x" + (
@@ -396,7 +437,8 @@ class MacHardwareManager:
 
                 if default:
                     path = construct_pcip_osx(
-                        i, device.get("acpi-path", ""), self.logger)
+                        i, device.get("acpi-path", ""), self.logger
+                    )
 
                     pcip = path.get("PCI Path", "")
                     acpi = path.get("ACPI Path", "")
@@ -407,16 +449,20 @@ class MacHardwareManager:
                     if acpi:
                         data["ACPI Path"] = acpi
 
-                debugger.log_dbg(color_text(
-                    "--> [GPU]: Successfully obtained other GPU information! — (IOKit)",
-                    "green"
-                ))
+                debugger.log_dbg(
+                    color_text(
+                        "--> [GPU]: Successfully obtained other GPU information! — (IOKit)",
+                        "green",
+                    )
+                )
             except Exception as e:
-                debugger.log_dbg(color_text(
-                    "--> [GPU]: Failed to obtain other GPU information – ignoring! — (IOKit)" +
-                    f"\n\t^^^^^^^{str(e)}",
-                    "red"
-                ))
+                debugger.log_dbg(
+                    color_text(
+                        "--> [GPU]: Failed to obtain other GPU information – ignoring! — (IOKit)"
+                        + f"\n\t^^^^^^^{str(e)}",
+                        "red",
+                    )
+                )
 
                 self.logger.error(
                     "Failed to obtain other information for GPU device (IOKit)"
@@ -442,16 +488,19 @@ class MacHardwareManager:
 
     def mem_info(self):
 
-        debugger.log_dbg(color_text(
-            "--> [MEMORY]: Attempting to fetch RAM modules... — (IOKit)",
-            "yellow"
-        ))
+        debugger.log_dbg(
+            color_text(
+                "--> [MEMORY]: Attempting to fetch RAM modules... — (IOKit)", "yellow"
+            )
+        )
 
         if self.vendor == "apple":
-            debugger.log_dbg(color_text(
-                "--> [MEMORY]: Unable to fetch RAM modules – RAM is built into the CPU! — (IOKit)",
-                "red"
-            ))
+            debugger.log_dbg(
+                color_text(
+                    "--> [MEMORY]: Unable to fetch RAM modules – RAM is built into the CPU! — (IOKit)",
+                    "red",
+                )
+            )
 
             return
 
@@ -460,9 +509,7 @@ class MacHardwareManager:
         # Source: https://github.com/KernelWanderers/OCSysInfo/pull/10
         interface = corefoundation_to_native(
             IORegistryEntryCreateCFProperties(
-                IORegistryEntryFromPath(
-                    kIOMasterPortDefault, b"IODeviceTree:/memory"
-                ),
+                IORegistryEntryFromPath(kIOMasterPortDefault, b"IODeviceTree:/memory"),
                 None,
                 kCFAllocatorDefault,
                 kNilOptions,
@@ -470,15 +517,18 @@ class MacHardwareManager:
         )
 
         if interface:
-            debugger.log_dbg(color_text(
-                "--> [MEMORY]: Successfully fetched RAM modules! — (IOKit)",
-                "green"
-            ))
+            debugger.log_dbg(
+                color_text(
+                    "--> [MEMORY]: Successfully fetched RAM modules! — (IOKit)", "green"
+                )
+            )
         else:
-            debugger.log_dbg(color_text(
-                "--> [MEMORY]: Failed to fetch RAM modules – critical! — (IOKit)",
-                "red"
-            ))
+            debugger.log_dbg(
+                color_text(
+                    "--> [MEMORY]: Failed to fetch RAM modules – critical! — (IOKit)",
+                    "red",
+                )
+            )
 
             return
 
@@ -492,10 +542,12 @@ class MacHardwareManager:
             val = interface[prop]
 
             if not length and "part-number" not in prop:
-                debugger.log_dbg(color_text(
-                    "--> [MEMORY]: No length specified for this RAM module – critical! — (IOKit/Memory)",
-                    "red"
-                ))
+                debugger.log_dbg(
+                    color_text(
+                        "--> [MEMORY]: No length specified for this RAM module – critical! — (IOKit/Memory)",
+                        "red",
+                    )
+                )
 
             if type(val) == bytes:
                 if "reg" in prop.lower():
@@ -510,11 +562,13 @@ class MacHardwareManager:
                                 ][i]
                             )
                         except Exception as e:
-                            debugger.log_dbg(color_text(
-                                "--> [MEMORY]: Failed to convert value to readable size – critical! — (IOKit/Memory)" +
-                                f"\n\t^^^^^^^{str(e)}",
-                                "red"
-                            ))
+                            debugger.log_dbg(
+                                color_text(
+                                    "--> [MEMORY]: Failed to convert value to readable size – critical! — (IOKit/Memory)"
+                                    + f"\n\t^^^^^^^{str(e)}",
+                                    "red",
+                                )
+                            )
 
                             self.logger.error(
                                 f"Failed to convert value to readable size (IOKit/MemInfo)\n\t^^^^^^^^^{str(e)}",
@@ -532,11 +586,13 @@ class MacHardwareManager:
                             if type(x) == bytes and x.decode().strip()
                         ]
                     except Exception as e:
-                        debugger.log_dbg(color_text(
-                            "--> [MEMORY]: Failed to decode bytes of RAM module – critical! — (IOKit/Memory)" +
-                            f"\n\t^^^^^^^{str(e)}",
-                            "red"
-                        ))
+                        debugger.log_dbg(
+                            color_text(
+                                "--> [MEMORY]: Failed to decode bytes of RAM module – critical! — (IOKit/Memory)"
+                                + f"\n\t^^^^^^^{str(e)}",
+                                "red",
+                            )
+                        )
 
                         self.logger.warning(
                             f"Failed to decode bytes for RAM module (IOKit/MemInfo)\n\t^^^^^^^^^{str(e)}",
@@ -549,10 +605,12 @@ class MacHardwareManager:
                 length = len(val)
 
                 for i in range(length):
-                    debugger.log_dbg(color_text(
-                        "--> [MEMORY]: Obtained part-number of current RAM module! — (IOKit/Memory)",
-                        "green"
-                    ))
+                    debugger.log_dbg(
+                        color_text(
+                            "--> [MEMORY]: Obtained part-number of current RAM module! — (IOKit/Memory)",
+                            "green",
+                        )
+                    )
 
                     modules.append({f"{val[i]} (Part-Number)": {}})
                     part_no.append(f"{val[i]} (Part-Number)")
@@ -563,10 +621,12 @@ class MacHardwareManager:
                     value = None
 
                     if "dimm-types" in prop.lower():
-                        debugger.log_dbg(color_text(
-                            "--> [MEMORY]: Obtained DIMM type of current RAM module! — (IOKit/Memory)",
-                            "green"
-                        ))
+                        debugger.log_dbg(
+                            color_text(
+                                "--> [MEMORY]: Obtained DIMM type of current RAM module! — (IOKit/Memory)",
+                                "green",
+                            )
+                        )
 
                         key = "Type"
                         value = val[i]
@@ -579,16 +639,20 @@ class MacHardwareManager:
 
                             value = {"Bank": bank, "Channel": channel}
 
-                            debugger.log_dbg(color_text(
-                                "--> [MEMORY]: Obtained location of current RAM module! — (IOKit/Memory)",
-                                "green"
-                            ))
+                            debugger.log_dbg(
+                                color_text(
+                                    "--> [MEMORY]: Obtained location of current RAM module! — (IOKit/Memory)",
+                                    "green",
+                                )
+                            )
                         except Exception as e:
-                            debugger.log_dbg(color_text(
-                                "--> [MEMORY]: Failed to obtain location of current RAM module – ignoring! — (IOKit/Memory)" +
-                                f"\n\t^^^^^^^{str(e)}",
-                                "red"
-                            ))
+                            debugger.log_dbg(
+                                color_text(
+                                    "--> [MEMORY]: Failed to obtain location of current RAM module – ignoring! — (IOKit/Memory)"
+                                    + f"\n\t^^^^^^^{str(e)}",
+                                    "red",
+                                )
+                            )
 
                             self.logger.error(
                                 f"Failed to obtain BANK/Channel values for RAM module! (IOKit/MemInfo)\n\t^^^^^^^^^{str(e)}",
@@ -596,28 +660,34 @@ class MacHardwareManager:
                             )
 
                     elif "dimm-speeds" in prop.lower():
-                        debugger.log_dbg(color_text(
-                            "--> [MEMORY]: Obtained clock-speed of current RAM module! — (IOKit/Memory)",
-                            "green"
-                        ))
+                        debugger.log_dbg(
+                            color_text(
+                                "--> [MEMORY]: Obtained clock-speed of current RAM module! — (IOKit/Memory)",
+                                "green",
+                            )
+                        )
 
                         key = "Frequency (MHz)"
                         value = val[i]
 
                     elif "dimm-manufacturer" in prop.lower():
-                        debugger.log_dbg(color_text(
-                            "--> [MEMORY]: Obtained manufacturer of current RAM module! — (IOKit/Memory)",
-                            "green"
-                        ))
+                        debugger.log_dbg(
+                            color_text(
+                                "--> [MEMORY]: Obtained manufacturer of current RAM module! — (IOKit/Memory)",
+                                "green",
+                            )
+                        )
 
                         key = "Manufacturer"
                         value = val[i]
 
                     elif "reg" in prop.lower():
-                        debugger.log_dbg(color_text(
-                            "--> [MEMORY]: Obtained capacity size (in MBs) of current RAM module! — (IOKit/Memory)",
-                            "green"
-                        ))
+                        debugger.log_dbg(
+                            color_text(
+                                "--> [MEMORY]: Obtained capacity size (in MBs) of current RAM module! — (IOKit/Memory)",
+                                "green",
+                            )
+                        )
 
                         key = "Capacity"
                         value = f"{sizes[i]}MB"
@@ -626,11 +696,13 @@ class MacHardwareManager:
                         try:
                             modules[i][part_no[i]][key] = value
                         except Exception as e:
-                            debugger.log_dbg(color_text(
-                                "--> [MEMORY]: Couldn't properly determine information for current RAM module – critical! — (IOKit/Memory)" +
-                                f"\n\t^^^^^^^{str(e)}",
-                                "red"
-                            ))
+                            debugger.log_dbg(
+                                color_text(
+                                    "--> [MEMORY]: Couldn't properly determine information for current RAM module – critical! — (IOKit/Memory)"
+                                    + f"\n\t^^^^^^^{str(e)}",
+                                    "red",
+                                )
+                            )
 
                             self.logger.warning(
                                 "Couldn't properly determine information for RAM modules (IOKit/MemInfo)",
@@ -653,28 +725,31 @@ class MacHardwareManager:
         else:
             device = {"IOProviderClass": "IOPlatformDevice"}
 
-        debugger.log_dbg(color_text(
-            "--> [Network]: Attempting to fetch list of NICs... — (IOKit)",
-            "yellow"
-        ))
+        debugger.log_dbg(
+            color_text(
+                "--> [Network]: Attempting to fetch list of NICs... — (IOKit)", "yellow"
+            )
+        )
 
         # Obtain generator instance, whose values are `CFDictionary`-ies
         interface = ioiterator_to_list(
-            IOServiceGetMatchingServices(
-                kIOMasterPortDefault, device, None
-            )[1]
+            IOServiceGetMatchingServices(kIOMasterPortDefault, device, None)[1]
         )
 
         if interface:
-            debugger.log_dbg(color_text(
-                "--> [Network]: Successfully obtained list of NICs! — (IOKit)",
-                "green"
-            ))
+            debugger.log_dbg(
+                color_text(
+                    "--> [Network]: Successfully obtained list of NICs! — (IOKit)",
+                    "green",
+                )
+            )
         else:
-            debugger.log_dbg(color_text(
-                "--> [Network]: Failed to obtain list of NICs – critical! — (IOKit)",
-                "red"
-            ))
+            debugger.log_dbg(
+                color_text(
+                    "--> [Network]: Failed to obtain list of NICs – critical! — (IOKit)",
+                    "red",
+                )
+            )
 
             return
 
@@ -695,18 +770,19 @@ class MacHardwareManager:
             try:
                 if default:
                     dev = "0x" + (
-                        binascii.b2a_hex(bytes(reversed(device.get("device-id")))).decode()[
-                            4:
-                        ]
+                        binascii.b2a_hex(
+                            bytes(reversed(device.get("device-id")))
+                        ).decode()[4:]
                     )
                     ven = "0x" + (
-                        binascii.b2a_hex(bytes(reversed(device.get("vendor-id")))).decode()[
-                            4:
-                        ]
+                        binascii.b2a_hex(
+                            bytes(reversed(device.get("vendor-id")))
+                        ).decode()[4:]
                     )
 
                     path = construct_pcip_osx(
-                        i, device.get("acpi-path", ""), self.logger)
+                        i, device.get("acpi-path", ""), self.logger
+                    )
 
                     pcip = path.get("PCI Path", "")
                     acpi = path.get("ACPI Path", "")
@@ -714,7 +790,6 @@ class MacHardwareManager:
                     data = {
                         # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
                         "Device ID": dev,
-
                         # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
                         "Vendor": ven,
                     }
@@ -726,19 +801,21 @@ class MacHardwareManager:
                         data["ACPI Path"] = acpi
 
                 else:
-                    if IOObjectConformsTo(i, b'IO80211Controller'):
+                    if IOObjectConformsTo(i, b"IO80211Controller"):
                         model = {"device": device.get("IOModel")}
 
                         data = {
                             "IOClass": device.get("IOClass"),
-                            "Vendor": device.get("IOVendor")
+                            "Vendor": device.get("IOVendor"),
                         }
             except Exception as e:
-                debugger.log_dbg(color_text(
-                    "--> [Network]: Failed to obtain other information of NIC – critical! — (IOKit)" +
-                    f"\n\t^^^^^^^{str(e)}",
-                    "red"
-                ))
+                debugger.log_dbg(
+                    color_text(
+                        "--> [Network]: Failed to obtain other information of NIC – critical! — (IOKit)"
+                        + f"\n\t^^^^^^^{str(e)}",
+                        "red",
+                    )
+                )
 
                 self.logger.critical(
                     f"Failed to obtain vendor/device id for Network controller (IOKit)\n\t^^^^^^^^^{str(e)}",
@@ -748,10 +825,12 @@ class MacHardwareManager:
                 continue
 
             if self.offline and not model.get("device"):
-                debugger.log_dbg(color_text(
-                    "--> [Network]: Model name of current NIC can't be obtained – ignoring! — (IOKit)",
-                    "red"
-                ))
+                debugger.log_dbg(
+                    color_text(
+                        "--> [Network]: Model name of current NIC can't be obtained – ignoring! — (IOKit)",
+                        "red",
+                    )
+                )
 
                 model = {"device": "Unknown Network Controller"}
             else:
@@ -761,11 +840,13 @@ class MacHardwareManager:
                     except Exception as e:
                         model = {"device": "Unknown Network Controller"}
 
-                        debugger.log_dbg(color_text(
-                            "--> [Network]: Unable to obtain model name of current NIC – ignoring! — (IOKit)" +
-                            f"\n\t^^^^^^^{str(e)}",
-                            "red"
-                        ))
+                        debugger.log_dbg(
+                            color_text(
+                                "--> [Network]: Unable to obtain model name of current NIC – ignoring! — (IOKit)"
+                                + f"\n\t^^^^^^^{str(e)}",
+                                "red",
+                            )
+                        )
 
                         self.logger.warning(
                             f"Failed to obtain model for Network controller (IOKit) – Non-critical, ignoring",
@@ -773,10 +854,12 @@ class MacHardwareManager:
                         )
 
             if model:
-                debugger.log_dbg(color_text(
-                    "--> [Network]: Successfully parsed information for current NIC! — (IOKit)",
-                    "green"
-                ))
+                debugger.log_dbg(
+                    color_text(
+                        "--> [Network]: Successfully parsed information for current NIC! — (IOKit)",
+                        "green",
+                    )
+                )
 
                 model = model.get("device")
 
@@ -803,31 +886,34 @@ class MacHardwareManager:
         else:
             _device = {"IOProviderClass": "IOHDACodecDevice"}
 
-        debugger.log_dbg(color_text(
-            "--> [Audio]: Attempting to fetch list of Audio controllers... — (IOKit)",
-            "yellow"
-        ))
+        debugger.log_dbg(
+            color_text(
+                "--> [Audio]: Attempting to fetch list of Audio controllers... — (IOKit)",
+                "yellow",
+            )
+        )
 
         # Obtain generator instance, whose values are `CFDictionary`-ies
         interface = ioiterator_to_list(
-            IOServiceGetMatchingServices(
-                kIOMasterPortDefault, _device, None
-            )[1]
+            IOServiceGetMatchingServices(kIOMasterPortDefault, _device, None)[1]
         )
 
         if interface:
-            debugger.log_dbg(color_text(
-                "--> [Audio]: Successfully obtained list of Audio controllers! — (IOKit)",
-                "green"
-            ))
+            debugger.log_dbg(
+                color_text(
+                    "--> [Audio]: Successfully obtained list of Audio controllers! — (IOKit)",
+                    "green",
+                )
+            )
         else:
-            debugger.log_dbg(color_text(
-                "--> [Audio]: Failed to obtain list of Audio controllers! — (IOKit)",
-                "red"
-            ))
+            debugger.log_dbg(
+                color_text(
+                    "--> [Audio]: Failed to obtain list of Audio controllers! — (IOKit)",
+                    "red",
+                )
+            )
 
             return
-            
 
         self.info["Audio"] = []
 
@@ -846,10 +932,12 @@ class MacHardwareManager:
             if not default:
                 # Ensure it's the AppleHDACodec device
                 if device.get("DigitalAudioCapabilities"):
-                    debugger.log_dbg(color_text(
-                        "--> [Audio]: Invalid HDA codec device – ignoring! — (IOKit)",
-                        "red"
-                    ))
+                    debugger.log_dbg(
+                        color_text(
+                            "--> [Audio]: Invalid HDA codec device – ignoring! — (IOKit)",
+                            "red",
+                        )
+                    )
 
                     continue
 
@@ -859,11 +947,13 @@ class MacHardwareManager:
 
                     data = {"Device ID": dev, "Vendor": ven}
                 except Exception as e:
-                    debugger.log_dbg(color_text(
-                        "--> [Audio]: Failed to obtain vendor/device ID of HDA codec device – critical! — (IOKit)" +
-                        f"\n\t^^^^^^^{str(e)}",
-                        "red"
-                    ))
+                    debugger.log_dbg(
+                        color_text(
+                            "--> [Audio]: Failed to obtain vendor/device ID of HDA codec device – critical! — (IOKit)"
+                            + f"\n\t^^^^^^^{str(e)}",
+                            "red",
+                        )
+                    )
 
                     self.logger.error(
                         "Failed to obtain vendor/device id of HDA codec device (IOKit)\n"
@@ -874,24 +964,27 @@ class MacHardwareManager:
                     continue
 
                 if self.offline:
-                    debugger.log_dbg(color_text(
-                        "--> [Audio]: Model name of HDA codec device can't be obtained – ignoring! — (IOKit)",
-                        "red"
-                    ))
+                    debugger.log_dbg(
+                        color_text(
+                            "--> [Audio]: Model name of HDA codec device can't be obtained – ignoring! — (IOKit)",
+                            "red",
+                        )
+                    )
 
                     model = "N/A"
                 else:
                     try:
-                        model = self.pci.get_item(
-                            dev[2:], ven[2:]).get("device", "")
+                        model = self.pci.get_item(dev[2:], ven[2:]).get("device", "")
                     except Exception as e:
                         model = "N/A"
 
-                        debugger.log_dbg(color_text(
-                            "--> [Audio]: Unable to obtain model name of HDA codec device – ignoring! — (IOKit)" +
-                            f"\n\t^^^^^^^{str(e)}",
-                            "red"
-                        ))
+                        debugger.log_dbg(
+                            color_text(
+                                "--> [Audio]: Unable to obtain model name of HDA codec device – ignoring! — (IOKit)"
+                                + f"\n\t^^^^^^^{str(e)}",
+                                "red",
+                            )
+                        )
 
                         self.logger.warning(
                             f"Failed to obtain model for Sound Device (IOKit) – Non-critical, ignoring",
@@ -916,11 +1009,13 @@ class MacHardwareManager:
 
                     data = {"Device ID": dev, "Vendor": ven}
                 except Exception as e:
-                    debugger.log_dbg(color_text(
-                        "--> [Audio]: Failed to obtain vendor/device ID of HDA codec device – critical! — (IOKit)" +
-                        f"\n\t^^^^^^^{str(e)}",
-                        "red"
-                    ))
+                    debugger.log_dbg(
+                        color_text(
+                            "--> [Audio]: Failed to obtain vendor/device ID of HDA codec device – critical! — (IOKit)"
+                            + f"\n\t^^^^^^^{str(e)}",
+                            "red",
+                        )
+                    )
 
                     self.logger.error(
                         "Failed to obtain vendor/device id of HDA codec device (IOKit)\n"
@@ -931,32 +1026,34 @@ class MacHardwareManager:
                     continue
 
                 if self.offline:
-                    debugger.log_dbg(color_text(
-                        "--> [Audio]: Model name of HDA codec device can't be obtained – ignoring! — (IOKit)",
-                        "red"
-                    ))
+                    debugger.log_dbg(
+                        color_text(
+                            "--> [Audio]: Model name of HDA codec device can't be obtained – ignoring! — (IOKit)",
+                            "red",
+                        )
+                    )
 
                     model = "N/A"
                 else:
                     try:
-                        model = self.pci.get_item(
-                            dev[2:], ven[2:]).get("device", "")
+                        model = self.pci.get_item(dev[2:], ven[2:]).get("device", "")
                     except Exception as e:
                         model = "N/A"
 
-                        debugger.log_dbg(color_text(
-                            "--> [Audio]: Unable to obtain model name of HDA codec device – ignoring! — (IOKit)" +
-                            f"\n\t^^^^^^^{str(e)}",
-                            "red"
-                        ))
+                        debugger.log_dbg(
+                            color_text(
+                                "--> [Audio]: Unable to obtain model name of HDA codec device – ignoring! — (IOKit)"
+                                + f"\n\t^^^^^^^{str(e)}",
+                                "red",
+                            )
+                        )
 
                         self.logger.warning(
                             f"Failed to obtain model for Sound Device (IOKit) – Non-critical, ignoring",
                             __file__,
                         )
 
-            path = construct_pcip_osx(
-                i, device.get("acpi-path", ""), self.logger)
+            path = construct_pcip_osx(i, device.get("acpi-path", ""), self.logger)
 
             pcip = path.get("PCI Path", "")
             acpi = path.get("ACPI Path", "")
@@ -980,29 +1077,33 @@ class MacHardwareManager:
 
     def storage_info(self):
 
-        debugger.log_dbg(color_text(
-            "--> [Storage]: Attempting to fetch list of Storage devices... — (IOKit)",
-            "yellow"
-        ))
+        debugger.log_dbg(
+            color_text(
+                "--> [Storage]: Attempting to fetch list of Storage devices... — (IOKit)",
+                "yellow",
+            )
+        )
 
         device = {"IOProviderClass": "IOBlockStorageDevice"}
 
         interface = ioiterator_to_list(
-            IOServiceGetMatchingServices(
-                kIOMasterPortDefault, device, None
-            )[1]
+            IOServiceGetMatchingServices(kIOMasterPortDefault, device, None)[1]
         )
 
         if interface:
-            debugger.log_dbg(color_text(
-                "--> [Storage]: Successfully obtained list of Storage devices! — (IOKit)",
-                "green"
-            ))
+            debugger.log_dbg(
+                color_text(
+                    "--> [Storage]: Successfully obtained list of Storage devices! — (IOKit)",
+                    "green",
+                )
+            )
         else:
-            debugger.log_dbg(color_text(
-                "--> [Storage]: Failed to obtain list of Storage devices! — (IOKit)",
-                "red"
-            ))
+            debugger.log_dbg(
+                color_text(
+                    "--> [Storage]: Failed to obtain list of Storage devices! — (IOKit)",
+                    "red",
+                )
+            )
 
             return
 
@@ -1020,18 +1121,22 @@ class MacHardwareManager:
             protocol = device.get("Protocol Characteristics")
 
             if not product or not protocol:
-                debugger.log_dbg(color_text(
-                    "--> [Storage]: Failed to obtain basic information of Storage device – critical! — (IOKit)",
-                    "red"
-                ))
+                debugger.log_dbg(
+                    color_text(
+                        "--> [Storage]: Failed to obtain basic information of Storage device – critical! — (IOKit)",
+                        "red",
+                    )
+                )
 
                 continue
 
             try:
-                debugger.log_dbg(color_text(
-                    "--> [Storage]: Attempting to obtain verbose information of Storage device... — (IOKit)",
-                    "yellow"
-                ))
+                debugger.log_dbg(
+                    color_text(
+                        "--> [Storage]: Attempting to obtain verbose information of Storage device... — (IOKit)",
+                        "yellow",
+                    )
+                )
 
                 # Name of the storage device.
                 name = product.get("Product Name").strip()
@@ -1050,16 +1155,20 @@ class MacHardwareManager:
                 else:
                     _type = self.STORAGE.get(_type, _type)
 
-                debugger.log_dbg(color_text(
-                    "--> [Storage]: Successfully obtained verbose information of Storage device! — (IOKit)",
-                    "green"
-                ))
+                debugger.log_dbg(
+                    color_text(
+                        "--> [Storage]: Successfully obtained verbose information of Storage device! — (IOKit)",
+                        "green",
+                    )
+                )
             except Exception as e:
-                debugger.log_dbg(color_text(
-                    "--> [Storage]: Failed to obtain verbose information of Storage device – critical! — (IOKit)" +
-                    f"\n\t^^^^^^^{str(e)}",
-                    "red"
-                ))
+                debugger.log_dbg(
+                    color_text(
+                        "--> [Storage]: Failed to obtain verbose information of Storage device – critical! — (IOKit)"
+                        + f"\n\t^^^^^^^{str(e)}",
+                        "red",
+                    )
+                )
 
                 self.logger.error(
                     "Failed to construct valid format for storage device (IOKit)"
@@ -1077,29 +1186,33 @@ class MacHardwareManager:
 
     def input_info(self):
 
-        debugger.log_dbg(color_text(
-            "--> [Input]: Attempting to obtain list of Input devices... — (IOKit)",
-            "yellow"
-        ))
+        debugger.log_dbg(
+            color_text(
+                "--> [Input]: Attempting to obtain list of Input devices... — (IOKit)",
+                "yellow",
+            )
+        )
 
         device = {"IOProviderClass": "IOHIDDevice"}
 
         interface = ioiterator_to_list(
-            IOServiceGetMatchingServices(
-                kIOMasterPortDefault, device, None
-            )[1]
+            IOServiceGetMatchingServices(kIOMasterPortDefault, device, None)[1]
         )
 
         if interface:
-            debugger.log_dbg(color_text(
-                "--> [Input]: Successfully obtained list of Input devices! — (IOKit)",
-                "green"
-            ))
+            debugger.log_dbg(
+                color_text(
+                    "--> [Input]: Successfully obtained list of Input devices! — (IOKit)",
+                    "green",
+                )
+            )
         else:
-            debugger.log_dbg(color_text(
-                "--> [Input]: Failed to obtain list of Input devices – critical! — (IOKit)",
-                "red"
-            ))
+            debugger.log_dbg(
+                color_text(
+                    "--> [Input]: Failed to obtain list of Input devices – critical! — (IOKit)",
+                    "red",
+                )
+            )
 
             return
 
@@ -1117,25 +1230,31 @@ class MacHardwareManager:
             hid = device.get("Transport", "")
 
             if not name:
-                debugger.log_dbg(color_text(
-                    "--> [Input]: Failed to obtain basic information of Input device... — (IOKit)",
-                    "red"
-                ))
+                debugger.log_dbg(
+                    color_text(
+                        "--> [Input]: Failed to obtain basic information of Input device... — (IOKit)",
+                        "red",
+                    )
+                )
 
                 continue
 
             if hid:
-                debugger.log_dbg(color_text(
-                    "--> [Input]: Succesfully obtained transport information of Input device! — (IOKit)",
-                    "green"
-                ))
+                debugger.log_dbg(
+                    color_text(
+                        "--> [Input]: Succesfully obtained transport information of Input device! — (IOKit)",
+                        "green",
+                    )
+                )
 
                 hid = " (" + hid + ")"
             else:
-                debugger.log_dbg(color_text(
-                    "--> [Input]: Failed to obtain transport information of Input device – ignoring! — (IOKit)",
-                    "red"
-                ))
+                debugger.log_dbg(
+                    color_text(
+                        "--> [Input]: Failed to obtain transport information of Input device – ignoring! — (IOKit)",
+                        "red",
+                    )
+                )
 
             if any("{}{}".format(name, hid) in k for k in self.info["Input"]):
                 continue
@@ -1146,11 +1265,13 @@ class MacHardwareManager:
 
                 data = {"Device ID": dev, "Vendor": ven}
             except Exception as e:
-                debugger.log_dbg(color_text(
-                    "--> [Input]: Failed to obtain vendor/device ID of Input device – ignoring! — (IOKit)" +
-                    f"\n\t^^^^^^^{str(e)}",
-                    "red"
-                ))
+                debugger.log_dbg(
+                    color_text(
+                        "--> [Input]: Failed to obtain vendor/device ID of Input device – ignoring! — (IOKit)"
+                        + f"\n\t^^^^^^^{str(e)}",
+                        "red",
+                    )
+                )
 
                 self.logger.error(
                     "Failed to obtain vendor/device id for Input device (IOKit)"
@@ -1165,3 +1286,227 @@ class MacHardwareManager:
             self.info["Input"].append({name: data})
 
             IOObjectRelease(i)
+
+    def display_info(self):
+
+        debugger.log_dbg(
+            color_text(
+                "--> [Display]: Attempting to obtain information about the current displays... — (IOKit)",
+                "yellow",
+            )
+        )
+
+        device = {"IOProviderClass": "IODisplay"}
+
+        interface = ioiterator_to_list(
+            IOServiceGetMatchingServices(kIOMasterPortDefault, device, None)[1]
+        )
+
+        if not interface:
+            debugger.log_dbg(
+                color_text(
+                    "--> [Display]: Failed to obtain list of Display devices – critical! — (IOKit)",
+                    "red",
+                )
+            )
+
+            return
+
+        debugger.log_dbg(
+            color_text(
+                "--> [Display]: Successfully obtained list of Display devices! — (IOKit)",
+                "green",
+            )
+        )
+
+        self.info["Displays"] = []
+
+        for i in interface:
+
+            device = corefoundation_to_native(
+                IORegistryEntryCreateCFProperties(
+                    i, None, kCFAllocatorDefault, kNilOptions
+                )
+            )[1]
+
+            edid = bytes(device.get("IODisplayEDID", ""))
+            const_h = b"\x00\xFF\xFF\xFF\xFF\xFF\xFF\x00"
+
+            # Verify header integrity
+            if edid[0x0:0x8] != const_h:
+                debugger.log_dbg(
+                    color_text(
+                        f"--> [Display]: Failed to verify file integrity for Display device's EDID data! Skipping... — (IOKit)",
+                        "yellow",
+                    )
+                )
+                continue
+
+            product = hex(int(device.get("DisplayProductID", "")))
+            vendor = hex(int(device.get("DisplayVendorID", "")))
+            serial = device.get("DisplaySerialNumber", "")
+            plane = device.get("IODisplayPrefsKey", "")
+            parent = ""
+            gpus = self.info["GPU"]
+            ver_rev = (edid[0x12], edid[0x13])
+            name = "UNKNOWN DISPLAY DEVICE"
+
+            # Horizontal —  first value
+            # Vertical   —  second value
+            # Portrait   —  third value indicating whether
+            #               or not the current display is in portait mode.
+            #                   0 = Landscape
+            #                   1 = Portrait
+            #                  -1 = Unknown resolution/dimensions
+            res = (0, 0, 0)
+            ratios = {0: [16, 10], 1: [4, 3], 2: [5, 4], 3: [16, 9]}
+            ratio = ratios[
+                int(str((edid[0x27] >> 6) & 1) + str((edid[0x27] >> 7) & 1), 2)
+            ]
+
+            if ratio:
+                debugger.log_dbg(
+                    color_text(
+                        f"--> [Display]: Successfully detected aspect ratio of {ratio[0]}:{ratio[1]}! — (IOKit)",
+                        "green",
+                    )
+                )
+
+            # Dimensions of the display in cm.
+            horizontal = edid[0x15]
+            vertical = edid[0x16]
+
+            # Screen size in inches.
+            screen_size = math.floor(
+                round(math.sqrt((horizontal**2) + (vertical**2)) * 0.393701)
+            )
+
+            if screen_size:
+                debugger.log_dbg(
+                    color_text(
+                        f"--> [Display]: Successfully detected screen size of {screen_size}”! — (IOKit)",
+                        "green",
+                    )
+                )
+
+            # Aspect ratio.
+            aspect_rat = ratio[0] / ratio[1]
+
+            # Vertical addressable video in lines.
+            #
+            # Also known as, “vertical resolution”.
+            ver_adr_vid = ((edid[0x3D] & 0xF0) << 4) | edid[0x3B]
+
+            # Horizontal resolution
+            #
+            # Source: https://glenwing.github.io/docs/VESA-EEDID-A2.pdf
+            #       Thank me for the pain later.
+            hor_adr_vid = 8 * math.floor((ver_adr_vid * aspect_rat) / 8)
+
+            # If both bytes are equal to 0,
+            # then aspect ratio and screen size
+            # are undefined.
+            if horizontal == 0 and vertical == 0:
+                res = (0, 0, -1)
+
+            # Display is in Landscape mode.
+            elif horizontal != 0:
+                ratio.reverse()
+
+                res = (hor_adr_vid, ver_adr_vid, 0)
+
+            # Display is in Portrait mode.
+            elif vertical != 0:
+                res = (ver_adr_vid, hor_adr_vid, 1)
+
+            if res != (0, 0, -1):
+                debugger.log_dbg(
+                    color_text(
+                        f"--> [Display]: Successfully detected {res[0]}x{res[1]} resolution in {'Portrait' if res[2] else 'Landscape'} mode! — (IOKit)",
+                        "green",
+                    )
+                )
+
+            else:
+                debugger.log_dbg(
+                    color_text(
+                        "--> [Display]: Failed to detect resolution data for Display device. (IOKit)",
+                        "yellow",
+                    )
+                )
+
+            # print(f"-> Horizontal: {horizontal} | Vertical: {vertical}")
+            # print(f"-> Res: {res}")
+            # print(
+            #     f"-> Dimensions (CM): {horizontal} x {vertical} -> {screen_size}\""
+            # )
+            # print(f"-> Resolution mode: {'Portrait' if res[2] else 'Landscape'}")
+            # print(f"-> Resolution (pixels): {res[0]}x{res[1]}")
+
+            # Ranges of possible monitor descriptors
+            # for EDID v1.3 and EDID v1.4
+            #
+            # See more:
+            #   - https://glenwing.github.io/docs/VESA-EEDID-A1.pdf
+            #   - https://glenwing.github.io/docs/VESA-EEDID-A2.pdf
+            ranges = [(0x48, 0x59), (0x5A, 0x6B), (0x6C, 0x7D)]
+
+            if ver_rev == (1, 3) or ver_rev == (1, 4) or ver_rev == (2, 0):
+                for (start, end) in ranges:
+                    if b"\xFC" in edid[start : start + 4]:
+                        name = (
+                            edid[start + 5 : end]
+                            + (b"\x0A\x20" if len(edid[start + 5 : end]) < 13 else b"")
+                        ).decode()
+
+                        name = name.replace("\n", "").replace(" ", "")
+
+            for gpu in gpus:
+                for key in gpu.keys():
+                    debugger.log_dbg(
+                        color_text(
+                            f"--> [Display]: Attempting to find information about parent for {vendor}:{product}... — (IOKit)",
+                            "yellow",
+                        )
+                    )
+
+                    acpi = gpu[key].get("ACPI Path", "").replace("\\_SB.", "")
+                    correct = 0
+
+                    parts = acpi.split(".")
+
+                    for part in parts:
+                        if part.lower() in plane.lower():
+                            correct += 1
+
+                    if int((correct * 100) / len(parts)) > 50:
+                        parent = f"({key})"
+
+                if parent:
+                    debugger.log_dbg(
+                        color_text(
+                            "--> [Display]: Successfully found information about parent for Display device! — (IOKit)",
+                            "green",
+                        )
+                    )
+
+                else:
+                    debugger.log_dbg(
+                        color_text(
+                            "--> [Display]: Failed to find information about parent for Display device! — (IOKit)",
+                            "red",
+                        )
+                    )
+
+                self.info["Displays"].append(
+                    {
+                        f"{name} {parent}": {
+                            "Product ID": product,
+                            "Vendor ID": vendor,
+                            "Serial": serial,
+                            "Resolution": f"{res[0]}x{res[1]}",
+                            "Size (in inches)": f"{screen_size}”",
+                            "Display mode": f"{'Portrait' if res[-1] else 'Landscape'}"
+                        }
+                    }
+                )
