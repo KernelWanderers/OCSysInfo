@@ -4,6 +4,10 @@
 
 </div>
 
+## v1.0.9-beta
+
+* Added Display detection support for macOS platforms.
+
 ## v1.0.8
 
 * Fixed `driver_type.py` logic for PS/2 / SMBus detection
