@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
 if __name__ == "__main__":
+    import json
+
     from sys import exit, version_info, version, argv
     from src.util.missing_dep import Requirements
+    from src.langparser import LangParser
+
+    # we define the langparser
+    # check the `localizations` folder
+    # and src/langparser.py for more info
+    langparser = LangParser({"English": "localizations/english.json"}, "English")
+
     
     if version_info < (3, 9, 0):
-        print("OCSysInfo requires Python 3.9, while Python " + str(
-            version.partition(" ")[0]) + " was detected. Terminating... ")
+        message = langparser.parse_message("main-python_requirement", str(version.partition(" ")[0]))
+        print(message)
         exit(1)
 
     # Check if there are missing dependencies
@@ -27,14 +36,16 @@ if __name__ == "__main__":
     import requests
     from threading import Thread
     from update.updater import OCSIUpdater
-    from src.info import get_latest_version, format_text, AppInfo, color_text, requests_timeout, useragent_header
+    from src.info import get_latest_version, format_text, AppInfo, color_text, requests_timeout, useragent_header, localizations
     from src.cli.ui import clear as clear_screen
     from src.util.create_log import create_log
     from src.util.debugger import Debugger as debugger
 
     args_lower = [x.lower() for x in argv]
+    with open(localizations.get("English", "localizations/english.json")) as localizations_json:
+        localization = json.load(localizations_json)
 
-    # Whether or not to run the application
+    # Whether to run the application
     # in DEBUG mode.
     if (
         "-dbg" in args_lower or

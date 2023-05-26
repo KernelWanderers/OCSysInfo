@@ -111,3 +111,7 @@ useragent_header = {
 }
 
 requests_timeout = 5
+
+localizations = {
+    "English": "localization/english.json",
+}
