@@ -1,51 +1,22 @@
 #!/usr/bin/env python3
 if __name__ == "__main__":
-    import json
-
     from sys import exit, version_info, version, argv
     from src.util.missing_dep import Requirements
-    from src.langparser import LangParser
-
-    # we define the langparser
-    # check the `localizations` folder
-    # and src/langparser.py for more info
-    langparser = LangParser({"English": "localizations/english.json"}, "English")
-
     
     if version_info < (3, 9, 0):
-        message = langparser.parse_message("main-python_requirement", str(version.partition(" ")[0]))
-        print(message)
+        print("OCSysInfo requires Python 3.9, while Python " + str(
+            version.partition(" ")[0]) + " was detected. Terminating... ")
         exit(1)
 
-    # Check if there are missing dependencies
-    requirements = Requirements()
-    missing = requirements.test_req()
-
-    # If there are missing dependencies,
-    # list them and exit.
-    if missing:
-        for missed in missing:
-            print(f'\033[1m\033[4m\033[91mPackage "{missed[0]}" is not installed!\033[0m')
-
-        try:
-            requirements.install_reqs(missing)
-        except KeyboardInterrupt:
-            exit(0)
-
-    import queue
     import requests
-    from threading import Thread
-    from update.updater import OCSIUpdater
-    from src.info import get_latest_version, format_text, AppInfo, color_text, requests_timeout, useragent_header, localizations
+    from src.info import format_text, AppInfo, color_text, requests_timeout, useragent_header
     from src.cli.ui import clear as clear_screen
     from src.util.create_log import create_log
     from src.util.debugger import Debugger as debugger
 
     args_lower = [x.lower() for x in argv]
-    with open(localizations.get("English", "localizations/english.json")) as localizations_json:
-        localization = json.load(localizations_json)
 
-    # Whether to run the application
+    # Whether or not to run the application
     # in DEBUG mode.
     if (
         "-dbg" in args_lower or
@@ -54,6 +25,16 @@ if __name__ == "__main__":
     ):
         debugger.toggle(True)
         print("=" * 25 + " BEGIN OF DEBUG " + "=" * 25)
+
+    # Fix ANSI escape codes not being registered
+    # in Windows's Command Prompt.
+    #
+    # Massive thank you to CorpNewt for pointing this out.
+    import os
+    import platform
+
+    if platform.system() == "windows":
+        os.system("color")
 
     # Preliminary check for internet availability.
     if "--offline" not in argv:
@@ -69,43 +50,6 @@ if __name__ == "__main__":
             debugger.log_dbg("--> [INTERNET]: Not available!\n")
     else:
         offline = True
-
-    if not offline:
-        # Get info for latest version
-        que = queue.Queue()
-        thread = Thread(target=lambda q: q.put(get_latest_version()), args=(que,))
-
-        # We start the thread while the script is discovering the data
-        thread.start()
-        thread.join()
-
-        # We have the latest version!
-        latest_version = que.get()
-
-        if latest_version != AppInfo.version:
-            import os
-            import sys
-
-            # Formatted 'n coloured
-            fnc = color_text(
-                format_text(
-                    f"NEW VERSION ({latest_version}) AVAILABLE!\nInstall? (y/n): ",
-                    "bold+underline"
-                ),
-                "red"
-            )
-            res = input(fnc)
-
-            if "y" in res.lower():
-                update = OCSIUpdater()
-
-                update.run()
-
-                debugger.log_dbg("--> Running OCSysInfo after update...\n")
-
-                # Restart with the updated version
-                os.execv(sys.executable, ['python'] + [sys.argv[0]])
-
 
     # Hopefully fix path-related issues in app bundles.
     log_tmp = create_log(True)
@@ -138,6 +82,7 @@ if __name__ == "__main__":
             debugger.log_dbg(color_text("--> [UI]: Spawning...\n", "yellow"))
             clear_screen()
             ui.create_ui()
+
         except Exception as e:
             if isinstance(e, KeyboardInterrupt):
                 exit(0)
@@ -150,9 +95,10 @@ if __name__ == "__main__":
                 exit(0)
             else:
                 raise e
+                
         finally:
-            print(" " * 25, end="\r")
             # clearing out the "Launching OCSysInfo..." line
+            print(" " * 25, end="\r")
 
         logger.info("Successfully launched OCSysInfo.", __file__)
     except KeyboardInterrupt:

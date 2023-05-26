@@ -4,7 +4,11 @@
 
 </div>
 
-## v1.0.8 (ALPHA)
+## v1.0.9-beta
+
+* Added Display detection support for macOS platforms.
+
+## v1.0.8
 
 * Fixed `driver_type.py` logic for PS/2 / SMBus detection
     - Previously, it wouldn't have preliminary checks for PS/2 devices, which is required to ensure that it's a PS/2 altogether.
@@ -14,7 +18,11 @@
 * Fixed logic for extracting PCI paths on Linux.
 * Fixed logic for storage devices on Linux.
     - Explicitly specify drive type for NVMe devices as `NVMe`, instead of just `SSD`
-* Fixed Intel's ARK page not sending data back due to broken User-Agent 
+* Fixed Intel's ARK page not sending data back due to broken User-Agent.
+* Fixed Intel's ARK US region not having any JSON payload after an autocomplete query.
+    - Thanks, Intel.
+* Fixed issue where, on some machines, it would timeout to get the version data.
+    - Thanks, @Vishal-09-00.
 
 
 ## v1.0.7

@@ -3,9 +3,11 @@ import re
 import subprocess
 from sys import exit
 from src.error.cpu_err import cpu_err
+from src.info import color_text
 from src.util.codename import gpu
 from src.util.pci_root import pci_from_acpi_linux
 from src.util.codename_manager import CodenameManager
+from src.util.debugger import Debugger as debugger
 from .dmi_decode import get_string_entry, MEMORY_TYPE
 
 
