@@ -11,6 +11,8 @@
     "patches-patch_plist-writing_changes": "Writing changes...",
     "patches-patch_plist-successfully_patched_info_plist": "Successfully patched Info.plist!",
 
+    "src-cli-ui-disclaimer": "DISCLAIMER",
+    "src-cli-ui-run_on_hackintosh": "THIS IS BEING RUN ON A HACKINTOSH.\nINFORMATION EXTRACTED MIGHT NOT BE COMPLETELY ACCURATE.",
     "src-cli-ui-select_an_option": "Please select an option: ",
     "src-cli-ui-successfully_executed": "Successfully executed.",
     "src-cli-ui-invalid_option": "Invalid option!",

@@ -13,30 +13,6 @@ from src.util.tree import tree
 from src.langparser import LangParser
 
 
-def hack_disclaimer():
-    kern_ver = int(os.uname().release.split(".")[0])
-
-    if kern_ver > 19:
-        kext_loaded = subprocess.run(
-            ["kmutil", "showloaded", "--list-only", "--variant-suffix", "release"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-        )
-    else:
-        kext_loaded = subprocess.run(
-            ["kextstat", "-l"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-        )
-
-    if any(x in kext_loaded.stdout.decode().lower() for x in ("fakesmc", "virtualsmc")):
-        return color_text(
-            format_text("DISCLAIMER:\n", "bold+underline"), "red"
-        ) + color_text(
-            f"THIS IS BEING RUN ON A HACKINTOSH.\n"
-            f"INFORMATION EXTRACTED MIGHT NOT BE COMPLETELY ACCURATE.",
-            "red",
-        )
-
-
 def title():
     spaces = " " * int((53 - len(AppInfo.name)) / 2)
 
@@ -73,6 +49,30 @@ class UI:
         self.dump_dir = dump_dir
         self.langparser = LangParser(localizations, "English")
         self.state = "menu"
+
+    def hack_disclaimer(self):
+        kern_ver = int(os.uname().release.split(".")[0])
+
+        if kern_ver > 19:
+            kext_loaded = subprocess.run(
+                ["kmutil", "showloaded", "--list-only", "--variant-suffix", "release"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
+        else:
+            kext_loaded = subprocess.run(
+                ["kextstat", "-l"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+            )
+
+        if any(x in kext_loaded.stdout.decode().lower() for x in ("fakesmc", "virtualsmc")):
+            return color_text(
+                format_text(self.langparser.parse_message("src-cli-ui-disclaimer"),
+                            "bold+underline"), "red"
+            ) + color_text(
+                self.langparser.parse_message("src-cli-ui-run_on_hackintosh"),
+                "red",
+            )
+
 
     def handle_cmd(self, options=[]):
         cmd = input(f"\n\n{self.langparser.parse_message('src-cli-ui-select_an_option')} ")
@@ -169,7 +169,7 @@ class UI:
                         " Press [enter] to return...") is not None
                     ):
                         pass
-                except Exception:
+                except Exception as e:
                     if (
                         asyncs and 
                         input(color_text("[ FAILED ] Unable to retrieve dumps.", "red") + 
@@ -355,7 +355,7 @@ class UI:
             title()
 
             if sys.platform.lower() == "darwin":
-                hack = hack_disclaimer()
+                hack = self.hack_disclaimer()
                 if hack:
                     print(f"{hack}\n")
 
