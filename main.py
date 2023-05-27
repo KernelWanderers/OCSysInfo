@@ -1,18 +1,29 @@
 #!/usr/bin/env python3
 if __name__ == "__main__":
+    import json
+
     from sys import exit, version_info, version, argv
     from src.util.missing_dep import Requirements
+    from src.langparser import LangParser
+
+    # we define the langparser
+    # check the `localizations` folder
+    # and src/langparser.py for more info
+    langparser = LangParser({"English": "localization/english.json"}, "English")
     
     if version_info < (3, 9, 0):
-        print("OCSysInfo requires Python 3.9, while Python " + str(
-            version.partition(" ")[0]) + " was detected. Terminating... ")
+        message = langparser.parse_message("main-python_requirement", "3.9", str(version.partition(" ")[0]))
+        print(message)
         exit(1)
 
     import requests
-    from src.info import format_text, AppInfo, color_text, requests_timeout, useragent_header
+    from src.info import format_text, AppInfo, color_text, requests_timeout, useragent_header, localizations
     from src.cli.ui import clear as clear_screen
     from src.util.create_log import create_log
     from src.util.debugger import Debugger as debugger
+
+    with open(localizations.get("English", "localization/english.json")) as localizations_json:
+        localization = json.load(localizations_json)
 
     args_lower = [x.lower() for x in argv]
 
