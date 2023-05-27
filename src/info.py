@@ -115,4 +115,5 @@ requests_timeout = 5
 
 localizations = {
     "English": "localization/english.json",
+    "Meownglish": "localization/cat.json",
 }
