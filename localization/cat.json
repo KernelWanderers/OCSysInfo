@@ -1,5 +1,5 @@
 {
-  "name": "English",
+  "name": "Meownglish",
   "localizations": {
     "main-python_requirement": "OCSysInfo requires Python {}, while Python {} was detected. Terminyaating ...",
     "main-package_not_installed": "Package \"{}\" is not installed!",
