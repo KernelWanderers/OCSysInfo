@@ -10,6 +10,7 @@ from src.util.dump_functions.json import dump_json
 from src.util.dump_functions.xml import dump_xml
 from src.util.dump_functions.plist import dump_plist
 from src.util.tree import tree
+from src.langparser import LangParser
 
 
 def hack_disclaimer():
@@ -66,14 +67,15 @@ class UI:
     and handling specific CLI commands.
     """
 
-    def __init__(self, dm, logger, dump_dir=AppInfo.root_dir):
+    def __init__(self, dm, localizations, logger, dump_dir=AppInfo.root_dir):
         self.dm = dm
         self.logger = logger
         self.dump_dir = dump_dir
+        self.langparser = LangParser(localizations, "English")
         self.state = "menu"
 
     def handle_cmd(self, options=[]):
-        cmd = input("\n\nPlease select an option: ")
+        cmd = input(f"\n\n{self.langparser.parse_message('src-cli-ui-select_an_option')} ")
         valid = False
 
         if cmd.lower() == "yee":

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 if __name__ == "__main__":
     import json
 
@@ -6,7 +7,7 @@ if __name__ == "__main__":
     from src.util.missing_dep import Requirements
     from src.langparser import LangParser
 
-    # we define the langparser
+    # we define the langparser here.
     # check the `localizations` folder
     # and src/langparser.py for more info
     langparser = LangParser({"English": "localization/english.json"}, "English")
@@ -22,6 +23,9 @@ if __name__ == "__main__":
     from src.util.create_log import create_log
     from src.util.debugger import Debugger as debugger
 
+    # we define the localization again, with all languages included this time.
+    # this is done because we cannot import the `info` module before this point.
+    # `info.py` has information on the available localizations
     with open(localizations.get("English", "localization/english.json")) as localizations_json:
         localization = json.load(localizations_json)
 
@@ -87,7 +91,7 @@ if __name__ == "__main__":
             debugger.log_dbg(color_text("--> [FlagParser]: Success!\n", "green"))
 
             debugger.log_dbg(color_text("--> [UI]: Initialising...", "yellow"))
-            ui = UI(flag_parser.dm, logger, log_tmp[1] or AppInfo.root_dir)
+            ui = UI(flag_parser.dm, localizations, logger, log_tmp[1] or AppInfo.root_dir)
             debugger.log_dbg(color_text("--> [UI]: Successfully initialised!\n", "green"))
             
             debugger.log_dbg(color_text("--> [UI]: Spawning...\n", "yellow"))
