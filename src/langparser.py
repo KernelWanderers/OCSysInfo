@@ -7,10 +7,14 @@ class LangParser:
         self.localization_dict = localizations
         with open(self.localization_dict.get(language, "localization/english.json")) as localizations_json:
             self.localization: dict = json.load(localizations_json)
+        self.english: dict = self.localization_dict.get("English", "localization/english.json")
 
     def change_localization(self, language: str):
         with open(self.localization_dict.get(language, "localization/english.json")) as localizations_json:
             self.localization: dict = json.load(localizations_json)
 
     def parse_message(self, message_code: str, *args):
-        return self.localization["localizations"].get(message_code).format(*args)
+        message_to_format = self.localization["localizations"].get(message_code)
+        if not message_to_format:
+            message_to_format = self.english["localizations"].get(message_code)
+        return message_to_format.format(*args)

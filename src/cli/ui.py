@@ -50,29 +50,6 @@ class UI:
         self.langparser = LangParser(localizations, "English")
         self.state = "menu"
 
-    def hack_disclaimer(self):
-        kern_ver = int(os.uname().release.split(".")[0])
-
-        if kern_ver > 19:
-            kext_loaded = subprocess.run(
-                ["kmutil", "showloaded", "--list-only", "--variant-suffix", "release"],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-            )
-        else:
-            kext_loaded = subprocess.run(
-                ["kextstat", "-l"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-            )
-
-        if any(x in kext_loaded.stdout.decode().lower() for x in ("fakesmc", "virtualsmc")):
-            return color_text(
-                format_text(self.langparser.parse_message("src-cli-ui-disclaimer"),
-                            "bold+underline"), "red"
-            ) + color_text(
-                self.langparser.parse_message("src-cli-ui-run_on_hackintosh"),
-                "red",
-            )
-
 
     def handle_cmd(self, options=[]):
         cmd = input(f"\n\n{self.langparser.parse_message('src-cli-ui-select_an_option')} ")
@@ -324,6 +301,29 @@ class UI:
         clear()
         self.logger.info("Successfully exited.\n\n")
         exit(0)
+
+    def hack_disclaimer(self):
+        kern_ver = int(os.uname().release.split(".")[0])
+
+        if kern_ver > 19:
+            kext_loaded = subprocess.run(
+                ["kmutil", "showloaded", "--list-only", "--variant-suffix", "release"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
+        else:
+            kext_loaded = subprocess.run(
+                ["kextstat", "-l"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+            )
+
+        if any(x in kext_loaded.stdout.decode().lower() for x in ("fakesmc", "virtualsmc")):
+            return color_text(
+                format_text(self.langparser.parse_message("src-cli-ui-disclaimer"),
+                            "bold+underline"), "red"
+            ) + color_text(
+                self.langparser.parse_message("src-cli-ui-run_on_hackintosh"),
+                "red",
+            )
 
     def create_ui(self):
         options = [
