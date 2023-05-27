@@ -26,7 +26,8 @@ if __name__ == "__main__":
     # we define the localization again, with all languages included this time.
     # this is done because we cannot import the `info` module before this point.
     # `info.py` has information on the available localizations
-    with open(localizations.get("English", "localization/english.json")) as localizations_json:
+    language = "English"
+    with open(localizations.get(language, "localization/english.json")) as localizations_json:
         localization = json.load(localizations_json)
 
     args_lower = [x.lower() for x in argv]
@@ -91,7 +92,7 @@ if __name__ == "__main__":
             debugger.log_dbg(color_text("--> [FlagParser]: Success!\n", "green"))
 
             debugger.log_dbg(color_text("--> [UI]: Initialising...", "yellow"))
-            ui = UI(flag_parser.dm, localizations, "English", logger, log_tmp[1] or AppInfo.root_dir)
+            ui = UI(flag_parser.dm, localizations, language, logger, log_tmp[1] or AppInfo.root_dir)
             debugger.log_dbg(color_text("--> [UI]: Successfully initialised!\n", "green"))
             
             debugger.log_dbg(color_text("--> [UI]: Spawning...\n", "yellow"))
