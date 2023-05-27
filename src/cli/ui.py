@@ -318,7 +318,7 @@ class UI:
 
         if any(x in kext_loaded.stdout.decode().lower() for x in ("fakesmc", "virtualsmc")):
             return color_text(
-                format_text(self.langparser.parse_message("src-cli-ui-disclaimer"),
+                format_text(self.langparser.parse_message("src-cli-ui-disclaimer") + "\n",
                             "bold+underline"), "red"
             ) + color_text(
                 self.langparser.parse_message("src-cli-ui-run_on_hackintosh"),
