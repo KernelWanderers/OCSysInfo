@@ -91,7 +91,7 @@ if __name__ == "__main__":
             debugger.log_dbg(color_text("--> [FlagParser]: Success!\n", "green"))
 
             debugger.log_dbg(color_text("--> [UI]: Initialising...", "yellow"))
-            ui = UI(flag_parser.dm, localizations, logger, log_tmp[1] or AppInfo.root_dir)
+            ui = UI(flag_parser.dm, localizations, "English", logger, log_tmp[1] or AppInfo.root_dir)
             debugger.log_dbg(color_text("--> [UI]: Successfully initialised!\n", "green"))
             
             debugger.log_dbg(color_text("--> [UI]: Spawning...\n", "yellow"))

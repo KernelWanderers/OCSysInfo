@@ -43,11 +43,11 @@ class UI:
     and handling specific CLI commands.
     """
 
-    def __init__(self, dm, localizations, logger, dump_dir=AppInfo.root_dir):
+    def __init__(self, dm, localizations, language, logger, dump_dir=AppInfo.root_dir):
         self.dm = dm
         self.logger = logger
         self.dump_dir = dump_dir
-        self.langparser = LangParser(localizations, "English")
+        self.langparser = LangParser(localizations, language)
         self.state = "menu"
 
 
