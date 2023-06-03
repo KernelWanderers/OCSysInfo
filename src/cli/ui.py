@@ -50,7 +50,6 @@ class UI:
         self.langparser = LangParser(localizations, language)
         self.state = "menu"
 
-
     def handle_cmd(self, options=[]):
         cmd = input(f"\n\n{self.langparser.parse_message('src-cli-ui-select_an_option')} ")
         valid = False
@@ -70,7 +69,8 @@ class UI:
                 title()
                 data = option[2]()
 
-                print(data if data else "Successfully executed.\n")
+                print(data if data else
+                      self.langparser.parse_message("src-cli-ui-successfully_executed")+"\n")
                 self.enter()
 
                 clear()
@@ -79,7 +79,7 @@ class UI:
 
         if not valid:
             clear()
-            print("Invalid option!\n")
+            print(self.langparser.parse_message("src-cli-ui-invalid_option")+"\n")
             self.enter()
 
             clear()
@@ -91,14 +91,15 @@ class UI:
         title()
 
         data_options = [
-            ("C", "CPU"),
-            ("G", "GPU"),
-            ("B", "Motherboard" if system().lower() != "darwin" else "Vendor"),
-            ("M", "Memory"),
-            ("N", "Network"),
-            ("A", "Audio"),
-            ("I", "Input"),
-            ("S", "Storage"),
+            ("C", self.langparser.parse_message("src-cli-ui-cpu")),
+            ("G", self.langparser.parse_message("src-cli-ui-gpu")),
+            ("B", self.langparser.parse_message("src-cli-ui-motherboard") if system().lower() != "darwin"
+                  else self.langparser.parse_message("src-cli-ui-vendor")),
+            ("M", self.langparser.parse_message("src-cli-ui-memory")),
+            ("N", self.langparser.parse_message("src-cli-ui-network")),
+            ("A", self.langparser.parse_message("src-cli-ui-audio")),
+            ("I", self.langparser.parse_message("src-cli-ui-input")),
+            ("S", self.langparser.parse_message("src-cli-ui-storage")),
         ]
 
         opts = ["C", "G", "B", "M", "N", "A", "I", "S"]
@@ -109,16 +110,16 @@ class UI:
             print(f"[{toggled}] ({opt[0]}) - {opt[1]}")
 
         selected = input(
-            "Please select an option to toggle (or 'R'/'Q' to return): ")
+            self.langparser.parse_message("src-cli-ui-select_option_to_toggle"))
 
         if selected.lower() == "q" or selected.lower() == "r":
             clear()
             title()
 
-            print(color_text("Please wait while we adjust settings...\n", "green"))
+            print(color_text(self.langparser.parse_message("src-cli-ui-please_wait_while_we_adjust_settings")+"\n", "green"))
 
             deletions = []
-            asyncs    = []
+            asyncs = []
 
             for opt in data_options:
                 if (
@@ -134,16 +135,17 @@ class UI:
                     deletions.append(opt[1])
 
             if asyncs:
-                print(f"Attempting to retrieve dumps for: {', '.join(asyncs)}...\n")
-
+                print(self.langparser.parse_message("src-cli-ui-attempting_to_retrieve_dumps",
+                                                    ', '.join(asyncs)) + "\n")
                 try:
                     self.dm.manager.dump()
                     self.dm.info = self.dm.manager.info
 
                     if (
                         not deletions and
-                        input(color_text("[   OK   ] Successfully retrieved additional dumps.\n", "green") + 
-                        " Press [enter] to return...") is not None
+                        input(color_text("[   OK   ] " + self.langparser.parse_message("src-cli-ui-retrieved_additional_dumps") + "\n "
+                                         , "green") +
+                              self.langparser.parse_message("src-cli-ui-press_key_to_return", "enter")) is not None
                     ):
                         pass
                 except Exception as e:
@@ -255,14 +257,14 @@ class UI:
         print(" ")
 
         options = [
-            (color_text("R. ", "yellow"), "Return"),
-            (color_text("T. ", "yellow"), "Dump as TXT"),
-            (color_text("J. ", "yellow"), "Dump as JSON"),
-            (color_text("X. ", "yellow"), "Dump as XML"),
-            (color_text("P. ", "yellow"), "Dump as Plist"),
-            (color_text("C. ", "yellow"), "Change dump directory"),
-            (color_text("A. ", "yellow"), "Toggle data"),
-            (color_text("Q. ", "yellow"), "Quit"),
+            (color_text("R. ", "yellow"), self.langparser.parse_message('src-cli-ui-return')),
+            (color_text("T. ", "yellow"), self.langparser.parse_message('src-cli-ui-dump_as_txt')),
+            (color_text("J. ", "yellow"), self.langparser.parse_message("src-cli-ui-dump_as_json")),
+            (color_text("X. ", "yellow"), self.langparser.parse_message("src-cli-ui-dump_as_xml")),
+            (color_text("P. ", "yellow"), self.langparser.parse_message("src-cli-ui-dump_as_plist")),
+            (color_text("C. ", "yellow"), self.langparser.parse_message("src-cli-ui-change_dump_directory")),
+            (color_text("A. ", "yellow"), self.langparser.parse_message("src-cli-ui-toggle_data")),
+            (color_text("Q. ", "yellow"), self.langparser.parse_message("")),
         ]
 
         cmd_options = [
@@ -327,14 +329,14 @@ class UI:
 
     def create_ui(self):
         options = [
-            (color_text("D. ", "yellow"), "Discover hardware"),
-            (color_text("T. ", "yellow"), "Dump as TXT"),
-            (color_text("J. ", "yellow"), "Dump as JSON"),
-            (color_text("X. ", "yellow"), "Dump as XML"),
-            (color_text("P. ", "yellow"), "Dump as Plist"),
-            (color_text("C. ", "yellow"), "Change dump directory"),
-            (color_text("A. ", "yellow"), "Toggle data"),
-            ("\n\n", color_text("Q. ", "yellow"), "Quit"),
+            (color_text("D. ", "yellow"), self.langparser.parse_message('src-cli-ui-discover_hardware')),
+            (color_text("T. ", "yellow"), self.langparser.parse_message('src-cli-ui-dump_as_txt')),
+            (color_text("J. ", "yellow"), self.langparser.parse_message('src-cli-ui-dump_as_json')),
+            (color_text("X. ", "yellow"), self.langparser.parse_message('src-cli-ui-dump_as_xml')),
+            (color_text("P. ", "yellow"), self.langparser.parse_message('src-cli-ui-dump_as_plist')),
+            (color_text("C. ", "yellow"), self.langparser.parse_message('src-cli-ui-change_dump_directory')),
+            (color_text("A. ", "yellow"), self.langparser.parse_message('src-cli-ui-toggle_data')),
+            ("\n\n", color_text("Q. ", "yellow"), self.langparser.parse_message('src-cli-ui-quit')),
         ]
 
         cmd_options = [
@@ -359,11 +361,11 @@ class UI:
                 if hack:
                     print(f"{hack}\n")
 
-            print(f"Program      :  {color_text(AppInfo.name, 'green')}")
-            print(f"Version      :  {color_text(AppInfo.version, 'green')}")
-            print(f"Platform     :  {color_text(os_ver, 'green')}")
-            print(f"Architecture :  {color_text(AppInfo.arch, 'green')}")
-            print(f"Current dump :  {color_text(self.dump_dir, 'cyan')}")
+            print(f"{self.langparser.parse_message('src-cli-ui-program')}      :  {color_text(AppInfo.name, 'green')}")
+            print(f"{self.langparser.parse_message('src-cli-ui-version')}      :  {color_text(AppInfo.version, 'green')}")
+            print(f"{self.langparser.parse_message('src-cli-ui-platform')}     :  {color_text(os_ver, 'green')}")
+            print(f"{self.langparser.parse_message('src-cli-ui-architecture')} :  {color_text(AppInfo.arch, 'green')}")
+            print(f"{self.langparser.parse_message('src-cli-ui-current_dump')} :  {color_text(self.dump_dir, 'cyan')}")
             # todo: programmatically make the uniform `:` marks to support localization
 
             print("\n")
@@ -385,5 +387,5 @@ class UI:
     def enter(self):
         # “Hacky” way of detecting when
         # the Enter key is pressed down.
-        if input(color_text("Press [enter] to return... ", "yellow")) is not None:
+        if input(color_text(self.langparser.parse_message("src-cli-ui-press_key_to_return", "enter"), "yellow")) is not None:
             self.create_ui()

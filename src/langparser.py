@@ -4,6 +4,7 @@ import json
 class LangParser:
 
     def __init__(self, localizations: dict, language: str="English"):
+        self.language = language
         self.localization_dict = localizations
 
         with open(self.localization_dict.get("English")) as f:

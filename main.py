@@ -10,7 +10,7 @@ if __name__ == "__main__":
     # we define the langparser here.
     # check the `localizations` folder
     # and src/langparser.py for more info
-    langparser = LangParser({"English": "localization/english.json"}, "English")
+    langparser = LangParser({"English": "localization/english.json"})
     
     if version_info < (3, 9, 0):
         message = langparser.parse_message("main-python_requirement", "3.9", str(version.partition(" ")[0]))
@@ -104,8 +104,7 @@ if __name__ == "__main__":
                 exit(0)
 
             if isinstance(e, PermissionError):
-                print(color_text("Could not access the required data. "
-                                    "Try running this program using elevated privileges.", "red"))
+                print(color_text(langparser.parse_message("main-could_not_access_data"), "red"))
                 logger.critical("Could not access the required data. Exiting OCSysInfo\n\t"
                                 f"^^^^^^^^{str(e)}", __file__)
                 exit(0)
@@ -118,5 +117,8 @@ if __name__ == "__main__":
 
         logger.info("Successfully launched OCSysInfo.", __file__)
     except KeyboardInterrupt:
-        logger.info("Exited successfully.", __file__)
+        try:
+            logger.info("Exited successfully.", __file__)
+        except:
+            pass
         exit(0)
