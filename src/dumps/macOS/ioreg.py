@@ -25,7 +25,7 @@ functions = [
     ("IORegistryEntryGetParentEntry", b"IIr*o^I"),
     ("IOServiceGetMatchingServices", b"II" + CFDictionaryRef + b"o^I"),
     ("IORegistryEntryIDMatching", CFDictionaryRef + b"Q"),
-    ("IORegistryEntryFromPath", b"II*"),
+    ("IORegistryEntryFromPath", b"II" + const_io_name_t_ref_in),
     ("IORegistryEntryGetPath", b"II" + const_io_name_t_ref_in + b"o" + io_name_t_ref_out),
     ("IOServiceNameMatching", CFDictionaryRef + b"r*"),
     ("IOObjectConformsTo", b"II" + const_io_name_t_ref_in),
