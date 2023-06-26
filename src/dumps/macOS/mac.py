@@ -1342,6 +1342,17 @@ class MacHardwareManager:
                 )
                 continue
 
+            connector_t = {
+                0x02: "LVDS/eDP",
+                0x10: "VGA",
+                0x400: "DisplayPort",
+                0x01: "DUMMY",
+                0x800: "HDMI",
+                0x80: "S-Video",
+                0x04: "DVI (Dual Link)",
+                0x200: "DVI (Single Link)"
+            }
+
             product = hex(int(device.get("DisplayProductID", "")))
             vendor = hex(int(device.get("DisplayVendorID", "")))
             serial = device.get("DisplaySerialNumber", "")
@@ -1350,6 +1361,25 @@ class MacHardwareManager:
             gpus = self.info["GPU"]
             ver_rev = (edid[0x12], edid[0x13])
             name = "UNKNOWN DISPLAY DEVICE"
+            parent_fb_path = "/".join(
+                device
+                    .get("IODisplayPrefsKeyOld")
+                    .split("/display0/")[0]
+                    .split("/")[:-1]
+            ).encode()
+            parent_fb = corefoundation_to_native (
+                IORegistryEntryCreateCFProperties (
+                    IORegistryEntryFromPath(
+                        kIOMasterPortDefault, 
+                        parent_fb_path
+                    ),
+                    None,
+                    kCFAllocatorDefault,
+                    kNilOptions
+                )
+            )[1]
+
+            connector = connector_t[int(parent_fb.get("connector-type", ""))]
 
             # Horizontal —  first value
             # Vertical   —  second value
@@ -1495,10 +1525,11 @@ class MacHardwareManager:
                         f"{name} {parent}": {
                             "Product ID": product,
                             "Vendor ID": vendor,
-                            "Serial": serial,
+                            "Serial": hex(serial),
                             "Resolution": f"{res[0]}x{res[1]}",
                             "Size (in inches)": f"{screen_size}”",
-                            "Display mode": "Portrait" if res[-1] else "Landscape"
+                            "Display mode": "Portrait" if res[-1] else "Landscape",
+                            "Connector": connector,
                         }
                     }
                 )
