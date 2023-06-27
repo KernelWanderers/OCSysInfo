@@ -1322,7 +1322,6 @@ class MacHardwareManager:
         self.info["Displays"] = []
 
         for i in interface:
-
             device = corefoundation_to_native(
                 IORegistryEntryCreateCFProperties(
                     i, None, kCFAllocatorDefault, kNilOptions
@@ -1343,14 +1342,14 @@ class MacHardwareManager:
                 continue
 
             connector_t = {
-                0x02: "LVDS/eDP",
-                0x10: "VGA",
-                0x400: "DisplayPort",
                 0x01: "DUMMY",
-                0x800: "HDMI",
-                0x80: "S-Video",
+                0x02: "LVDS/eDP",
                 0x04: "DVI (Dual Link)",
-                0x200: "DVI (Single Link)"
+                0x10: "VGA",
+                0x80: "S-Video",
+                0x200: "DVI (Single Link)",
+                0x400: "DisplayPort",
+                0x800: "HDMI",
             }
 
             product = hex(int(device.get("DisplayProductID", "")))
@@ -1361,25 +1360,18 @@ class MacHardwareManager:
             gpus = self.info["GPU"]
             ver_rev = (edid[0x12], edid[0x13])
             name = "UNKNOWN DISPLAY DEVICE"
-            parent_fb_path = "/".join(
-                device
-                    .get("IODisplayPrefsKeyOld")
-                    .split("/display0/")[0]
-                    .split("/")[:-1]
-            ).encode()
-            parent_fb = corefoundation_to_native (
-                IORegistryEntryCreateCFProperties (
-                    IORegistryEntryFromPath(
-                        kIOMasterPortDefault, 
-                        parent_fb_path
-                    ),
-                    None,
-                    kCFAllocatorDefault,
-                    kNilOptions
-                )
-            )[1]
 
-            connector = connector_t[int(parent_fb.get("connector-type", ""))]
+            connector_obj = IORegistryEntrySearchCFProperty (
+                i,
+                "IOService".encode(),
+                "connector-type",
+                kCFAllocatorDefault,
+                kIORegistryIterateRecursively | kIORegistryIterateParents
+            )
+
+            connector = connector_t.get(connector_obj, "UNKNOWN CONNECTOR")
+
+            CFRelease (connector_obj)
 
             # Horizontal —  first value
             # Vertical   —  second value
@@ -1393,14 +1385,6 @@ class MacHardwareManager:
             ratio = ratios[
                 int(str((edid[0x27] >> 6) & 1) + str((edid[0x27] >> 7) & 1), 2)
             ]
-
-            if ratio:
-                debugger.log_dbg(
-                    color_text(
-                        f"--> [Display]: Successfully detected aspect ratio of {ratio[0]}:{ratio[1]}! — (IOKit)",
-                        "green",
-                    )
-                )
 
             # Dimensions of the display in cm.
             horizontal = edid[0x15]
@@ -1441,18 +1425,26 @@ class MacHardwareManager:
 
             # Display is in Landscape mode.
             elif horizontal != 0:
-                ratio.reverse()
-
                 res = (hor_adr_vid, ver_adr_vid, 0)
 
             # Display is in Portrait mode.
             elif vertical != 0:
+                ratio.reverse()
+
                 res = (ver_adr_vid, hor_adr_vid, 1)
+
+            if ratio:
+                debugger.log_dbg(
+                    color_text(
+                        f"--> [Display]: Successfully detected aspect ratio of {ratio[0]}:{ratio[1]}! — (IOKit)",
+                        "green",
+                    )
+                )
 
             if res != (0, 0, -1):
                 debugger.log_dbg(
                     color_text(
-                        f"--> [Display]: Successfully detected {res[0]}x{res[1]} resolution in {'Portrait' if res[2] else 'Landscape'} mode! — (IOKit)",
+                        f"--> [Display]: Successfully detected {res[0]}x{res[1]} resolution in {'Portrait' if res[-1] else 'Landscape'} mode! — (IOKit)",
                         "green",
                     )
                 )
@@ -1530,6 +1522,9 @@ class MacHardwareManager:
                             "Size (in inches)": f"{screen_size}”",
                             "Display mode": "Portrait" if res[-1] else "Landscape",
                             "Connector": connector,
+                            "Aspect ratio": f"{ratio[0]}:{ratio[1]}",
                         }
                     }
                 )
+
+            IOObjectRelease(i)
