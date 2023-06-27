@@ -22,7 +22,6 @@ class LangParser:
 
     def __init__(self, localizations: dict, project_root: str, language: str = "English"):
         self.project_root = project_root
-
         self.language = language
         self.localization_dict = localizations
 
@@ -40,6 +39,7 @@ class LangParser:
         split_caller = split_path(caller_file)
         split_project_root = split_path(self.project_root)
         key_elements = [x for x in split_caller if x not in split_project_root]
+        # TODO: this might error out when the root path has strings that are also present in the split caller
         subdict = self.localization["localizations"]
 
         for element in key_elements:
@@ -56,6 +56,18 @@ class LangParser:
         message_to_format = self.get_key(caller_file, message_code)
 
         if not message_to_format:
-            message_to_format = self.english["localizations"].get(message_code)
+            message_to_format = self.english["localizations"].get(message_code, message_code)
 
         return message_to_format.format(*args)
+
+    def parse_message_as(self, parse_as: str, message_code: str, *args):
+        """
+        parse_as: Is the caller file to emulate
+        example: "src/cli/ui.py"
+        or if running from "/users/username/Downloads/OCSysInfo", you can also use
+         "/users/username/Downloads/OCSysInfo/src/cli/ui.py"
+        """
+
+        key = self.get_key(parse_as, message_code)
+
+        return key.format(*args)

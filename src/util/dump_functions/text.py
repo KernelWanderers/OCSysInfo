@@ -21,6 +21,7 @@ def dump_txt(dm, dir, logger):
         ) as file:
             for key in dm.info:
                 file.write(tree(key, dm.info[key], color=False))
+                # TODO: somehow get the program's language and use it to generate the tree
                 file.write("\n")
 
             file.close()

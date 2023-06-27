@@ -256,7 +256,7 @@ class UI:
                 )
 
                 if key and not is_empty and not key in self.dm.off_data:
-                    val = tree(key, self.dm.info[key])
+                    val = tree(key, self.dm.info[key], language=self.langparser.language)
                     print(val)
             except Exception as e:
                 self.logger.critical(

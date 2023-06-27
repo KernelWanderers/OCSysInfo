@@ -32,6 +32,7 @@
                     "audio": "Audio",
                     "input": "Input",
                     "storage": "Storage",
+                    "displays": "Displays",
                     "select_option_to_toggle": "Please select an option to toggle (or 'R'/'Q' to return): ",
                     "please_wait_while_we_adjust_settings": "Please wait while we adjust settings...",
                     "attempting_to_retrieve_dumps": "Attempting to retrieve dumps for: {}...",

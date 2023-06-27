@@ -1,12 +1,16 @@
-import re
-from src.info import color_text
+import re, os
+
+from src.info import color_text, localizations
+from localization.langparser import LangParser
 
 
-def tree(name, data, nest=1, parent="", looped={}, value="", color=True):
+def tree(name, data, nest=1, parent="", looped={}, value="", color=True, language="English", langparser=None):
     """
     Internal function to properly format nested objects / lists of objects,
     and display them to the terminal (thanks, @[Dids](https://github.com/Dids)!)
     """
+    if langparser is None:
+        langparser = LangParser(localizations, os.getcwd(), language)
 
     spacing = ""
     sp = ""
@@ -30,12 +34,12 @@ def tree(name, data, nest=1, parent="", looped={}, value="", color=True):
 
             if len(looped):
                 sp = (
-                    re.sub(
-                        r"├",
-                        color_text("│", "cyan") if color else "│",
-                        re.sub(r"─", " ", re.sub(r"└", " ", parent)),
-                    )
-                    + (f if i < l else s)
+                        re.sub(
+                            r"├",
+                            color_text("│", "cyan") if color else "│",
+                            re.sub(r"─", " ", re.sub(r"└", " ", parent)),
+                        )
+                        + (f if i < l else s)
                 )
             else:
                 sp = " " * (len(parent) if parent else 2) + (f if i < l else s)
@@ -50,6 +54,8 @@ def tree(name, data, nest=1, parent="", looped={}, value="", color=True):
                     looped={"i": 1},
                     value=value,
                     color=color,
+                    language=language,
+                    langparser=langparser,
                 )
 
             else:
@@ -61,7 +67,12 @@ def tree(name, data, nest=1, parent="", looped={}, value="", color=True):
             i += 1
 
     elif isinstance(data, list):
-        value += f"{spacing}{name}\n"
+        try:
+            name_localized = langparser.parse_message_as("src/cli/ui", name.lower())
+        except:
+            name_localized = name
+
+        value += f"{spacing}{name_localized if name_localized else name}\n"
 
         i = 1
         for d in data:
@@ -76,6 +87,8 @@ def tree(name, data, nest=1, parent="", looped={}, value="", color=True):
                 looped={"i": i, "l": len(data)},
                 value=value,
                 color=color,
+                language=language,
+                langparser=langparser,
             )
             i += 1
 

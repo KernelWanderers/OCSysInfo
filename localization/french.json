@@ -32,6 +32,7 @@
                     "audio": "le Audio",
                     "input": "le Input",
                     "storage": "le Storage",
+                    "displays": "le Displays",
                     "select_option_to_toggle": "le Please select an option to toggle (or 'R'/'Q' to return): ",
                     "please_wait_while_we_adjust_settings": "le Please wait while we adjust settings...",
                     "attempting_to_retrieve_dumps": "le Attempting to retrieve dumps for: {}...",
