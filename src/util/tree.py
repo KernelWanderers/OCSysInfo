@@ -4,13 +4,13 @@ from src.info import color_text, localizations
 from localization.langparser import LangParser
 
 
-def tree(name, data, nest=1, parent="", looped={}, value="", color=True, language="English", langparser=None):
+def tree(name, data, nest=1, parent="", looped={}, value="", color=True, langparser=None):
     """
     Internal function to properly format nested objects / lists of objects,
     and display them to the terminal (thanks, @[Dids](https://github.com/Dids)!)
     """
     if langparser is None:
-        langparser = LangParser(localizations, os.getcwd(), language)
+        langparser = LangParser(localizations, os.getcwd(), os.getenv("LANGUAGE"))
 
     spacing = ""
     sp = ""
@@ -54,7 +54,6 @@ def tree(name, data, nest=1, parent="", looped={}, value="", color=True, languag
                     looped={"i": 1},
                     value=value,
                     color=color,
-                    language=language,
                     langparser=langparser,
                 )
 
@@ -87,7 +86,6 @@ def tree(name, data, nest=1, parent="", looped={}, value="", color=True, languag
                 looped={"i": i, "l": len(data)},
                 value=value,
                 color=color,
-                language=language,
                 langparser=langparser,
             )
             i += 1

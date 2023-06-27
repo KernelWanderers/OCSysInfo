@@ -43,11 +43,13 @@ class UI:
     and handling specific CLI commands.
     """
 
-    def __init__(self, dm, localizations, language, logger, dump_dir=AppInfo.root_dir):
+    def __init__(self, dm, langparser, logger, dump_dir=AppInfo.root_dir):
         self.dm = dm
         self.logger = logger
         self.dump_dir = dump_dir
-        self.langparser = LangParser(localizations, os.getcwd(), language)
+        self.langparser = langparser
+        self.language = langparser.language
+
         # todo: check if there's a better way to get project root than os.getcwd()
         self.state = "menu"
 
@@ -256,7 +258,7 @@ class UI:
                 )
 
                 if key and not is_empty and not key in self.dm.off_data:
-                    val = tree(key, self.dm.info[key], language=self.langparser.language)
+                    val = tree(key, self.dm.info[key], langparser=self.langparser)
                     print(val)
             except Exception as e:
                 self.logger.critical(
