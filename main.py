@@ -10,11 +10,9 @@ if __name__ == "__main__":
     # we define the langparser here.
     # check the `localizations` folder
     # and src/langparser.py for more info
-    langparser = LangParser({"English": "localization/english.json"}, os.getcwd(), "English")
-    # TODO: check if there's a better way to get project root than os.getcwd()
 
     if version_info < (3, 9, 0):
-        message = langparser.parse_message("python_requirement", "3.9", str(version.partition(" ")[0]))
+        message = print(f"OCSysInfo requires Python 3.9, while Python {str(version.partition(' ')[0])} was detected. Terminating...") ,
         print(message)
         exit(1)
 
@@ -28,9 +26,13 @@ if __name__ == "__main__":
     # we define the localization again, with all languages included this time.
     # this is done because we cannot import the `info` module before this point.
     # `info.py` has information on the available localizations
-    language = "English"
+    language = "French"
+    os.environ["LANGUAGE"] = language
     with open(localizations.get(language, "localization/english.json")) as localizations_json:
         localization = json.load(localizations_json)
+
+    langparser = LangParser(localizations, os.getcwd(), language)
+    # TODO: check if there's a better way to get project root than os.getcwd()
 
     args_lower = [x.lower() for x in argv]
 
@@ -96,7 +98,7 @@ if __name__ == "__main__":
             debugger.log_dbg(color_text("--> [FlagParser]: Success!\n", "green"))
 
             debugger.log_dbg(color_text("--> [UI]: Initialising...", "yellow"))
-            ui = UI(flag_parser.dm, localizations, language, logger, log_tmp[1] or AppInfo.root_dir)
+            ui = UI(flag_parser.dm, langparser, logger, log_tmp[1] or AppInfo.root_dir)
             debugger.log_dbg(color_text("--> [UI]: Successfully initialised!\n", "green"))
 
             debugger.log_dbg(color_text("--> [UI]: Spawning...\n", "yellow"))
