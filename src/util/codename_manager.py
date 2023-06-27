@@ -72,8 +72,8 @@ class CodenameManager:
                 self.codename = (
                     f"{ARM_CPU[key].get('performance_core')}/" +
                     f"{ARM_CPU[key].get('efficiency_core')} " +
-                    f"({ARM_CPU[key].get('codename')}) - " +
-                    f"{ARM_CPU[key].get('part_no')}"
+                    f"({ARM_CPU[key].get('part_no')}) - " +
+                    f"{ARM_CPU[key].get('chip_id')}"
                 )
 
                 break
