@@ -71,7 +71,7 @@ class UI:
                 data = option[2]()
 
                 print(data if data else
-                      self.langparser.parse_message("successfully_executed")+"\n")
+                      self.langparser.parse_message("successfully_executed") + "\n")
                 self.enter()
 
                 clear()
@@ -80,7 +80,7 @@ class UI:
 
         if not valid:
             clear()
-            print(self.langparser.parse_message("invalid_option")+"\n")
+            print(self.langparser.parse_message("invalid_option") + "\n")
             self.enter()
 
             clear()
@@ -95,7 +95,7 @@ class UI:
             ("C", self.langparser.parse_message("cpu")),
             ("G", self.langparser.parse_message("gpu")),
             ("B", self.langparser.parse_message("motherboard") if system().lower() != "darwin"
-                  else self.langparser.parse_message("vendor")),
+                else self.langparser.parse_message("vendor")),
             ("M", self.langparser.parse_message("memory")),
             ("N", self.langparser.parse_message("network")),
             ("A", self.langparser.parse_message("audio")),
@@ -117,21 +117,21 @@ class UI:
             clear()
             title()
 
-            print(color_text(self.langparser.parse_message("please_wait_while_we_adjust_settings")+"\n", "green"))
+            print(color_text(self.langparser.parse_message("please_wait_while_we_adjust_settings") + "\n", "green"))
 
             deletions = []
             asyncs = []
 
             for opt in data_options:
                 if (
-                    not opt[1] in self.dm.off_data and 
-                    not self.dm.info.get(opt[1])
+                        not opt[1] in self.dm.off_data and
+                        not self.dm.info.get(opt[1])
                 ):
                     asyncs.append(opt[1])
 
                 if (
-                    opt[1] in self.dm.off_data and
-                    self.dm.info.get(opt[1])
+                        opt[1] in self.dm.off_data and
+                        self.dm.info.get(opt[1])
                 ):
                     deletions.append(opt[1])
 
@@ -143,17 +143,19 @@ class UI:
                     self.dm.info = self.dm.manager.info
 
                     if (
-                        not deletions and
-                        input(color_text("[   OK   ] " + self.langparser.parse_message("retrieved_additional_dumps") + "\n "
-                                         , "green") +
-                              self.langparser.parse_message("press_key_to_return", "enter")) is not None
+                            not deletions and
+                            input(color_text(
+                                "[   OK   ] " + self.langparser.parse_message("retrieved_additional_dumps") + "\n "
+                                , "green") +
+                                  self.langparser.parse_message("press_key_to_return", "enter")) is not None
                     ):
                         pass
                 except Exception as e:
                     if (
-                        asyncs and 
-                        input(color_text("[ FAILED ] Unable to retrieve dumps.", "red") + 
-                        " Press [enter] to return...") is not None
+                            asyncs and
+                            input(color_text(f"[ FAILED ] {self.langparser.parse_message('unable_to_retrieve_dumps')}",
+                                             "red") +
+                                  f" {self.langparser.parse_message('press_key_to_return', 'enter')}") is not None
                     ):
                         pass
                     elif not asyncs:
@@ -163,25 +165,27 @@ class UI:
                         )
 
             if deletions:
-                print(f"Attempting to delete info for: {', '.join(deletions)}...\n")
+                self.langparser.parse_message("attempting_to_delete_info_for", ', '.join(deletions) + "\n")
 
                 for delete in deletions:
                     if self.dm.info.pop(delete):
                         self.dm.off_data.append(delete)
 
                         print(color_text(
-                            f"[   OK   ] Successfully deleted info for '{delete}'!",
+                            f"[   OK   ] {self.langparser.parse_message('successfully_deleted_info_for', delete)}",
                             "green"
                         ))
                     else:
                         print(color_text(
-                            f"[  ERROR  ] Failed to delete info for '{delete}'!\n\t^^^^^^^{str(e)}",
+                            f"[  ERROR  ] {self.langparser.parse_message('failed_to_delete_info_for', delete)}",
                             "red"
                         ))
 
                 if (
-                    input(color_text("[   OK   ] Successfully deleted selected info.\n", "green") + 
-                    " Press [enter] to return...") is not None
+                        input(color_text(f"[   OK   ] "
+                                         f"{self.langparser.parse_message('successfully_deleted_selected_info')}\n",
+                                         "green") +
+                              f" {self.langparser.parse_message('press_key_to_return', 'enter')}") is not None
                 ):
                     pass
 
@@ -191,8 +195,10 @@ class UI:
                 return self.create_ui()
 
         if (
-            not selected.upper() in opts and
-            input(color_text("Invalid option! Press [enter] to retry...", "red")) is not None
+                not selected.upper() in opts and
+                input(color_text(f"{self.langparser.parse_message('invalid_option')} "
+                                 f"{self.langparser.parse_message('press_key_to_return', 'enter')}",
+                                 "red")) is not None
         ):
             self.toggle_data()
 
@@ -210,7 +216,7 @@ class UI:
         clear()
         title()
 
-        dump_dir = input("Please enter the directory (or 'Q' to exit.): ").strip().replace(
+        dump_dir = input(self.langparser.parse_message('please_enter_the_directory')).strip().replace(
             '"', '').replace("'", "")
 
         if "~" in dump_dir:
@@ -219,7 +225,9 @@ class UI:
         if not len(dump_dir):
             clear()
             title()
-            if input(color_text("Please specify a directory! Press [enter] to retry... ", "yellow")) is not None:
+            if input(color_text(f"{self.langparser.parse_message('please_specify_a_directory')} "
+                                f"{self.langparser.parse_message('press_key_to_retry', 'enter')} ",
+                                "yellow")) is not None:
                 self.change_dump_dir()
 
         elif dump_dir.lower() == "q":
@@ -228,7 +236,9 @@ class UI:
         elif not os.path.isdir(dump_dir):
             clear()
             title()
-            if input(color_text("Invalid directory! Press [enter] to retry... ", "yellow")) is not None:
+            if input(color_text(f"{self.langparser.parse_message('invalid_directory')} "
+                                f"{self.langparser.parse_message('press_key_to_retry', 'enter')} ",
+                                "yellow")) is not None:
                 self.change_dump_dir()
 
         else:
@@ -265,7 +275,7 @@ class UI:
             (color_text("P. ", "yellow"), self.langparser.parse_message("dump_as_plist")),
             (color_text("C. ", "yellow"), self.langparser.parse_message("change_dump_directory")),
             (color_text("A. ", "yellow"), self.langparser.parse_message("toggle_data")),
-            (color_text("Q. ", "yellow"), self.langparser.parse_message("")),
+            (color_text("Q. ", "yellow"), self.langparser.parse_message("quit")),
         ]
 
         cmd_options = [

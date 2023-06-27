@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     import requests
     import os
-    from src.info import format_text, AppInfo, color_text, requests_timeout, useragent_header
+    from src.info import AppInfo, color_text, requests_timeout, useragent_header, localizations
     from src.cli.ui import clear as clear_screen
     from src.util.create_log import create_log
     from src.util.debugger import Debugger as debugger
