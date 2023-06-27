@@ -228,13 +228,12 @@ class FlagParser:
                 )
 
         self.logger.info("Successfully exited after dumping.\n\n", __file__)
+        
         exit(0)
 
     def off_data(self, arr):
         del self.args[self.args.index("--off-data")]
-        del self.args[self.args.index(orig)]
 
-        orig = arr
         arr = arr.replace("{", "").replace("}", "").split(", ")
 
         if not arr:

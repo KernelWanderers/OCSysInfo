@@ -21,6 +21,7 @@ functions = [
     ("IORegistryEntryCreateCFProperties", b"IIo^@" + CFAllocatorRef + b"I"),
     ("IORegistryEntryGetLocationInPlane", b"II" + const_io_name_t_ref_in + b"o" + io_name_t_ref_out),
     ("IORegistryEntryGetRegistryEntryID", b"IIo^Q"),
+    ("IORegistryEntrySearchCFProperty", b"@Ir*" + CFStringRef + CFAllocatorRef + b"I"),
     ("IORegistryEntryCreateCFProperty", b"@I" + CFStringRef + CFAllocatorRef + b"I"),
     ("IORegistryEntryGetParentEntry", b"IIr*o^I"),
     ("IOServiceGetMatchingServices", b"II" + CFDictionaryRef + b"o^I"),
@@ -56,22 +57,46 @@ CFAllocatorType = type(kCFAllocatorDefault)
 
 NULL = 0
 
-kIOMasterPortDefault = NULL
-kNilOptions = NULL
+kIOMasterPortDefault: mach_port_t = NULL
+kNilOptions: IOOptionBits = NULL
 
 # IOKitLib.h
-kIORegistryIterateRecursively = 1
-kIORegistryIterateParents = 2
+kIORegistryIterateRecursively: IOOptionBits = 1
+kIORegistryIterateParents: IOOptionBits = 2
 
 
-# kern_return_t IORegistryEntryCreateCFProperties(io_registry_entry_t entry, CFMutableDictionaryRef * properties, CFAllocatorRef allocator, IOOptionBits options);
-def IORegistryEntryCreateCFProperties(entry, properties, allocator, options):
+# kern_return_t 
+# IORegistryEntryCreateCFProperties (
+#   io_registry_entry_t entry, 
+#   CFMutableDictionaryRef *properties, 
+#   CFAllocatorRef allocator, 
+#   IOOptionBits options
+# );
+def IORegistryEntryCreateCFProperties(
+    entry: io_registry_entry_t, 
+    properties, 
+    allocator: CFAllocatorType, 
+    options: IOOptionBits
+) -> kern_return_t:
     raise NotImplementedError
 
 # kern_return_t IORegistryEntryGetLocationInPlane(io_registry_entry_t entry, const io_name_t plane, io_name_t location);
-def IORegistryEntryGetLocationInPlane(entry, plane, location):
+def IORegistryEntryGetLocationInPlane(
+    entry: io_registry_entry_t, 
+    plane: io_name_t, 
+    location: io_name_t
+) -> kern_return_t:
     raise NotImplementedError
 
+# CFTypeRef IORegistryEntrySearchCFProperty(io_registry_entry_t entry, const char *plane, CFStringRef key, CFAllocatorRef allocator, IOOptionBits options);
+def IORegistryEntrySearchCFProperty(
+    entry: io_registry_entry_t, 
+    plane: io_name_t, 
+    key: str, 
+    allocator: CFAllocatorType, 
+    options: IOOptionBits
+) -> CFTypeRef:
+    raise NotImplementedError
 
 # CFTypeRef IORegistryEntryCreateCFProperty(io_registry_entry_t entry, CFStringRef key, CFAllocatorRef allocator, IOOptionBits options);
 def IORegistryEntryCreateCFProperty(entry, key, allocator, options):
@@ -148,8 +173,11 @@ def ioiterator_to_list(iterator):
 def corefoundation_to_native(collection):
     if collection is None:  # nullptr
         return None
+
     native = Conversion.pythonCollectionFromPropertyList(collection)
+
     CFRelease(collection)
+
     return native
 
 

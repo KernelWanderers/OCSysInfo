@@ -19,7 +19,8 @@ if __name__ == "__main__":
         exit(1)
 
     import requests
-    from src.info import AppInfo, color_text, requests_timeout, useragent_header, localizations
+    import os
+    from src.info import format_text, AppInfo, color_text, requests_timeout, useragent_header
     from src.cli.ui import clear as clear_screen
     from src.util.create_log import create_log
     from src.util.debugger import Debugger as debugger
@@ -38,9 +39,11 @@ if __name__ == "__main__":
     if (
         "-dbg" in args_lower or
         "--debug" in args_lower or
-        "-debug" in args_lower
+        "-debug" in args_lower or
+        os.environ.get("DEBUG", "0") == "1"
     ):
         debugger.toggle(True)
+
         print("=" * 25 + " BEGIN OF DEBUG " + "=" * 25)
 
     # Fix ANSI escape codes not being registered
