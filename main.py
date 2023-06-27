@@ -2,23 +2,24 @@
 
 if __name__ == "__main__":
     import json
+    import os
 
     from sys import exit, version_info, version, argv
-    from src.util.missing_dep import Requirements
-    from src.langparser import LangParser
+    from localization.langparser import LangParser
 
     # we define the langparser here.
     # check the `localizations` folder
     # and src/langparser.py for more info
-    langparser = LangParser({"English": "localization/english.json"})
-    
+    langparser = LangParser({"English": "localization/english.json"}, os.getcwd(), "English")
+    # TODO: check if there's a better way to get project root than os.getcwd()
+
     if version_info < (3, 9, 0):
-        message = langparser.parse_message("main-python_requirement", "3.9", str(version.partition(" ")[0]))
+        message = langparser.parse_message("python_requirement", "3.9", str(version.partition(" ")[0]))
         print(message)
         exit(1)
 
     import requests
-    from src.info import format_text, AppInfo, color_text, requests_timeout, useragent_header, localizations
+    from src.info import AppInfo, color_text, requests_timeout, useragent_header, localizations
     from src.cli.ui import clear as clear_screen
     from src.util.create_log import create_log
     from src.util.debugger import Debugger as debugger
@@ -94,7 +95,7 @@ if __name__ == "__main__":
             debugger.log_dbg(color_text("--> [UI]: Initialising...", "yellow"))
             ui = UI(flag_parser.dm, localizations, language, logger, log_tmp[1] or AppInfo.root_dir)
             debugger.log_dbg(color_text("--> [UI]: Successfully initialised!\n", "green"))
-            
+
             debugger.log_dbg(color_text("--> [UI]: Spawning...\n", "yellow"))
             clear_screen()
             ui.create_ui()
@@ -104,7 +105,7 @@ if __name__ == "__main__":
                 exit(0)
 
             if isinstance(e, PermissionError):
-                print(color_text(langparser.parse_message("main-could_not_access_data"), "red"))
+                print(color_text(langparser.parse_message("could_not_access_data"), "red"))
                 logger.critical("Could not access the required data. Exiting OCSysInfo\n\t"
                                 f"^^^^^^^^{str(e)}", __file__)
                 exit(0)

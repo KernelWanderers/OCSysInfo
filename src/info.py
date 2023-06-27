@@ -11,6 +11,7 @@ import requests
 
 dir_delim = "\\" if platform.system().lower() == "windows" else "/"
 
+
 def get_latest_version():
     with open(os.path.dirname(__file__) + "{0}util{0}version.json".format(dir_delim), "r") as version_file:
         data = version_file.read()
@@ -116,4 +117,5 @@ requests_timeout = 5
 localizations = {
     "English": "localization/english.json",
     "Meownglish": "localization/cat.json",
+    "French": "localization/french.json",
 }
