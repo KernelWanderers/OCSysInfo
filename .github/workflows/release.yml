@@ -158,7 +158,7 @@ jobs:
         run: pip3 install pyinstaller
 
       - name: Build binaries for Windows (RELEASE VERSION)
-        run: pyinstaller main.py --onefile --name ocsysinfo_win_x86_64-RELEASE --paths=./src --icon=./resources/icons/OCSI_logo_win.ico --add-data="src/util/version.json;src/util" --add-data='requirements.txt;.'
+        run: pyinstaller main.py --onefile --name ocsysinfo_win_x86_64-RELEASE --paths=./src --icon=./resources/icons/OCSI_logo_win.ico --add-data="src/util/version.json;src/util" --add-data="requirements.txt;."
 
       - name: Upload to Artifacts
         uses: actions/upload-artifact@v2
@@ -200,7 +200,7 @@ jobs:
         run: pip3 install pyinstaller
 
       - name: Build binaries for Windows (DEBUG VERSION)
-        run: pyinstaller main.py --onefile --name ocsysinfo_win_x86_64_DEBUG --paths=./src --icon=./resources/icons/OCSI_logo_win.ico --add-data="src/util/version.json;src/util" --add-data='requirements.txt:.' --runtime-hook exe_dbg_hook.py
+        run: pyinstaller main.py --onefile --name ocsysinfo_win_x86_64_DEBUG --paths=./src --icon=./resources/icons/OCSI_logo_win.ico --add-data="src/util/version.json;src/util" --add-data="requirements.txt;." --runtime-hook exe_dbg_hook.py
 
       - name: Upload to Artifacts
         uses: actions/upload-artifact@v2
