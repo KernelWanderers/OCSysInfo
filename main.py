@@ -12,13 +12,14 @@ if __name__ == "__main__":
     # and src/langparser.py for more info
 
     if version_info < (3, 9, 0):
-        message = print(f"OCSysInfo requires Python 3.9, while Python {str(version.partition(' ')[0])} was detected. Terminating...") ,
+        message = print(
+            f"OCSysInfo requires Python 3.9, while Python {str(version.partition(' ')[0])} was detected. Terminating..."),
         print(message)
         exit(1)
 
     import requests
     import os
-    from src.info import AppInfo, color_text, requests_timeout, useragent_header, localizations
+    from src.info import AppInfo, color_text, requests_timeout, useragent_header, localizations, project_root
     from src.cli.ui import clear as clear_screen
     from src.util.create_log import create_log
     from src.util.debugger import Debugger as debugger
@@ -26,23 +27,27 @@ if __name__ == "__main__":
     # we define the localization again, with all languages included this time.
     # this is done because we cannot import the `info` module before this point.
     # `info.py` has information on the available localizations
-    language = "French"
+    language = "English"
+    # todo: add a way to change the language from the command line
+
     os.environ["LANGUAGE"] = language
-    with open(localizations.get(language, "localization/english.json")) as localizations_json:
+
+    fallback_localization_path = os.path.join(project_root, "localization", "english.json")
+
+    with open(localizations.get(language, fallback_localization_path)) as localizations_json:
         localization = json.load(localizations_json)
 
-    langparser = LangParser(localizations, os.getcwd(), language)
-    # TODO: check if there's a better way to get project root than os.getcwd()
+    langparser = LangParser(localizations, project_root, language)
 
     args_lower = [x.lower() for x in argv]
 
-    # Whether or not to run the application
+    # Whether to run the application
     # in DEBUG mode.
     if (
-        "-dbg" in args_lower or
-        "--debug" in args_lower or
-        "-debug" in args_lower or
-        os.environ.get("DEBUG", "0") == "1"
+            "-dbg" in args_lower or
+            "--debug" in args_lower or
+            "-debug" in args_lower or
+            os.environ.get("DEBUG", "0") == "1"
     ):
         debugger.toggle(True)
 
@@ -77,7 +82,7 @@ if __name__ == "__main__":
     log_tmp = create_log(True)
 
     AppInfo.root_dir = log_tmp[1] or AppInfo.sanitise_dir(__file__)
-    
+
     try:
         from src.error.logger import Logger
         from src.cli.ui import UI
@@ -91,7 +96,7 @@ if __name__ == "__main__":
         debugger.log_dbg(color_text("--> [OCSysInfo]: Launching...", "yellow"))
 
         logger.info("Launching OCSysInfo...", __file__)
-        
+
         try:
             debugger.log_dbg(color_text("--> [FlagParser]: Initialising...", "yellow"))
             flag_parser = FlagParser(logger, None, offline=offline)
@@ -116,7 +121,7 @@ if __name__ == "__main__":
                 exit(0)
             else:
                 raise e
-                
+
         finally:
             # clearing out the "Launching OCSysInfo..." line
             print(" " * 25, end="\r")

@@ -49,8 +49,6 @@ class UI:
         self.dump_dir = dump_dir
         self.langparser = langparser
         self.language = langparser.language
-
-        # todo: check if there's a better way to get project root than os.getcwd()
         self.state = "menu"
 
     def handle_cmd(self, options=[]):

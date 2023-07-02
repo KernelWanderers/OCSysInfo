@@ -4,10 +4,9 @@ for OCSysInfo, and is not used by anything other than
 the UI functions.
 """
 import json
-import platform
 import os
+import platform
 import sys
-import requests
 
 dir_delim = "\\" if platform.system().lower() == "windows" else "/"
 
@@ -21,6 +20,17 @@ def get_latest_version():
         version_file.close()
 
         return version
+
+
+def get_project_root():
+    """Returns the absolute path to the project's root directory."""
+    current_dir = os.path.abspath(os.path.dirname(__file__))
+    # we look for main.py because it's a file that's guaranteed to be in the project's root directory
+    while not os.path.isfile(os.path.join(current_dir, 'main.py')):
+        current_dir = os.path.abspath(os.path.join(current_dir, '..'))
+        if current_dir == '/':
+            raise FileNotFoundError("Could not find project's root directory.")
+    return current_dir
 
 
 class AppInfo:
@@ -119,3 +129,5 @@ localizations = {
     "Meownglish": "localization/cat.json",
     "French": "localization/french.json",
 }
+
+project_root = get_project_root()
