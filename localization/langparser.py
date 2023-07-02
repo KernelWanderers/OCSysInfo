@@ -19,12 +19,12 @@ def split_path(path: str):
 
 
 class LangParser:
-    instance = None
+    _instance = None
 
     def __new__(cls, *args, **kwargs):
-        if cls.instance is None:
-            cls.instance = super(LangParser, cls).__new__(cls)
-        return cls.instance
+        if cls._instance is None:
+            cls._instance = super(LangParser, cls).__new__(cls)
+        return cls._instance
 
     def __init__(self, localizations: dict, project_root: str, language: str = "English"):
         self.project_root = project_root
