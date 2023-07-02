@@ -372,12 +372,16 @@ class UI:
                 if hack:
                     print(f"{hack}\n")
 
-            print(f"{self.langparser.parse_message('program')}      :  {color_text(AppInfo.name, 'green')}")
-            print(f"{self.langparser.parse_message('version')}      :  {color_text(AppInfo.version, 'green')}")
-            print(f"{self.langparser.parse_message('platform')}     :  {color_text(os_ver, 'green')}")
-            print(f"{self.langparser.parse_message('architecture')} :  {color_text(AppInfo.arch, 'green')}")
-            print(f"{self.langparser.parse_message('current_dump')} :  {color_text(self.dump_dir, 'cyan')}")
-            # todo: programmatically make the uniform `:` marks to support localization
+            to_print = {
+                self.langparser.parse_message('program'): color_text(AppInfo.name, 'green'),
+                self.langparser.parse_message('version'): color_text(AppInfo.version, 'green'),
+                self.langparser.parse_message('platform'): color_text(os_ver, 'green'),
+                self.langparser.parse_message('architecture'): color_text(AppInfo.arch, 'green'),
+                self.langparser.parse_message('current_dump'): color_text(self.dump_dir, 'cyan')
+            }
+            max_len = max([len(x) for x in to_print.keys()])
+            for key, value in to_print.items():
+                print(f"{key.ljust(max_len+1)}: {value}")
 
             print("\n")
 
