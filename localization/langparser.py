@@ -41,11 +41,21 @@ class LangParser:
         # function to get the key from the localization dict
         # based on the caller file
 
+        if self.project_root[-1] != os.path.sep:
+            # add a trailing slash if it's not present
+            self.project_root += os.path.sep
+
+        # remove the .py file extension from the absolute path
         caller_file = caller_file.rstrip(".py")
-        split_caller = split_path(caller_file)
-        split_project_root = split_path(self.project_root)
-        key_elements = [x for x in split_caller if x not in split_project_root]
-        # TODO: this might error out when the root path has strings that are also present in the split caller
+
+        # remove the project root from the absolute path
+        # returns something like -> "src/cli/ui"
+        if self.project_root in caller_file:
+            caller_file = caller_file[len(self.project_root):]
+
+        # src/cli/ui -> ["src", "cli", "ui"]
+        key_elements = split_path(caller_file)
+
         subdict = self.localization["localizations"]
 
         for element in key_elements:
