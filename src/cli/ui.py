@@ -10,30 +10,7 @@ from src.util.dump_functions.json import dump_json
 from src.util.dump_functions.xml import dump_xml
 from src.util.dump_functions.plist import dump_plist
 from src.util.tree import tree
-
-
-def hack_disclaimer():
-    kern_ver = int(os.uname().release.split(".")[0])
-
-    if kern_ver > 19:
-        kext_loaded = subprocess.run(
-            ["kmutil", "showloaded", "--list-only", "--variant-suffix", "release"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-        )
-    else:
-        kext_loaded = subprocess.run(
-            ["kextstat", "-l"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-        )
-
-    if any(x in kext_loaded.stdout.decode().lower() for x in ("fakesmc", "virtualsmc")):
-        return color_text(
-            format_text("DISCLAIMER:\n", "bold+underline"), "red"
-        ) + color_text(
-            f"THIS IS BEING RUN ON A HACKINTOSH.\n"
-            f"INFORMATION EXTRACTED MIGHT NOT BE COMPLETELY ACCURATE.",
-            "red",
-        )
+from localization.langparser import LangParser
 
 
 def title():
@@ -66,14 +43,16 @@ class UI:
     and handling specific CLI commands.
     """
 
-    def __init__(self, dm, logger, dump_dir=AppInfo.root_dir):
+    def __init__(self, dm, langparser, logger, dump_dir=AppInfo.root_dir):
         self.dm = dm
         self.logger = logger
         self.dump_dir = dump_dir
+        self.langparser = langparser
+        self.language = langparser.language
         self.state = "menu"
 
     def handle_cmd(self, options=[]):
-        cmd = input("\n\nPlease select an option: ")
+        cmd = input(f"\n\n{self.langparser.parse_message('select_an_option')} ")
         valid = False
 
         if cmd.lower() == "yee":
@@ -91,7 +70,8 @@ class UI:
                 title()
                 data = option[2]()
 
-                print(data if data else "Successfully executed.\n")
+                print(data if data else
+                      self.langparser.parse_message("successfully_executed") + "\n")
                 self.enter()
 
                 clear()
@@ -100,7 +80,7 @@ class UI:
 
         if not valid:
             clear()
-            print("Invalid option!\n")
+            print(self.langparser.parse_message("invalid_option") + "\n")
             self.enter()
 
             clear()
@@ -112,14 +92,15 @@ class UI:
         title()
 
         data_options = [
-            ("C", "CPU"),
-            ("G", "GPU"),
-            ("B", "Motherboard" if system().lower() != "darwin" else "Vendor"),
-            ("M", "Memory"),
-            ("N", "Network"),
-            ("A", "Audio"),
-            ("I", "Input"),
-            ("S", "Storage"),
+            ("C", self.langparser.parse_message("cpu")),
+            ("G", self.langparser.parse_message("gpu")),
+            ("B", self.langparser.parse_message("motherboard") if system().lower() != "darwin"
+                else self.langparser.parse_message("vendor")),
+            ("M", self.langparser.parse_message("memory")),
+            ("N", self.langparser.parse_message("network")),
+            ("A", self.langparser.parse_message("audio")),
+            ("I", self.langparser.parse_message("input")),
+            ("S", self.langparser.parse_message("storage")),
         ]
 
         opts = ["C", "G", "B", "M", "N", "A", "I", "S"]
@@ -130,48 +111,51 @@ class UI:
             print(f"[{toggled}] ({opt[0]}) - {opt[1]}")
 
         selected = input(
-            "Please select an option to toggle (or 'R'/'Q' to return): ")
+            self.langparser.parse_message("select_option_to_toggle"))
 
         if selected.lower() == "q" or selected.lower() == "r":
             clear()
             title()
 
-            print(color_text("Please wait while we adjust settings...\n", "green"))
+            print(color_text(self.langparser.parse_message("please_wait_while_we_adjust_settings") + "\n", "green"))
 
             deletions = []
-            asyncs    = []
+            asyncs = []
 
             for opt in data_options:
                 if (
-                    not opt[1] in self.dm.off_data and 
-                    not self.dm.info.get(opt[1])
+                        not opt[1] in self.dm.off_data and
+                        not self.dm.info.get(opt[1])
                 ):
                     asyncs.append(opt[1])
 
                 if (
-                    opt[1] in self.dm.off_data and
-                    self.dm.info.get(opt[1])
+                        opt[1] in self.dm.off_data and
+                        self.dm.info.get(opt[1])
                 ):
                     deletions.append(opt[1])
 
             if asyncs:
-                print(f"Attempting to retrieve dumps for: {', '.join(asyncs)}...\n")
-
+                print(self.langparser.parse_message("attempting_to_retrieve_dumps",
+                                                    ', '.join(asyncs)) + "\n")
                 try:
                     self.dm.manager.dump()
                     self.dm.info = self.dm.manager.info
 
                     if (
-                        not deletions and
-                        input(color_text("[   OK   ] Successfully retrieved additional dumps.\n", "green") + 
-                        " Press [enter] to return...") is not None
+                            not deletions and
+                            input(color_text(
+                                "[   OK   ] " + self.langparser.parse_message("retrieved_additional_dumps") + "\n "
+                                , "green") +
+                                  self.langparser.parse_message("press_key_to_return", "enter")) is not None
                     ):
                         pass
-                except Exception:
+                except Exception as e:
                     if (
-                        asyncs and 
-                        input(color_text("[ FAILED ] Unable to retrieve dumps.", "red") + 
-                        " Press [enter] to return...") is not None
+                            asyncs and
+                            input(color_text(f"[ FAILED ] {self.langparser.parse_message('unable_to_retrieve_dumps')}",
+                                             "red") +
+                                  f" {self.langparser.parse_message('press_key_to_return', 'enter')}") is not None
                     ):
                         pass
                     elif not asyncs:
@@ -181,25 +165,27 @@ class UI:
                         )
 
             if deletions:
-                print(f"Attempting to delete info for: {', '.join(deletions)}...\n")
+                self.langparser.parse_message("attempting_to_delete_info_for", ', '.join(deletions) + "\n")
 
                 for delete in deletions:
                     if self.dm.info.pop(delete):
                         self.dm.off_data.append(delete)
 
                         print(color_text(
-                            f"[   OK   ] Successfully deleted info for '{delete}'!",
+                            f"[   OK   ] {self.langparser.parse_message('successfully_deleted_info_for', delete)}",
                             "green"
                         ))
                     else:
                         print(color_text(
-                            f"[  ERROR  ] Failed to delete info for '{delete}'!\n\t^^^^^^^{str(e)}",
+                            f"[  ERROR  ] {self.langparser.parse_message('failed_to_delete_info_for', delete)}",
                             "red"
                         ))
 
                 if (
-                    input(color_text("[   OK   ] Successfully deleted selected info.\n", "green") + 
-                    " Press [enter] to return...") is not None
+                        input(color_text(f"[   OK   ] "
+                                         f"{self.langparser.parse_message('successfully_deleted_selected_info')}\n",
+                                         "green") +
+                              f" {self.langparser.parse_message('press_key_to_return', 'enter')}") is not None
                 ):
                     pass
 
@@ -209,8 +195,10 @@ class UI:
                 return self.create_ui()
 
         if (
-            not selected.upper() in opts and
-            input(color_text("Invalid option! Press [enter] to retry...", "red")) is not None
+                not selected.upper() in opts and
+                input(color_text(f"{self.langparser.parse_message('invalid_option')} "
+                                 f"{self.langparser.parse_message('press_key_to_return', 'enter')}",
+                                 "red")) is not None
         ):
             self.toggle_data()
 
@@ -228,7 +216,7 @@ class UI:
         clear()
         title()
 
-        dump_dir = input("Please enter the directory (or 'Q' to exit.): ").strip().replace(
+        dump_dir = input(self.langparser.parse_message('please_enter_the_directory')).strip().replace(
             '"', '').replace("'", "")
 
         if "~" in dump_dir:
@@ -237,7 +225,9 @@ class UI:
         if not len(dump_dir):
             clear()
             title()
-            if input(color_text("Please specify a directory! Press [enter] to retry... ", "yellow")) is not None:
+            if input(color_text(f"{self.langparser.parse_message('please_specify_a_directory')} "
+                                f"{self.langparser.parse_message('press_key_to_retry', 'enter')} ",
+                                "yellow")) is not None:
                 self.change_dump_dir()
 
         elif dump_dir.lower() == "q":
@@ -246,7 +236,9 @@ class UI:
         elif not os.path.isdir(dump_dir):
             clear()
             title()
-            if input(color_text("Invalid directory! Press [enter] to retry... ", "yellow")) is not None:
+            if input(color_text(f"{self.langparser.parse_message('invalid_directory')} "
+                                f"{self.langparser.parse_message('press_key_to_retry', 'enter')} ",
+                                "yellow")) is not None:
                 self.change_dump_dir()
 
         else:
@@ -264,7 +256,7 @@ class UI:
                 )
 
                 if key and not is_empty and not key in self.dm.off_data:
-                    val = tree(key, self.dm.info[key])
+                    val = tree(key, self.dm.info[key], langparser=self.langparser)
                     print(val)
             except Exception as e:
                 self.logger.critical(
@@ -276,14 +268,14 @@ class UI:
         print(" ")
 
         options = [
-            (color_text("R. ", "yellow"), "Return"),
-            (color_text("T. ", "yellow"), "Dump as TXT"),
-            (color_text("J. ", "yellow"), "Dump as JSON"),
-            (color_text("X. ", "yellow"), "Dump as XML"),
-            (color_text("P. ", "yellow"), "Dump as Plist"),
-            (color_text("C. ", "yellow"), "Change dump directory"),
-            (color_text("A. ", "yellow"), "Toggle data"),
-            (color_text("Q. ", "yellow"), "Quit"),
+            (color_text("R. ", "yellow"), self.langparser.parse_message('return')),
+            (color_text("T. ", "yellow"), self.langparser.parse_message('dump_as_txt')),
+            (color_text("J. ", "yellow"), self.langparser.parse_message("dump_as_json")),
+            (color_text("X. ", "yellow"), self.langparser.parse_message("dump_as_xml")),
+            (color_text("P. ", "yellow"), self.langparser.parse_message("dump_as_plist")),
+            (color_text("C. ", "yellow"), self.langparser.parse_message("change_dump_directory")),
+            (color_text("A. ", "yellow"), self.langparser.parse_message("toggle_data")),
+            (color_text("Q. ", "yellow"), self.langparser.parse_message("quit")),
         ]
 
         cmd_options = [
@@ -323,16 +315,39 @@ class UI:
         self.logger.info("Successfully exited.\n\n")
         exit(0)
 
+    def hack_disclaimer(self):
+        kern_ver = int(os.uname().release.split(".")[0])
+
+        if kern_ver > 19:
+            kext_loaded = subprocess.run(
+                ["kmutil", "showloaded", "--list-only", "--variant-suffix", "release"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
+        else:
+            kext_loaded = subprocess.run(
+                ["kextstat", "-l"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+            )
+
+        if any(x in kext_loaded.stdout.decode().lower() for x in ("fakesmc", "virtualsmc")):
+            return color_text(
+                format_text(self.langparser.parse_message("disclaimer") + "\n",
+                            "bold+underline"), "red"
+            ) + color_text(
+                self.langparser.parse_message("run_on_hackintosh"),
+                "red",
+            )
+
     def create_ui(self):
         options = [
-            (color_text("D. ", "yellow"), "Discover hardware"),
-            (color_text("T. ", "yellow"), "Dump as TXT"),
-            (color_text("J. ", "yellow"), "Dump as JSON"),
-            (color_text("X. ", "yellow"), "Dump as XML"),
-            (color_text("P. ", "yellow"), "Dump as Plist"),
-            (color_text("C. ", "yellow"), "Change dump directory"),
-            (color_text("A. ", "yellow"), "Toggle data"),
-            ("\n\n", color_text("Q. ", "yellow"), "Quit"),
+            (color_text("D. ", "yellow"), self.langparser.parse_message('discover_hardware')),
+            (color_text("T. ", "yellow"), self.langparser.parse_message('dump_as_txt')),
+            (color_text("J. ", "yellow"), self.langparser.parse_message('dump_as_json')),
+            (color_text("X. ", "yellow"), self.langparser.parse_message('dump_as_xml')),
+            (color_text("P. ", "yellow"), self.langparser.parse_message('dump_as_plist')),
+            (color_text("C. ", "yellow"), self.langparser.parse_message('change_dump_directory')),
+            (color_text("A. ", "yellow"), self.langparser.parse_message('toggle_data')),
+            ("\n\n", color_text("Q. ", "yellow"), self.langparser.parse_message('quit')),
         ]
 
         cmd_options = [
@@ -353,15 +368,16 @@ class UI:
             title()
 
             if sys.platform.lower() == "darwin":
-                hack = hack_disclaimer()
+                hack = self.hack_disclaimer()
                 if hack:
                     print(f"{hack}\n")
 
-            print(f"Program      :  {color_text(AppInfo.name, 'green')}")
-            print(f"Version      :  {color_text(AppInfo.version, 'green')}")
-            print(f"Platform     :  {color_text(os_ver, 'green')}")
-            print(f"Architecture :  {color_text(AppInfo.arch, 'green')}")
-            print(f"Current dump :  {color_text(self.dump_dir, 'cyan')}")
+            print(f"{self.langparser.parse_message('program')}      :  {color_text(AppInfo.name, 'green')}")
+            print(f"{self.langparser.parse_message('version')}      :  {color_text(AppInfo.version, 'green')}")
+            print(f"{self.langparser.parse_message('platform')}     :  {color_text(os_ver, 'green')}")
+            print(f"{self.langparser.parse_message('architecture')} :  {color_text(AppInfo.arch, 'green')}")
+            print(f"{self.langparser.parse_message('current_dump')} :  {color_text(self.dump_dir, 'cyan')}")
+            # todo: programmatically make the uniform `:` marks to support localization
 
             print("\n")
 
@@ -382,5 +398,5 @@ class UI:
     def enter(self):
         # “Hacky” way of detecting when
         # the Enter key is pressed down.
-        if input(color_text("Press [enter] to return... ", "yellow")) is not None:
+        if input(color_text(self.langparser.parse_message("press_key_to_return", "enter"), "yellow")) is not None:
             self.create_ui()

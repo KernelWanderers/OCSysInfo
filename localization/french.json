@@ -1,0 +1,90 @@
+{
+    "name": "French",
+    "localizations": {
+        "main": {
+            "python_requirement": "le OCSysInfo requires Python {}, while Python {} was detected. Terminating...",
+            "package_not_installed": "le Package \"{}\" is not installed!",
+            "update_prompt": "le NEW VERSION ({}) of OCSysInfo is available.\nDo you want to update? (y/n): ",
+            "could_not_access_data": "le Could not access the required data. Try running this program with elevated privileges."
+        },
+        "patches": {
+            "patch_plist": {
+                "updating_info_plist": "le Updating Info.plist...",
+                "patching_cfbundleexecutable": "le Patching CFBundleExecutable...",
+                "writing_changes": "le Writing changes...",
+                "successfully_patched_info_plist": "le Successfully patched Info.plist!"
+            }
+        },
+        "src": {
+            "cli": {
+                "ui": {
+                    "disclaimer": "le DISCLAIMER",
+                    "run_on_hackintosh": "le THIS IS BEING RUN ON A HACKINTOSH.\nINFORMATION EXTRACTED MIGHT NOT BE COMPLETELY ACCURATE.",
+                    "select_an_option": "le Please select an option: ",
+                    "successfully_executed": "le Successfully executed.",
+                    "invalid_option": "le Invalid option!",
+                    "cpu": "le CPU",
+                    "gpu": "le GPU",
+                    "memory": "le Memory",
+                    "motherboard": "le Motherboard",
+                    "vendor": "le Vendor",
+                    "network": "le Network",
+                    "audio": "le Audio",
+                    "input": "le Input",
+                    "storage": "le Storage",
+                    "displays": "le Displays",
+                    "select_option_to_toggle": "le Please select an option to toggle (or 'R'/'Q' to return): ",
+                    "please_wait_while_we_adjust_settings": "le Please wait while we adjust settings...",
+                    "attempting_to_retrieve_dumps": "le Attempting to retrieve dumps for: {}...",
+                    "retrieved_additional_dumps": "le Successfully retrieved additional dumps.",
+                    "press_key_to_return": "le Press [{}] to return...",
+                    "unable_to_retrieve_dumps": "le Unable to retrieve dumps.",
+                    "attempting_to_delete_info_for": "le Attempting to delete info for: {}...",
+                    "successfully_deleted_info_for": "le Successfully deleted info for '{}'",
+                    "failed_to_delete_info_for": "le Failed to delete info for '{}'",
+                    "successfully_deleted_selected_info": "le Successfully deleted selected info.",
+                    "please_enter_the_directory": "le Please enter the directory (or 'Q' to exit.): ",
+                    "please_specify_a_directory": "le Please specify a directory!",
+                    "invalid_directory": "le Invalid directory!",
+                    "press_key_to_retry": "le Press [{}] to retry...",
+                    "return": "le Return",
+                    "dump_as_txt": "le Dump as TXT",
+                    "dump_as_json": "le Dump as JSON",
+                    "dump_as_xml": "le Dump as XML",
+                    "dump_as_plist": "le Dump as PLIST",
+                    "change_dump_directory": "le Change dump directory",
+                    "toggle_data": "le Toggle data",
+                    "quit": "le Quit",
+                    "discover_hardware": "le Discover hardware",
+                    "program": "le Program",
+                    "version": "le Version",
+                    "platform": "le Platform",
+                    "architecture": "le Architecture",
+                    "current_dump": "le Current dump"
+                }
+            }
+        },
+        "update": {
+            "updater": {
+                "editing": "le Editing {}...",
+                "successfully_edited": "le Successfully edited {}!",
+                "failed_to_edit": "le Failed to edit {}!",
+                "attempting_to_rename": "le Attempting to rename {} to {}...",
+                "successfully_renamed": "le Successfully renamed {} to {}!",
+                "failed_to_rename": "le Failed to rename {} to {}!",
+                "deleting_and_creating": "le Deleting {} and creating {}...",
+                "successfully_deleted_and_created": "le Successfully deleted {} and created {}!",
+                "failed_to_delete_and_create": "le Failed to delete {} and create {}!",
+                "deleting": "le Deleting {}...",
+                "successfully_deleted": "le Successfully deleted {}!",
+                "failed_to_delete": "le Failed to delete {}!",
+                "creating": "le Creating {}...",
+                "successfully_created": "le Successfully created {}!",
+                "failed_to_create": "le Failed to create {}!",
+                "downloading_zip_file": "le Downloading ZIP file...",
+                "successfully_downloaded_zip": "le Successfully downloaded ZIP!",
+                "failed_to_download_zip": "le Failed to download ZIP!"
+            }
+        }
+    }
+}

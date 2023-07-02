@@ -1,29 +1,53 @@
 #!/usr/bin/env python3
+
 if __name__ == "__main__":
+    import json
+    import os
+
     from sys import exit, version_info, version, argv
-    from src.util.missing_dep import Requirements
-    
+    from localization.langparser import LangParser
+
+    # we define the langparser here.
+    # check the `localizations` folder
+    # and src/langparser.py for more info
+
     if version_info < (3, 9, 0):
-        print("OCSysInfo requires Python 3.9, while Python " + str(
-            version.partition(" ")[0]) + " was detected. Terminating... ")
+        message = print(
+            f"OCSysInfo requires Python 3.9, while Python {str(version.partition(' ')[0])} was detected. Terminating..."),
+        print(message)
         exit(1)
 
     import requests
     import os
-    from src.info import format_text, AppInfo, color_text, requests_timeout, useragent_header
+    from src.info import AppInfo, color_text, requests_timeout, useragent_header, localizations, project_root
     from src.cli.ui import clear as clear_screen
     from src.util.create_log import create_log
     from src.util.debugger import Debugger as debugger
 
+    # we define the localization again, with all languages included this time.
+    # this is done because we cannot import the `info` module before this point.
+    # `info.py` has information on the available localizations
+    language = "English"
+    # todo: add a way to change the language from the command line
+
+    os.environ["LANGUAGE"] = language
+
+    fallback_localization_path = os.path.join(project_root, "localization", "english.json")
+
+    with open(localizations.get(language, fallback_localization_path)) as localizations_json:
+        localization = json.load(localizations_json)
+
+    langparser = LangParser(localizations, project_root, language)
+
     args_lower = [x.lower() for x in argv]
 
-    # Whether or not to run the application
+    # Whether to run the application
     # in DEBUG mode.
     if (
-        "-dbg" in args_lower or
-        "--debug" in args_lower or
-        "-debug" in args_lower or
-        os.environ.get("DEBUG", "0") == "1"
+            "-dbg" in args_lower or
+            "--debug" in args_lower or
+            "-debug" in args_lower or
+            os.environ.get("DEBUG", "0") == "1"
     ):
         debugger.toggle(True)
 
@@ -58,7 +82,7 @@ if __name__ == "__main__":
     log_tmp = create_log(True)
 
     AppInfo.root_dir = log_tmp[1] or AppInfo.sanitise_dir(__file__)
-    
+
     try:
         from src.error.logger import Logger
         from src.cli.ui import UI
@@ -72,16 +96,16 @@ if __name__ == "__main__":
         debugger.log_dbg(color_text("--> [OCSysInfo]: Launching...", "yellow"))
 
         logger.info("Launching OCSysInfo...", __file__)
-        
+
         try:
             debugger.log_dbg(color_text("--> [FlagParser]: Initialising...", "yellow"))
             flag_parser = FlagParser(logger, None, offline=offline)
             debugger.log_dbg(color_text("--> [FlagParser]: Success!\n", "green"))
 
             debugger.log_dbg(color_text("--> [UI]: Initialising...", "yellow"))
-            ui = UI(flag_parser.dm, logger, log_tmp[1] or AppInfo.root_dir)
+            ui = UI(flag_parser.dm, langparser, logger, log_tmp[1] or AppInfo.root_dir)
             debugger.log_dbg(color_text("--> [UI]: Successfully initialised!\n", "green"))
-            
+
             debugger.log_dbg(color_text("--> [UI]: Spawning...\n", "yellow"))
             clear_screen()
             ui.create_ui()
@@ -91,19 +115,21 @@ if __name__ == "__main__":
                 exit(0)
 
             if isinstance(e, PermissionError):
-                print(color_text("Could not access the required data. "
-                                    "Try running this program using elevated privileges.", "red"))
+                print(color_text(langparser.parse_message("could_not_access_data"), "red"))
                 logger.critical("Could not access the required data. Exiting OCSysInfo\n\t"
                                 f"^^^^^^^^{str(e)}", __file__)
                 exit(0)
             else:
                 raise e
-                
+
         finally:
             # clearing out the "Launching OCSysInfo..." line
             print(" " * 25, end="\r")
 
         logger.info("Successfully launched OCSysInfo.", __file__)
     except KeyboardInterrupt:
-        logger.info("Exited successfully.", __file__)
+        try:
+            logger.info("Exited successfully.", __file__)
+        except:
+            pass
         exit(0)
