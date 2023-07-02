@@ -157,8 +157,8 @@ jobs:
       - name: Install pyinstaller
         run: pip3 install pyinstaller
 
-      - name: Build binaries for Windows (RELEASE VERSION)
-        run: pyinstaller main.py --onefile --name ocsysinfo_win_x86_64-RELEASE --paths=./src --icon=./resources/icons/OCSI_logo_win.ico --add-data="src/util/version.json;src/util" --add-data="requirements.txt;."
+      - name: Build binaries for Windows
+        run: pyinstaller main.py --onefile --name ocsysinfo_win_x86_64-RELEASE --paths=./src --icon=./resources/icons/OCSI_logo_win.ico --add-data 'src/util/version.json:src/util' --add-data 'requirements.txt:.'
 
       - name: Upload to Artifacts
         uses: actions/upload-artifact@v2
@@ -199,8 +199,8 @@ jobs:
       - name: Install pyinstaller
         run: pip3 install pyinstaller
 
-      - name: Build binaries for Windows (DEBUG VERSION)
-        run: pyinstaller main.py --onefile --name ocsysinfo_win_x86_64_DEBUG --paths=./src --icon=./resources/icons/OCSI_logo_win.ico --add-data="src/util/version.json;src/util" --add-data="requirements.txt;." --runtime-hook exe_dbg_hook.py
+      - name: Build binaries for Windows
+        run: pyinstaller main.py --onefile --name ocsysinfo_win_x86_64-DEBUG --paths=./src --icon=./resources/icons/OCSI_logo_win.ico --add-data 'src/util/version.json:src/util' --add-data 'requirements.txt:.' --runtime-hook exe_dbg_hook.py
 
       - name: Upload to Artifacts
         uses: actions/upload-artifact@v2
@@ -240,7 +240,7 @@ jobs:
       - name: Install pyinstaller
         run: pip3 install pyinstaller
 
-      - name: Build binaries for Linux, x86_64 architecture (RELEASE VERSION)
+      - name: Build binaries for Linux, x86_64 architecture
         run: pyinstaller main.py --onefile --name ocsysinfo_linux_x86_64-RELEASE --paths=./src --add-data 'src/util/version.json:src/util' --add-data 'requirements.txt:.'
 
       - name: Upload to Artifacts
@@ -281,7 +281,7 @@ jobs:
       - name: Install pyinstaller
         run: pip3 install pyinstaller
 
-      - name: Build binaries for Linux, x86_64 architecture (DEBUG VERSION)
+      - name: Build binaries for Linux, x86_64 architecture
         run: pyinstaller main.py --onefile --name ocsysinfo_linux_x86_64-DEBUG --paths=./src --add-data 'src/util/version.json:src/util' --add-data 'requirements.txt:.' --runtime-hook exe_dbg_hook.py
 
       - name: Upload to Artifacts
