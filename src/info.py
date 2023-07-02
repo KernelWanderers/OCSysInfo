@@ -28,7 +28,7 @@ def get_project_root():
     # we look for main.py because it's a file that's guaranteed to be in the project's root directory
     while not os.path.isfile(os.path.join(current_dir, 'main.py')):
         current_dir = os.path.abspath(os.path.join(current_dir, '..'))
-        if current_dir == '/':
+        if current_dir == os.path.sep:
             raise FileNotFoundError("Could not find project's root directory.")
     return current_dir
 
