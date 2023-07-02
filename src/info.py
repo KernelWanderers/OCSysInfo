@@ -4,12 +4,12 @@ for OCSysInfo, and is not used by anything other than
 the UI functions.
 """
 import json
-import os
 import platform
+import os
 import sys
+import requests
 
 dir_delim = "\\" if platform.system().lower() == "windows" else "/"
-
 
 def get_latest_version():
     with open(os.path.dirname(__file__) + "{0}util{0}version.json".format(dir_delim), "r") as version_file:
@@ -20,17 +20,6 @@ def get_latest_version():
         version_file.close()
 
         return version
-
-
-def get_project_root():
-    """Returns the absolute path to the project's root directory."""
-    current_dir = os.path.abspath(os.path.dirname(__file__))
-    # we look for main.py because it's a file that's guaranteed to be in the project's root directory
-    while not os.path.isfile(os.path.join(current_dir, 'main.py')):
-        current_dir = os.path.abspath(os.path.join(current_dir, '..'))
-        if current_dir == os.path.sep:
-            raise FileNotFoundError("Could not find project's root directory.")
-    return current_dir
 
 
 class AppInfo:
@@ -63,7 +52,6 @@ class AppInfo:
 
         return dir
 
-
 # Colours!
 pink = "\033[95m"
 blue = "\033[94m"
@@ -91,7 +79,6 @@ def format_text(text, formatting):
     final_string += end_formatting
     return final_string
 
-
 surprise = f"""{cyan}
  __     __            ______                    _    _____ _   
  \ \   / /           |  ____|                  | |  |_   _| |  
@@ -118,16 +105,8 @@ surprise = f"""{cyan}
 """
 
 useragent_header = {
-    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-                  "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15"
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                      "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15"
 }
 
 requests_timeout = 5
-
-localizations = {
-    "English": "localization/english.json",
-    "Meownglish": "localization/cat.json",
-    "French": "localization/french.json",
-}
-
-project_root = get_project_root()

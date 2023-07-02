@@ -1,3 +1,0 @@
-- Add hack disclaimer to the list of stuff
-- set up cat.json
-- implement hot-swapping languages
