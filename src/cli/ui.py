@@ -10,7 +10,6 @@ from src.util.dump_functions.json import dump_json
 from src.util.dump_functions.xml import dump_xml
 from src.util.dump_functions.plist import dump_plist
 from src.util.tree import tree
-from localization.langparser import LangParser
 
 
 def title():
