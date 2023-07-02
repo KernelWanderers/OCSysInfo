@@ -67,6 +67,7 @@ def tree(name, data, nest=1, parent="", looped={}, value="", color=True, langpar
 
     elif isinstance(data, list):
         try:
+            # todo: find if parsing as src/cli/ui is always correct
             name_localized = langparser.parse_message_as("src/cli/ui", name.lower())
         except:
             name_localized = name

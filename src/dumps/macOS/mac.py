@@ -1511,7 +1511,7 @@ class MacHardwareManager:
                             "red",
                         )
                     )
-
+                # todo: make localization for these
                 self.info["Displays"].append(
                     {
                         f"{name} {parent}": {
