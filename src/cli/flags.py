@@ -1,13 +1,14 @@
 import os
-from sys import exit, argv
+from sys import argv, exit
+
 from src.cli.ui import clear
-from src.info import color_text, AppInfo
-from src.util.debugger import Debugger as debugger
-from src.util.dump_functions.text import dump_txt
-from src.util.dump_functions.json import dump_json
-from src.util.dump_functions.xml import dump_xml
-from src.util.dump_functions.plist import dump_plist
+from src.info import AppInfo, color_text
 from src.managers.devicemanager import DeviceManager
+from src.util.debugger import Debugger as debugger
+from src.util.dump_functions.json import dump_json
+from src.util.dump_functions.plist import dump_plist
+from src.util.dump_functions.text import dump_txt
+from src.util.dump_functions.xml import dump_xml
 
 
 class FlagParser:
@@ -52,14 +53,13 @@ class FlagParser:
                 "--debug" in self.args
             )
         ):
-            for i in range(len(self.args)):
-                print("ARGS: ", self.args[i])
+            for _ in range(len(self.args)):
                 if (
-                    "--no-interactive" in self.args[i].lower() or
-                    "--offline" in self.args[i].lower() or
-                    self.args[i].lower() in ["-dbg", "--debug", "-debug"]
+                    "--no-interactive" in self.args[0].lower() or
+                    "--offline" in self.args[0].lower() or
+                    self.args[0].lower() in ["-dbg", "--debug", "-debug"]
                 ):
-                    del self.args[i]
+                    del self.args[0]
 
         self.flags = [
             {
