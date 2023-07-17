@@ -53,13 +53,17 @@ class FlagParser:
                 "--debug" in self.args
             )
         ):
-            for _ in range(len(self.args)):
+            i = 0
+            while i < len(self.args):
                 if (
-                    "--no-interactive" in self.args[0].lower() or
-                    "--offline" in self.args[0].lower() or
-                    self.args[0].lower() in ["-dbg", "--debug", "-debug"]
+                    "--no-interactive" in self.args[i].lower() or
+                    "--offline" in self.args[i].lower() or
+                    self.args[i].lower() in ["-dbg", "--debug", "-debug"]
                 ):
-                    del self.args[0]
+                    del self.args[i]
+                    i -= 1
+
+                i += 1
 
         self.flags = [
             {
