@@ -3,7 +3,6 @@ name: Compile and publish binaries
 on:
   release:
     types:
-      - created
       - prereleased
       - edited
       - published
@@ -147,10 +146,6 @@ jobs:
         with:
           python-version: "3.10.x"
 
-      - name: Upgrade pip
-        # `--user` flag provided just in case of a permissions conflict.
-        run: pip3 install --upgrade pip --user
-
       - name: Install dependencies
         run: pip3 install -r requirements.txt
 
@@ -188,10 +183,6 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: "3.10.x"
-
-      - name: Upgrade pip
-        # `--user` flag provided just in case of a permissions conflict.
-        run: pip3 install --upgrade pip --user
 
       - name: Install dependencies
         run: pip3 install -r requirements.txt
