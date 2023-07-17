@@ -4,10 +4,10 @@ for OCSysInfo, and is not used by anything other than
 the UI functions.
 """
 import json
-import platform
 import os
+import platform
+import re
 import sys
-import requests
 
 dir_delim = "\\" if platform.system().lower() == "windows" else "/"
 
@@ -72,12 +72,21 @@ def color_text(text, color):
 def format_text(text, formatting):
     formatting_list = formatting.split("+")
     final_string = text
+    
     for format in formatting_list:
         format_var = globals().get(format) if globals().get(format) else None
+
         if format_var:
             final_string = f"{format_var}{final_string}"
+
     final_string += end_formatting
+
     return final_string
+
+def clear_ansi(text):
+    ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+
+    return ansi_escape.sub('', text)
 
 surprise = f"""{cyan}
  __     __            ______                    _    _____ _   

@@ -144,6 +144,9 @@ del_*.ps1
 # VSCode stuff.
 .vscode
 
+# Custom debug log
+ocsi_dbg_log*
+
 # MacOS bundling tests
 *.dmg
 *.app
