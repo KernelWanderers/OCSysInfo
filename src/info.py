@@ -11,20 +11,10 @@ import sys
 
 dir_delim = "\\" if platform.system().lower() == "windows" else "/"
 
-def get_latest_version():
-    with open(os.path.dirname(__file__) + "{0}util{0}version.json".format(dir_delim), "r") as version_file:
-        data = version_file.read()
-
-        version = json.loads(data).get("version", "v0.0.0-bugged")
-
-        version_file.close()
-
-        return version
-
 
 class AppInfo:
     name = "OCSysInfo"
-    version = get_latest_version()
+    version = "v1.1.0"
     os_ver = ""
     arch = platform.machine()
     root_dir = ""
