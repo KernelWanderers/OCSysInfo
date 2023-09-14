@@ -11,6 +11,15 @@ def main():
         )
         exit(1)
 
+    reqs = Requirements()
+
+    missing = reqs.test_req()
+
+    if missing:
+        reqs.install_reqs(missing)
+
+
+    import os
     from src.util.debugger import Debugger as debugger
 
     args_lower = [x.lower() for x in argv]
@@ -35,14 +44,18 @@ def main():
     # in Windows's Command Prompt.
     #
     # Massive thank you to CorpNewt for pointing this out.
-    import os
     import platform
 
     import requests
 
     from src.cli.ui import clear as clear_screen
-    from src.info import (AppInfo, color_text, format_text, requests_timeout,
-                          useragent_header)
+    from src.info import (
+        AppInfo,
+        color_text,
+        format_text,
+        requests_timeout,
+        useragent_header,
+    )
     from src.util.create_log import create_log
 
     if platform.system() == "windows":
