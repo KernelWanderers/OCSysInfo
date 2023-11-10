@@ -2,9 +2,9 @@ import os
 import plistlib
 from pathlib import Path
 
-
-from src.info import localizations, project_root
 from localization.langparser import LangParser
+from src.info import localizations, project_root
+
 langparser = LangParser(localizations, project_root, os.environ.get("LANGUAGE", "English"))
 
 
