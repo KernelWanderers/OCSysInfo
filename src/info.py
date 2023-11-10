@@ -127,7 +127,7 @@ requests_timeout = 5
 localizations = {
     "English": "localization/english.json",
     "Meownglish": "localization/cat.json",
-    "French": "localization/french.json",
+    "Français": "localization/french.json",
 }
 
 project_root = get_project_root()
