@@ -1,0 +1,154 @@
+{
+  "name": "日本語",
+  "localizations": {
+    "main": {
+      "python_requirement": "OCSysInfoはPython {}が必要ですが、検出されたのはPython {}です。終了します...",
+      "package_not_installed": "パッケージ\"{}\"がインストールされていません！",
+      "update_prompt": "OCSysInfoの新しいバージョン({})が利用可能です。\nアップデートしますか？ (y/n): ",
+      "could_not_access_data": "必要なデータにアクセスできませんでした。このプログラムを昇格された権限で実行してみてください。"
+    },
+    "patches": {
+      "patch_plist": {
+        "updating_info_plist": "Info.plistを更新しています...",
+        "patching_cfbundleexecutable": "CFBundleExecutableをパッチしています...",
+        "writing_changes": "変更を書き込んでいます...",
+        "successfully_patched_info_plist": "Info.plistのパッチが成功しました！"
+      }
+    },
+    "src": {
+      "cli": {
+        "ui": {
+          "disclaimer": "免責事項",
+          "run_on_hackintosh": "これはHackintoshで実行されています。\n抽出された情報は完全に正確でない可能性があります。",
+          "select_an_option": "オプションを選択してください：",
+          "successfully_executed": "正常に実行されました。",
+          "invalid_option": "無効なオプションです！",
+          "cpu": "CPU",
+          "gpu": "GPU",
+          "memory": "メモリ",
+          "motherboard": "マザーボード",
+          "vendor": "ベンダー",
+          "network": "ネットワーク",
+          "audio": "オーディオ",
+          "input": "入力",
+          "storage": "ストレージ",
+          "displays": "ディスプレイ",
+          "select_option_to_toggle": "オプションをトグルするには（または'R'/'Q'で戻る）：",
+          "please_wait_while_we_adjust_settings": "設定を調整しています。お待ちください...",
+          "attempting_to_retrieve_dumps": "{}のダンプを取得しようとしています...",
+          "retrieved_additional_dumps": "追加のダンプを正常に取得しました。",
+          "press_key_to_return": "[{}]を押して戻る...",
+          "unable_to_retrieve_dumps": "ダンプを取得できませんでした。",
+          "attempting_to_delete_info_for": "{}の情報を削除しようとしています...",
+          "successfully_deleted_info_for": "'{}'の情報を正常に削除しました",
+          "failed_to_delete_info_for": "'{}'の情報を削除できませんでした",
+          "successfully_deleted_selected_info": "選択した情報を正常に削除しました。",
+          "please_enter_the_directory": "ディレクトリを入力してください（または'Q'で終了します。）：",
+          "please_specify_a_directory": "ディレクトリを指定してください！",
+          "invalid_directory": "無効なディレクトリです！",
+          "press_key_to_retry": "[{}]を押して再試行...",
+          "return": "戻る",
+          "dump_as_txt": "TXTとしてダンプ",
+          "dump_as_json": "JSONとしてダンプ",
+          "dump_as_xml": "XMLとしてダンプ",
+          "dump_as_plist": "PLISTとしてダンプ",
+          "change_dump_directory": "ダンプディレクトリを変更",
+          "toggle_data": "データをトグル",
+          "quit": "終了",
+          "discover_hardware": "ハードウェアを発見",
+          "program": "プログラム",
+          "version": "バージョン",
+          "platform": "プラットフォーム",
+          "architecture": "アーキテクチャ",
+          "current_dump": "現在のダンプ"
+        },
+        "flags": {
+          "analyzing_hardware": "ハードウェアを分析中...（これには時間がかかる場合がありますので、心配しないでください）"
+        }
+      },
+      "error": {
+        "cpu_err": {
+          "something_went_wrong_cpu_discovery": "'CPU'の検出中に何かがうまくいかなかった。",
+          "this_should_not_happen": "これは起こるべきではありません。https://github.com/KernelWanderers/OCSysInfo/issuesで問題を開いてください\n",
+          "error_logs": "エラーログ：\n\n{}"
+        }
+      },
+      "dumps": {
+        "macOS": {
+          "mac": {
+            "cpu": "CPU",
+            "cores": "コア",
+            "threads": "スレッド",
+            "supported": "サポート",
+            "not_available": "利用不可",
+            "codename": "コードネーム",
+            "vendor": "ベンダー",
+            "model": "モデル",
+            "manufacturer": "製造元",
+            "GPU": "GPU",
+            "ne_cores": "NEコア",
+            "ne_cores_formatted": "{} ニューラルエンジンコア",
+            "generation": "世代",
+            "generation_formatted": "第{}世代",
+            "vendor_id": "ベンダーID",
+            "device_id": "デバイスID",
+            "pci_path": "PCIパス",
+            "acpi_path": "ACPIパス",
+            "memory": "メモリ",
+            "part_number_formatted": "{}（パート番号）",
+            "type": "タイプ",
+            "slot": "スロット",
+            "bank": "バンク",
+            "channel": "チャネル",
+            "frequency_formatted": "周波数（{}）",
+            "capacity": "容量",
+            "network": "ネットワーク",
+            "audio": "オーディオ",
+            "storage": "ストレージ",
+            "device_characteristics": "デバイスの特性",
+            "protocol_characteristics": "プロトコルの特性",
+            "product_name": "製品名",
+            "medium_type": "メディアのタイプ",
+            "physical_interconnect": "物理的なインターコネクト",
+            "physical_interconnect_location": "物理的なインターコネクトの場所",
+            "nvme": "非揮発性メモリエクスプレス（NVMe）",
+            "connector": "コネクタ",
+            "location": "場所",
+            "input": "入力",
+            "product": "製品",
+            "transport": "輸送",
+            "displays": "ディスプレイ",
+            "serial": "シリアル",
+            "resolution": "解像度",
+            "size_inches": "サイズ（インチ）",
+            "display_mode": "ディスプレイモード",
+            "aspect_ratio": "アスペクト比",
+            "product_id": "製品ID"
+          }
+        }
+      }
+    },
+    "update": {
+      "updater": {
+        "editing": "{}の編集中...",
+        "successfully_edited": "{}の編集に成功しました！",
+        "failed_to_edit": "{}の編集に失敗しました！",
+        "attempting_to_rename": "{}を{}にリネームしようとしています...",
+        "successfully_renamed": "{}を{}に正常にリネームしました！",
+        "failed_to_rename": "{}を{}にリネームできませんでした！",
+        "deleting_and_creating": "{}を削除し{}を作成しようとしています...",
+        "successfully_deleted_and_created": "{}を正常に削除し{}を正常に作成しました！",
+        "failed_to_delete_and_create": "{}を削除し{}を作成できませんでした！",
+        "deleting": "{}を削除中...",
+        "successfully_deleted": "{}を正常に削除しました！",
+        "failed_to_delete": "{}を削除できませんでした！",
+        "creating": "{}を作成中...",
+        "successfully_created": "{}を正常に作成しました！",
+        "failed_to_create": "{}を作成できませんでした！",
+        "downloading_zip_file": "ZIPファイルのダウンロード中...",
+        "successfully_downloaded_zip": "ZIPのダウンロードに成功しました！",
+        "failed_to_download_zip": "ZIPのダウンロードに失敗しました！"
+      }
+    }
+  }
+}

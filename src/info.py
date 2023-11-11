@@ -128,6 +128,7 @@ localizations = {
     "English": "localization/english.json",
     "Meownglish": "localization/cat.json",
     "Français": "localization/french.json",
+    "日本語": "localization/japanese.json"
 }
 
 project_root = get_project_root()
