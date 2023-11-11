@@ -27,10 +27,14 @@ if __name__ == "__main__":
     # we define the localization again, with all languages included this time.
     # this is done because we cannot import the `info` module before this point.
     # `info.py` has information on the available localizations
-    language = "English"
-    # todo: add a way to change the language from the command line
 
-    os.environ["LANGUAGE"] = language
+    if os.environ.get("LANGUAGE") not in localizations:
+        language = "English"
+        os.environ["LANGUAGE"] = language
+    else:
+        language = os.environ["LANGUAGE"]
+
+    # todo: add a way to change the language from the command line
 
     fallback_localization_path = os.path.join(project_root, "localization", "english.json")
 
@@ -99,7 +103,7 @@ if __name__ == "__main__":
 
         try:
             debugger.log_dbg(color_text("--> [FlagParser]: Initialising...", "yellow"))
-            flag_parser = FlagParser(logger, None, offline=offline)
+            flag_parser = FlagParser(logger=logger, dm=None, langparser=langparser, offline=offline)
             debugger.log_dbg(color_text("--> [FlagParser]: Success!\n", "green"))
 
             debugger.log_dbg(color_text("--> [UI]: Initialising...", "yellow"))

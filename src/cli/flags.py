@@ -16,9 +16,10 @@ class FlagParser:
     in the very case that they're presented.
     """
 
-    def __init__(self, logger, dm=None, offline=False):
+    def __init__(self, logger, dm=None, langparser=None, offline=False):
         self.args = argv[1:]
         self.dm = dm
+        self.langparser = langparser
         self.toggled_off = []
 
         if "--off-data" in self.args:
@@ -29,8 +30,12 @@ class FlagParser:
             self.off_data(self.args[self.args.index("--off-data") + 1])
 
         if not self.dm and not list(filter(lambda x: "-h" in x.lower(), self.args)):
-            print(color_text(
-                "--> Analyzing hardware... (this might take a while, don't panic)", "red"))
+            print(
+                color_text(
+                    langparser.parse_message("analyzing_hardware"),
+                    "red"
+                )
+            )
             self.dm = DeviceManager(logger, off_data=self.toggled_off, offline=offline)
             self.dm.info = {
                 k: v

@@ -61,6 +61,9 @@
           "platform": "Plateforme",
           "architecture": "Architecture",
           "current_dump": "Rapport actuel"
+        },
+        "flags": {
+          "analyzing_hardware": "Analyse du matériel... (cela pourrait prendre un certain temps, ne paniquez pas)"
         }
       },
       "error": {
