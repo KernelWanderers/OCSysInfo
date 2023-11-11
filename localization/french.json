@@ -4,7 +4,7 @@
     "main": {
       "python_requirement": "OCSysInfo nécessite Python {}, alors que Python {} a été détecté. Terminaison...",
       "package_not_installed": "Le paquet \"{}\" n'est pas installé !",
-      "update_prompt": "NOUVELLE VERSION ({}) de OCSysInfo est disponible.\nVoulez-vous mettre à jour ? (o/n) : ",
+      "update_prompt": "NOUVELLE VERSION ({}) de OCSysInfo est disponible.\nVoulez-vous mettre à jour ? (y/n) : ",
       "could_not_access_data": "Impossible d'accéder aux données requises. Essayez d'exécuter ce programme avec des privilèges élevés."
     },
     "patches": {
