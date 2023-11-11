@@ -85,5 +85,7 @@ class LangParser:
         """
 
         key = self.get_key(parse_as, message_code)
-
-        return key.format(*args)
+        try:
+            return key.format(*args)
+        except AttributeError:
+            raise KeyError(f"Key {message_code} not found in {parse_as}")
