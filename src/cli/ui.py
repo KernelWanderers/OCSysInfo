@@ -380,7 +380,7 @@ class UI:
             }
             max_len = max([len(x) for x in to_print.keys()])
             for key, value in to_print.items():
-                print(f"{key.ljust(max_len+1)}: {value}")
+                print(f"{key:<{max_len+1}}: {value}")
 
             print("\n")
 
