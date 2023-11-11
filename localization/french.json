@@ -3,26 +3,26 @@
   "localizations": {
     "main": {
       "python_requirement": "OCSysInfo nécessite Python {}, alors que Python {} a été détecté. Terminaison...",
-      "package_not_installed": "Le package \"{}\" n'est pas installé !",
-      "update_prompt": "NOUVELLE VERSION ({}) d'OCSysInfo disponible.\nVoulez-vous mettre à jour ? (y/n) : ",
+      "package_not_installed": "Le paquet \"{}\" n'est pas installé !",
+      "update_prompt": "NOUVELLE VERSION ({}) de OCSysInfo est disponible.\nVoulez-vous mettre à jour ? (o/n) : ",
       "could_not_access_data": "Impossible d'accéder aux données requises. Essayez d'exécuter ce programme avec des privilèges élevés."
     },
     "patches": {
       "patch_plist": {
-        "updating_info_plist": "Mise à jour de Info.plist...",
-        "patching_cfbundleexecutable": "Application de correctif sur CFBundleExecutable...",
-        "writing_changes": "Écriture des changements...",
-        "successfully_patched_info_plist": "Info.plist corrigé avec succès!"
+        "updating_info_plist": "Mise à jour d'Info.plist...",
+        "patching_cfbundleexecutable": "Application de correctif à CFBundleExecutable...",
+        "writing_changes": "Écriture des modifications...",
+        "successfully_patched_info_plist": "Info.plist correctement corrigé !"
       }
     },
     "src": {
       "cli": {
         "ui": {
           "disclaimer": "AVERTISSEMENT",
-          "run_on_hackintosh": "CECI EST EXÉCUTÉ SUR UN HACKINTOSH.\nLES INFORMATIONS EXTRAITES PEUVENT NE PAS ÊTRE TOTALEMENT PRÉCISES.",
+          "run_on_hackintosh": "CETTE APPLICATION EST EXÉCUTÉE SUR UN HACKINTOSH.\nLES INFORMATIONS EXTRAITES PEUVENT NE PAS ÊTRE COMPLÈTEMENT PRÉCISES.",
           "select_an_option": "Veuillez sélectionner une option : ",
-          "successfully_executed": "Exécuté avec succès.",
-          "invalid_option": "Option non valide !",
+          "successfully_executed": "Exécution réussie.",
+          "invalid_option": "Option invalide !",
           "cpu": "CPU",
           "gpu": "GPU",
           "memory": "Mémoire",
@@ -35,17 +35,17 @@
           "displays": "Écrans",
           "select_option_to_toggle": "Veuillez sélectionner une option à basculer (ou 'R'/'Q' pour revenir) : ",
           "please_wait_while_we_adjust_settings": "Veuillez patienter pendant que nous ajustons les paramètres...",
-          "attempting_to_retrieve_dumps": "Tentative de récupération des informations pour: {}...",
-          "retrieved_additional_dumps": "Informations supplémentaires récupérées avec succès.",
+          "attempting_to_retrieve_dumps": "Tentative de récupération des rapports pour : {}...",
+          "retrieved_additional_dumps": "Rapports supplémentaires récupérés avec succès.",
           "press_key_to_return": "Appuyez sur [{}] pour revenir...",
-          "unable_to_retrieve_dumps": "Impossible de récupérer les informations.",
-          "attempting_to_delete_info_for": "Tentative de suppression des informations pour: {}...",
+          "unable_to_retrieve_dumps": "Impossible de récupérer les rapports.",
+          "attempting_to_delete_info_for": "Tentative de suppression des informations pour : {}...",
           "successfully_deleted_info_for": "Informations pour '{}' supprimées avec succès",
           "failed_to_delete_info_for": "Échec de la suppression des informations pour '{}'",
           "successfully_deleted_selected_info": "Informations sélectionnées supprimées avec succès.",
           "please_enter_the_directory": "Veuillez entrer le répertoire (ou 'Q' pour quitter) : ",
           "please_specify_a_directory": "Veuillez spécifier un répertoire !",
-          "invalid_directory": "Répertoire non valide !",
+          "invalid_directory": "Répertoire invalide !",
           "press_key_to_retry": "Appuyez sur [{}] pour réessayer...",
           "return": "Retour",
           "dump_as_txt": "Exporter en TXT",
@@ -60,36 +60,90 @@
           "version": "Version",
           "platform": "Plateforme",
           "architecture": "Architecture",
-          "current_dump": "Export actuel"
+          "current_dump": "Rapport actuel"
         }
       },
       "error": {
         "cpu_err": {
           "something_went_wrong_cpu_discovery": "Un problème est survenu lors de la découverte du 'CPU'.",
-          "this_should_not_happen": "Cela ne devrait pas se produire. Veuillez ouvrir un ticket sur https://github.com/KernelWanderers/OCSysInfo/issues\n",
-          "error_logs": "Journaux d'erreurs :\n\n{}"
+          "this_should_not_happen": "Cela ne devrait pas arriver. Veuillez ouvrir un problème sur https://github.com/KernelWanderers/OCSysInfo/issues\n",
+          "error_logs": "Journaux d'erreur :\n\n{}"
+        }
+      },
+      "dumps": {
+        "macOS": {
+          "mac": {
+            "cpu": "CPU",
+            "cores": "Cœurs",
+            "threads": "Threads",
+            "supported": "Pris en charge",
+            "not_available": "Non disponible",
+            "codename": "Nom de code",
+            "vendor": "Fournisseur",
+            "model": "Modèle",
+            "manufacturer": "Fabricant",
+            "GPU": "GPU",
+            "ne_cores": "Cœurs Neural Engine",
+            "ne_cores_formatted": "{} Cœurs Neural Engine",
+            "generation": "Génération",
+            "generation_formatted": "Génération {}",
+            "vendor_id": "ID du fournisseur",
+            "device_id": "ID du périphérique",
+            "pci_path": "Chemin PCI",
+            "acpi_path": "Chemin ACPI",
+            "memory": "Mémoire",
+            "part_number_formatted": "{} (Numéro de pièce)",
+            "type": "Type",
+            "slot": "Emplacement",
+            "bank": "Banque",
+            "channel": "Canal",
+            "frequency_formatted": "Fréquence ({})",
+            "capacity": "Capacité",
+            "network": "Réseau",
+            "audio": "Audio",
+            "storage": "Stockage",
+            "device_characteristics": "Caractéristiques du périphérique",
+            "protocol_characteristics": "Caractéristiques du protocole",
+            "product_name": "Nom du produit",
+            "medium_type": "Type de support",
+            "physical_interconnect": "Interconnexion physique",
+            "physical_interconnect_location": "Emplacement de l'interconnexion physique",
+            "nvme": "Mémoire Flash Non Volatile Express (NVMe)",
+            "connector": "Connecteur",
+            "location": "Emplacement",
+            "input": "Entrée",
+            "product": "Produit",
+            "transport": "Transport",
+            "displays": "Écrans",
+            "serial": "Numéro de série",
+            "resolution": "Résolution",
+            "size_inches": "Taille (pouces)",
+            "display_mode": "Mode d'affichage",
+            "aspect_ratio": "Ratio d'aspect",
+            "product_id": "ID du produit"
+          }
         }
       }
     },
     "update": {
       "updater": {
         "editing": "Modification de {}...",
-        "successfully_edited": "{} modifié avec succès !",
+        "successfully_edited": "Modification de {} réussie !",
         "failed_to_edit": "Échec de la modification de {} !",
         "attempting_to_rename": "Tentative de renommer {} en {}...",
-        "successfully_renamed": "{} renommé avec succès en {} !",
+        "successfully_renamed": "Renommage de {} en {} réussi !",
         "failed_to_rename": "Échec du renommage de {} en {} !",
-        "deleting_and_creating": "Suppression de {} et création de {}...",
-        "successfully_deleted_and_created": "{} supprimé et {} créé avec succès !",
+        "deleting_and_creating": "Suppression de {} et création de {} en cours...",
+        "successfully_deleted_and_created": "Suppression de {} et création de {} réussies !",
         "failed_to_delete_and_create": "Échec de la suppression de {} et de la création de {} !",
-        "deleting": "Suppression de {}...",
-        "successfully_deleted": "{} supprimé avec succès !",
+        "deleting": "Suppression de {} en cours...",
+        "successfully_deleted": "Suppression de {} réussie !",
         "failed_to_delete": "Échec de la suppression de {} !",
-        "creating": "Création de {}...",
-        "successfully_created": "{} créé avec succès !",
+        "creating": "Création de {} en cours...",
+        "successfully_created": "Création de {} réussie !",
         "failed_to_create": "Échec de la création de {} !",
-        "downloading_zip_file": "Téléchargement du fichier ZIP...",
-        "successfully_downloaded_zip": "Fichier ZIP téléchargé avec succès !",
+        "downloading_zip_file": "Téléchargement du fichier ZIP en cours...",
+        "successfully_downloaded_zip": "Téléchargement du fichier ZIP réussi !",
         "failed_to_download_zip": "Échec du téléchargement du fichier ZIP !"
       }
     }

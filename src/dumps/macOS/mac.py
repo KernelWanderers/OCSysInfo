@@ -1,13 +1,20 @@
 import binascii
+import json
 import math
 import subprocess
+import os
+
 from src.dumps.macOS.ioreg import *
 from src.error.cpu_err import cpu_err
-from src.info import color_text
+from src.info import color_text, localizations, project_root
 from src.util.codename import gpu
 from src.util.codename_manager import CodenameManager
 from src.util.debugger import Debugger as debugger
 from src.util.pci_root import construct_pcip_osx
+
+from localization.langparser import LangParser
+
+langparser = LangParser(localizations, project_root, os.environ.get("LANGUAGE", "English"))
 
 
 class MacHardwareManager:
@@ -122,8 +129,7 @@ class MacHardwareManager:
             )
 
             cpu_err(e)
-
-        self.info["CPU"] = []
+        self.info[langparser.parse_message("cpu")] = []
 
         if ".vendor" in subprocess.check_output(["sysctl", "machdep.cpu"]).decode():
             try:
@@ -188,13 +194,13 @@ class MacHardwareManager:
 
         data = {
             # Amount of cores for this processor.
-            "Cores": subprocess.check_output(["sysctl", "machdep.cpu.core_count"])
+            langparser.parse_message("cores"): subprocess.check_output(["sysctl", "machdep.cpu.core_count"])
             .decode()
             .split(": ")[1]
             .strip()
             + " cores",
             # Amount of threads for this processor.
-            "Threads": subprocess.check_output(["sysctl", "machdep.cpu.thread_count"])
+            langparser.parse_message("threads"): subprocess.check_output(["sysctl", "machdep.cpu.thread_count"])
             .decode()
             .split(": ")[1]
             .strip()
@@ -220,16 +226,16 @@ class MacHardwareManager:
 
             # Whether or not SSSE3 support is present.
             data["SSSE3"] = (
-                "Supported" if features.lower().find("ssse3") > -1 else "Not Available"
+                langparser.parse_message("supported" if features.lower().find("ssse3") > -1 else "not_available")
             )
 
         if not self.offline:
             self.cnm = CodenameManager(model, self.vendor)
 
             if self.cnm.codename:
-                data["Codename"] = self.cnm.codename
+                data[langparser.parse_message("codename")] = self.cnm.codename
 
-        self.info["CPU"].append({model: data})
+        self.info[langparser.parse_message("cpu")].append({model: data})
 
     def vendor_info(self):
         try:
@@ -260,7 +266,10 @@ class MacHardwareManager:
             model = VENDOR.get("model").decode().replace("\x00", "")
             manuf = VENDOR.get("manufacturer").decode().replace("\x00", "")
 
-            self.info["Vendor"] = {"Model": model, "Manufacturer": manuf}
+            self.info[langparser.parse_message("vendor")] = {
+                langparser.parse_message("model"): model,
+                langparser.parse_message("manufacturer"): manuf
+            }
 
             debugger.log_dbg(
                 color_text(
@@ -323,7 +332,7 @@ class MacHardwareManager:
 
             return
 
-        self.info["GPU"] = []
+        self.info[langparser.parse_message("gpu")] = []
 
         # Loop through the generator returned from `ioiterator_to_list()`
         for i in interface:
@@ -411,14 +420,16 @@ class MacHardwareManager:
                     gpuconf = device.get("GPUConfigurationVariable", {})
                     dev = ""
 
-                    data["Cores"] = str(gpuconf.get("num_cores")) + " Cores"
-                    data["NE Cores"] = (
-                        (str(gpuconf.get("num_gps")) + " Neural Engine Cores")
+                    data[langparser.parse_message("cores")] = str(gpuconf.get("num_cores"))
+                    data[langparser.parse_message("ne_cores")] = (
+                        langparser.parse_message(
+                            "ne_cores_formatted", str(gpuconf.get("num_gps"))
+                        )
                         if gpuconf.get("num_mgpus")
                         else None
                     )
-                    data["Generation"] = (
-                        ("Generation " + str(gpuconf.get("gpu_gen")))
+                    data[langparser.parse_message("generation")] = (
+                        langparser.parse_message("generation_formatted", str(gpuconf.get("gpu_gen")))
                         if gpuconf.get("gpu_gen")
                         else None
                     )
@@ -430,10 +441,10 @@ class MacHardwareManager:
                     ]
                 )
 
-                data["Vendor ID"] = ven
+                data[langparser.parse_message("vendor_id")] = ven
 
                 if dev:
-                    data["Device ID"] = dev
+                    data[langparser.parse_message("device_id")] = dev
 
                 if default:
                     path = construct_pcip_osx(
@@ -444,10 +455,10 @@ class MacHardwareManager:
                     acpi = path.get("ACPI Path", "")
 
                     if pcip:
-                        data["PCI Path"] = pcip
+                        data[langparser.parse_message("pci_path")] = pcip
 
                     if acpi:
-                        data["ACPI Path"] = acpi
+                        data[langparser.parse_message("acpi_path")] = acpi
 
                 debugger.log_dbg(
                     color_text(
@@ -477,9 +488,9 @@ class MacHardwareManager:
                 gpucname = gpu(dev, ven)
 
                 if gpucname:
-                    data["Codename"] = gpucname
+                    data[langparser.parse_message("codename")] = gpucname
 
-            self.info["GPU"].append({model: data})
+            self.info[langparser.parse_message("gpu")].append({model: data})
 
             IOObjectRelease(i)
 
@@ -532,7 +543,7 @@ class MacHardwareManager:
 
             return
 
-        self.info["Memory"] = []
+        self.info[langparser.parse_message("memory")] = []
         modules = []
         part_no = []
         sizes = []
@@ -612,8 +623,8 @@ class MacHardwareManager:
                         )
                     )
 
-                    modules.append({f"{val[i]} (Part-Number)": {}})
-                    part_no.append(f"{val[i]} (Part-Number)")
+                    modules.append({langparser.parse_message("part_number_formatted", val[i]): {}})
+                    part_no.append(langparser.parse_message("part_number_formatted", val[i]))
 
             else:
                 for i in range(length):
@@ -628,16 +639,19 @@ class MacHardwareManager:
                             )
                         )
 
-                        key = "Type"
+                        key = langparser.parse_message("type")
                         value = val[i]
 
                     elif "slot-names" in prop.lower():
-                        key = "Slot"
+                        key = langparser.parse_message("slot")
 
                         try:
                             bank, channel = val[i].split("/")
 
-                            value = {"Bank": bank, "Channel": channel}
+                            value = {
+                                langparser.parse_message("bank"): bank,
+                                langparser.parse_message("channel"): channel
+                            }
 
                             debugger.log_dbg(
                                 color_text(
@@ -667,7 +681,7 @@ class MacHardwareManager:
                             )
                         )
 
-                        key = "Frequency (MHz)"
+                        key = langparser.parse_message("frequency_formatted", "MHz")
                         value = val[i]
 
                     elif "dimm-manufacturer" in prop.lower():
@@ -678,7 +692,7 @@ class MacHardwareManager:
                             )
                         )
 
-                        key = "Manufacturer"
+                        key = langparser.parse_message("manufacturer")
                         value = val[i]
 
                     elif "reg" in prop.lower():
@@ -689,7 +703,7 @@ class MacHardwareManager:
                             )
                         )
 
-                        key = "Capacity"
+                        key = langparser.parse_message("capacity")
                         value = f"{sizes[i]}MB"
 
                     if key and value:
@@ -712,7 +726,7 @@ class MacHardwareManager:
                             modules = []
                             break
 
-        self.info["Memory"] = modules
+        self.info[langparser.parse_message("memory")] = modules
 
     def net_info(self, default=True):
 
@@ -753,7 +767,7 @@ class MacHardwareManager:
 
             return
 
-        self.info["Network"] = []
+        self.info[langparser.parse_message("network")] = []
 
         # Loop through the generator returned from `ioiterator_to_list()`
         for i in interface:
@@ -789,16 +803,16 @@ class MacHardwareManager:
 
                     data = {
                         # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
-                        "Device ID": dev,
+                        langparser.parse_message("device_id"): dev,
                         # Reverse the byte sequence, and format it using `binascii` – remove leading 0s
-                        "Vendor": ven,
+                        langparser.parse_message("vendor"): ven,
                     }
 
                     if pcip:
-                        data["PCI Path"] = pcip
+                        data[langparser.parse_message("pci_path")] = pcip
 
                     if acpi:
-                        data["ACPI Path"] = acpi
+                        data[langparser.parse_message("acpi_path")] = acpi
 
                 else:
                     if IOObjectConformsTo(i, b"IO80211Controller"):
@@ -806,7 +820,7 @@ class MacHardwareManager:
 
                         data = {
                             "IOClass": device.get("IOClass"),
-                            "Vendor": device.get("IOVendor"),
+                            langparser.parse_message("vendor"): device.get("IOVendor"),
                         }
             except Exception as e:
                 debugger.log_dbg(
@@ -863,7 +877,7 @@ class MacHardwareManager:
 
                 model = model.get("device")
 
-                self.info["Network"].append({model: data})
+                self.info[langparser.parse_message("network")].append({model: data})
 
             IOObjectRelease(i)
 
@@ -915,7 +929,7 @@ class MacHardwareManager:
 
             return
 
-        self.info["Audio"] = []
+        self.info[langparser.parse_message("audio")] = []
 
         # Loop through the generator returned from `ioiterator_to_list()`
         for i in interface:
@@ -945,7 +959,7 @@ class MacHardwareManager:
                     dev = "0x" + hex(device.get("IOHDACodecVendorID"))[6:]
                     ven = "0x" + hex(device.get("IOHDACodecVendorID"))[2:6]
 
-                    data = {"Device ID": dev, "Vendor": ven}
+                    data = {langparser.parse_message("device_id"): dev, langparser.parse_message("vendor"): ven}
                 except Exception as e:
                     debugger.log_dbg(
                         color_text(
@@ -1007,7 +1021,7 @@ class MacHardwareManager:
                         ).decode()[4:]
                     )
 
-                    data = {"Device ID": dev, "Vendor": ven}
+                    data = {langparser.parse_message("device_id"): dev, langparser.parse_message("vendor"): ven}
                 except Exception as e:
                     debugger.log_dbg(
                         color_text(
@@ -1059,12 +1073,12 @@ class MacHardwareManager:
             acpi = path.get("ACPI Path", "")
 
             if pcip:
-                data["PCI Path"] = pcip
+                data[langparser.parse_message("pci_path")] = pcip
 
             if acpi:
-                data["ACPI Path"] = acpi
+                data[langparser.parse_message("acpi_path")] = acpi
 
-            self.info["Audio"].append({model: data})
+            self.info[langparser.parse_message("audio")].append({model: data})
 
             IOObjectRelease(i)
 
@@ -1107,7 +1121,7 @@ class MacHardwareManager:
 
             return
 
-        self.info["Storage"] = []
+        self.info[langparser.parse_message("storage")] = []
 
         for i in interface:
 
@@ -1178,8 +1192,14 @@ class MacHardwareManager:
 
                 continue
 
-            self.info["Storage"].append(
-                {name: {"Type": _type, "Connector": ct_type, "Location": location}}
+            self.info[langparser.parse_message("storage")].append(
+                {
+                    name: {
+                        langparser.parse_message("type"): _type,
+                        langparser.parse_message("connector"): ct_type,
+                        langparser.parse_message("location"): location
+                    }
+                }
             )
 
             IOObjectRelease(i)
@@ -1216,7 +1236,7 @@ class MacHardwareManager:
 
             return
 
-        self.info["Input"] = []
+        self.info[langparser.parse_message("input")] = []
 
         for i in interface:
 
@@ -1256,14 +1276,14 @@ class MacHardwareManager:
                     )
                 )
 
-            if any("{}{}".format(name, hid) in k for k in self.info["Input"]):
+            if any("{}{}".format(name, hid) in k for k in self.info[langparser.parse_message("input")]):
                 continue
 
             try:
                 dev = hex(device.get("ProductID"))
                 ven = hex(device.get("VendorID"))
 
-                data = {"Device ID": dev, "Vendor": ven}
+                data = {langparser.parse_message("device_id"): dev, langparser.parse_message("vendor"): ven}
             except Exception as e:
                 debugger.log_dbg(
                     color_text(
@@ -1283,7 +1303,7 @@ class MacHardwareManager:
 
             name = "{}{}".format(name, hid)
 
-            self.info["Input"].append({name: data})
+            self.info[langparser.parse_message("input")].append({name: data})
 
             IOObjectRelease(i)
 
@@ -1319,7 +1339,7 @@ class MacHardwareManager:
             )
         )
 
-        self.info["Displays"] = []
+        self.info[langparser.parse_message("displays")] = []
 
         for i in interface:
             device = corefoundation_to_native(
@@ -1357,7 +1377,7 @@ class MacHardwareManager:
             serial = device.get("DisplaySerialNumber", "")
             plane = device.get("IODisplayPrefsKey", "")
             parent = ""
-            gpus = self.info["GPU"]
+            gpus = self.info[langparser.parse_message("gpu")]
             ver_rev = (edid[0x12], edid[0x13])
             name = "UNKNOWN DISPLAY DEVICE"
 
@@ -1512,17 +1532,17 @@ class MacHardwareManager:
                         )
                     )
                 # todo: make localization for these
-                self.info["Displays"].append(
+                self.info[langparser.parse_message("displays")].append(
                     {
                         f"{name} {parent}": {
-                            "Product ID": product,
-                            "Vendor ID": vendor,
-                            "Serial": hex(serial),
-                            "Resolution": f"{res[0]}x{res[1]}",
-                            "Size (in inches)": f"{screen_size}”",
-                            "Display mode": "Portrait" if res[-1] else "Landscape",
-                            "Connector": connector,
-                            "Aspect ratio": f"{ratio[0]}:{ratio[1]}",
+                            langparser.parse_message("product_id"): product,
+                            langparser.parse_message("vendor_id"): vendor,
+                            langparser.parse_message("serial"): hex(serial),
+                            langparser.parse_message("resolution"): f"{res[0]}x{res[1]}",
+                            langparser.parse_message("size_inches"): f"{screen_size}”",
+                            langparser.parse_message("display_mode"): "Portrait" if res[-1] else "Landscape",
+                            langparser.parse_message("connector"): connector,
+                            langparser.parse_message("aspect_ratio"): f"{ratio[0]}:{ratio[1]}",
                         }
                     }
                 )
