@@ -68,6 +68,11 @@ def tree(name, data, nest=1, parent="", looped={}, value="", color=True, langpar
     elif isinstance(data, list):
         try:
             # todo: find if parsing as src/cli/ui is always correct
+            # todo: check if `color` variable can be used to detect if its being shown on screen or dumped to a file
+            # nope, it can't
+            # todo: need to modify all Hardware Managers to check if printing to console or dumping to file
+            # and use locanized names there, if possible
+
             name_localized = langparser.parse_message_as("src/cli/ui", name.lower())
         except:
             name_localized = name
