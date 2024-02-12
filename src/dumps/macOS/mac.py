@@ -1369,6 +1369,9 @@ class MacHardwareManager:
                 kIORegistryIterateRecursively | kIORegistryIterateParents
             )
 
+            if not connector_obj:
+                continue
+
             connector = connector_t.get(connector_obj, "UNKNOWN CONNECTOR")
 
             CFRelease (connector_obj)
