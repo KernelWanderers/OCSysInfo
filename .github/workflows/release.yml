@@ -13,7 +13,7 @@ jobs:
     name: OSX release build
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: main
 
@@ -35,7 +35,7 @@ jobs:
         run: brew install create-dmg
 
       - name: Build app bundle & binaries for OSX (RELEASE VERSION)
-        run: pyinstaller main.py --onefile --windowed --name OCSysInfo --icon=./resources/icons/OCSI_logo_mac.icns --paths=./src --target-architecture x86_64 --add-data 'src/util/version.json:src/util' --add-data 'requirements.txt:.'
+        run: pyinstaller main.py --onefile --windowed --name OCSysInfo --icon=./resources/icons/OCSI_logo_mac.icns --paths=./src --target-architecture universal2 --add-data 'src/util/version.json:src/util' --add-data 'requirements.txt:.'
 
       - name: Apply app bundle patch
         run: |
@@ -52,14 +52,14 @@ jobs:
               --window-pos 200 120 \
               --icon "OCSysInfo.app" 300 202 \
               --window-size 800 400 \
-              --app-drop-link 600 200 "ocsysinfo_osx_x86_64-RELEASE.dmg" "dist/" \
+              --app-drop-link 600 200 "ocsysinfo_osx_universal2.dmg" "dist/" \
               --no-internet-enable
 
       - name: Upload to Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Artifacts OSX
-          path: ocsysinfo_osx_x86_64-RELEASE.dmg
+          path: ocsysinfo_osx_universal2-RELEASE.dmg
 
       - name: Upload to Release
         if: github.event_name == 'release'
@@ -75,7 +75,7 @@ jobs:
     name: OSX debug build
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: main
 
@@ -97,7 +97,7 @@ jobs:
         run: brew install create-dmg
 
       - name: Build app bundle & binaries for OSX (DEBUG VERSION)
-        run: pyinstaller main.py --onefile --windowed --name OCSysInfo --icon=./resources/icons/OCSI_logo_mac.icns --paths=./src --target-architecture x86_64 --add-data 'src/util/version.json:src/util' --add-data 'requirements.txt:.' --runtime-hook exe_dbg_hook.py
+        run: pyinstaller main.py --onefile --windowed --name OCSysInfo --icon=./resources/icons/OCSI_logo_mac.icns --paths=./src --target-architecture universal2 --add-data 'src/util/version.json:src/util' --add-data 'requirements.txt:.' --runtime-hook exe_dbg_hook.py
 
       - name: Apply app bundle patch
         run: |
@@ -137,7 +137,7 @@ jobs:
     name: Windows release binaries
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: main
 
@@ -175,7 +175,7 @@ jobs:
     name: Windows debug binaries
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: main
 
@@ -213,7 +213,7 @@ jobs:
     name: Linux x86_64 release binaries
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: main
 
@@ -254,7 +254,7 @@ jobs:
     name: Linux x86_64 debug binaries
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: main
 
