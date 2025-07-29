@@ -56,7 +56,7 @@ jobs:
               --no-internet-enable
 
       - name: Upload to Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Artifacts OSX
           path: ocsysinfo_osx_x86_64-RELEASE.dmg
@@ -118,7 +118,7 @@ jobs:
               --no-internet-enable
 
       - name: Upload to Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Artifacts OSX
           path: ocsysinfo_osx_x86_64-DEBUG.dmg
@@ -156,7 +156,7 @@ jobs:
         run: pyinstaller main.py --onefile --name ocsysinfo_win_x86_64-RELEASE --paths=./src --icon=./resources/icons/OCSI_logo_win.ico --add-data="src/util/version.json;src/util" --add-data="requirements.txt;."
 
       - name: Upload to Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Artifacts Windows
           path: dist/ocsysinfo_win*
@@ -194,7 +194,7 @@ jobs:
         run: pyinstaller main.py --onefile --name ocsysinfo_win_x86_64_DEBUG --paths=./src --icon=./resources/icons/OCSI_logo_win.ico --add-data="src/util/version.json;src/util" --add-data="requirements.txt;." --runtime-hook exe_dbg_hook.py
 
       - name: Upload to Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Artifacts Windows
           path: dist/ocsysinfo_win*
@@ -235,7 +235,7 @@ jobs:
         run: pyinstaller main.py --onefile --name ocsysinfo_linux_x86_64-RELEASE --paths=./src --add-data 'src/util/version.json:src/util' --add-data 'requirements.txt:.'
 
       - name: Upload to Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Artifacts Linux
           path: dist/ocsysinfo_linux_x86_64-RELEASE
@@ -276,7 +276,7 @@ jobs:
         run: pyinstaller main.py --onefile --name ocsysinfo_linux_x86_64-DEBUG --paths=./src --add-data 'src/util/version.json:src/util' --add-data 'requirements.txt:.' --runtime-hook exe_dbg_hook.py
 
       - name: Upload to Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Artifacts Linux
           path: dist/ocsysinfo_linux_x86_64-DEBUG
