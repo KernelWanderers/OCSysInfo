@@ -35,7 +35,7 @@ jobs:
         run: brew install create-dmg
 
       - name: Build app bundle & binaries for OSX (RELEASE VERSION)
-        run: pyinstaller main.py --onefile --windowed --name OCSysInfo --icon=./resources/icons/OCSI_logo_mac.icns --paths=./src --target-architecture universal2 --add-data 'src/util/version.json:src/util' --add-data 'requirements.txt:.'
+        run: pyinstaller main.py --onefile --windowed --name OCSysInfo --icon=./resources/icons/OCSI_logo_mac.icns --paths=./src --target-architecture x86_64 --add-data 'src/util/version.json:src/util' --add-data 'requirements.txt:.'
 
       - name: Apply app bundle patch
         run: |
@@ -97,7 +97,7 @@ jobs:
         run: brew install create-dmg
 
       - name: Build app bundle & binaries for OSX (DEBUG VERSION)
-        run: pyinstaller main.py --onefile --windowed --name OCSysInfo --icon=./resources/icons/OCSI_logo_mac.icns --paths=./src --target-architecture universal2 --add-data 'src/util/version.json:src/util' --add-data 'requirements.txt:.' --runtime-hook exe_dbg_hook.py
+        run: pyinstaller main.py --onefile --windowed --name OCSysInfo --icon=./resources/icons/OCSI_logo_mac.icns --paths=./src --target-architecture x86_64 --add-data 'src/util/version.json:src/util' --add-data 'requirements.txt:.' --runtime-hook exe_dbg_hook.py
 
       - name: Apply app bundle patch
         run: |
