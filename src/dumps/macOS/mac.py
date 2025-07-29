@@ -1328,7 +1328,11 @@ class MacHardwareManager:
                 )
             )[1]
 
-            edid = bytes(device.get("IODisplayEDID", ""))
+            edid = bytes(device.get("IODisplayEDID", "") or b"\x00")
+            
+            # Display doesn't have EDID?
+            if edid == b"\x00": continue
+            
             const_h = b"\x00\xFF\xFF\xFF\xFF\xFF\xFF\x00"
 
             # Verify header integrity
